@@ -1,0 +1,7 @@
+{
+  "name": "track-e-mobile-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
