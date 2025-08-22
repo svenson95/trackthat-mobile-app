@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { ExploreContainerComponentModule } from '../../components';
+import { ContentContainerComponent } from '../../components';
 
 import { LogsPageRoutingModule } from './logs-routing.module';
 import { LogsPage } from './logs.page';
@@ -13,9 +13,9 @@ import { LogsPage } from './logs.page';
     IonicModule,
     CommonModule,
     FormsModule,
-    ExploreContainerComponentModule,
-    LogsPageRoutingModule
+    ContentContainerComponent,
+    LogsPageRoutingModule,
   ],
-  declarations: [LogsPage]
+  declarations: [LogsPage],
 })
 export class LogsPageModule {}

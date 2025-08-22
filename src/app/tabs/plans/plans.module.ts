@@ -3,8 +3,9 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { ExploreContainerComponentModule } from '../../components';
+import { ContentContainerComponent } from '../../components';
 
+import { UserService } from '../../services';
 import { PlansPageRoutingModule } from './plans-routing.module';
 import { PlansPage } from './plans.page';
 
@@ -13,9 +14,10 @@ import { PlansPage } from './plans.page';
     IonicModule,
     CommonModule,
     FormsModule,
-    ExploreContainerComponentModule,
+    ContentContainerComponent,
     PlansPageRoutingModule
   ],
-  declarations: [PlansPage]
+  declarations: [PlansPage],
+  providers: [UserService]
 })
 export class PlansPageModule {}

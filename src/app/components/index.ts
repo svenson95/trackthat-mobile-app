@@ -1,1 +1,1 @@
-export * from './explore-container/explore-container.module';
+export * from './content-container/content-container.component';

@@ -2,21 +2,19 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ContentContainerComponent } from '../../components';
+import { ContentContainerComponent } from './content-container.component';
 
-import { PlansPage } from './plans.page';
-
-describe('PlansPage', () => {
-  let component: PlansPage;
-  let fixture: ComponentFixture<PlansPage>;
+describe('ContentContainerComponent', () => {
+  let component: ContentContainerComponent;
+  let fixture: ComponentFixture<ContentContainerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PlansPage],
-      imports: [IonicModule.forRoot(), ContentContainerComponent],
+      declarations: [ContentContainerComponent],
+      imports: [IonicModule.forRoot()],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PlansPage);
+    fixture = TestBed.createComponent(ContentContainerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

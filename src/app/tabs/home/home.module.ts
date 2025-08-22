@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-import { ExploreContainerComponentModule } from '../../components';
+import { ContentContainerComponent } from '../../components';
 
 import { HomePageRoutingModule } from './home-routing.module';
 import { HomePage } from './home.page';
@@ -13,9 +13,9 @@ import { HomePage } from './home.page';
     IonicModule,
     CommonModule,
     FormsModule,
-    ExploreContainerComponentModule,
-    HomePageRoutingModule
+    ContentContainerComponent,
+    HomePageRoutingModule,
   ],
-  declarations: [HomePage]
+  declarations: [HomePage],
 })
 export class HomePageModule {}
