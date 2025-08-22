@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-home-page',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `

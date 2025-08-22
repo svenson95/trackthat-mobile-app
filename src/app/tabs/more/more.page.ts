@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { UserService } from '../../services';
 
 @Component({
-  selector: 'app-plans',
+  selector: 'app-more-page',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
@@ -20,18 +20,18 @@ import { UserService } from '../../services';
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Plans </ion-title>
+        <ion-title> More </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Plans</ion-title>
+          <ion-title size="large">More</ion-title>
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container name="Plans page">
+      <app-content-container name="More page">
         <ul>
           @for (user of usersResource.value(); track user.email) {
             <li>
@@ -52,7 +52,7 @@ import { UserService } from '../../services';
     </ion-content>
   `,
 })
-export class PlansPage {
+export class MorePage {
   usersService = inject(UserService);
   usersResource = resource({
     loader: async () => firstValueFrom(this.usersService.getUsers()),

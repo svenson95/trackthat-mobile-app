@@ -5,9 +5,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
 
-import { UserService } from '../../services';
-import { PlansPageRoutingModule } from './plans-routing.module';
-import { PlansPage } from './plans.page';
+import { EatPageRoutingModule } from './eat-routing.module';
+import { EatPage } from './eat.page';
 
 @NgModule({
   imports: [
@@ -15,9 +14,8 @@ import { PlansPage } from './plans.page';
     CommonModule,
     FormsModule,
     ContentContainerComponent,
-    PlansPageRoutingModule
+    EatPageRoutingModule,
   ],
-  declarations: [PlansPage],
-  providers: [UserService]
+  declarations: [EatPage],
 })
-export class PlansPageModule {}
+export class EatPageModule {}

@@ -1,27 +1,25 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-logs-page',
+  selector: 'app-activity-page',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Logs </ion-title>
+        <ion-title> Activity </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Logs</ion-title>
+          <ion-title size="large">Activity</ion-title>
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container name="Logs page"></app-content-container>
+      <app-content-container></app-content-container>
     </ion-content>
   `,
 })
-export class LogsPage {
-  constructor() {}
-}
+export class ActivityPage {}

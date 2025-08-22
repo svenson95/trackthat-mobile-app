@@ -9,8 +9,12 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: 'plans',
-        loadChildren: () => import('./plans/plans.module').then((m) => m.PlansPageModule),
+        path: 'activity',
+        loadChildren: () => import('./activity/activity.module').then((m) => m.ActivityPageModule),
+      },
+      {
+        path: 'eat',
+        loadChildren: () => import('./eat/eat.module').then((m) => m.EatPageModule),
       },
       {
         path: 'home',
@@ -19,6 +23,10 @@ const routes: Routes = [
       {
         path: 'logs',
         loadChildren: () => import('./logs/logs.module').then((m) => m.LogsPageModule),
+      },
+      {
+        path: 'more',
+        loadChildren: () => import('./more/more.module').then((m) => m.MorePageModule),
       },
       {
         path: '',
