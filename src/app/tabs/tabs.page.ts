@@ -1,53 +1,60 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  linkedSignal,
+  viewChild,
+} from '@angular/core';
+import { IonTabBar } from '@ionic/angular';
 
 @Component({
   selector: 'app-tabs',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ion-tabs>
+    <ion-tabs #tabs (ionTabsDidChange)="setCurrentTab(tabs.getSelected()!)">
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="activity" href="/tabs/activity" #activityBtn>
-          <ion-icon
-            aria-hidden="true"
-            [name]="activityBtn.selected ? 'bicycle' : 'bicycle-outline'"
-          ></ion-icon>
-          <ion-label>Activity</ion-label>
+        <ion-tab-button tab="training" href="/tabs/training">
+          <ion-icon aria-hidden="true" [name]="trainingIcon()"></ion-icon>
+          <ion-label>Training</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="eat" href="/tabs/eat" #eatBtn>
-          <ion-icon
-            aria-hidden="true"
-            [name]="eatBtn.selected ? 'fast-food' : 'fast-food-outline'"
-          ></ion-icon>
+        <ion-tab-button tab="eat" href="/tabs/eat">
+          <ion-icon aria-hidden="true" [name]="eatIcon()"></ion-icon>
           <ion-label>Eat</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="home" href="/tabs/home" #homeBtn>
-          <ion-icon
-            aria-hidden="true"
-            [name]="homeBtn.selected ? 'apps' : 'apps-outline'"
-          ></ion-icon>
-          <ion-label>Home</ion-label>
+        <ion-tab-button tab="overview" href="/tabs/overview">
+          <ion-icon aria-hidden="true" [name]="overviewIcon()"></ion-icon>
+          <ion-label>Overview</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="logs" href="/tabs/logs" #logsBtn>
-          <ion-icon
-            aria-hidden="true"
-            [name]="logsBtn.selected ? 'calendar' : 'calendar-outline'"
-          ></ion-icon>
+        <ion-tab-button tab="logs" href="/tabs/logs">
+          <ion-icon aria-hidden="true" [name]="logsIcon()"></ion-icon>
           <ion-label>Logs</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="more" href="/tabs/more" #moreBtn>
-          <ion-icon
-            aria-hidden="true"
-            [name]="moreBtn.selected ? 'ellipsis-horizontal' : 'ellipsis-horizontal-outline'"
-          ></ion-icon>
+        <ion-tab-button tab="more" href="/tabs/more">
+          <ion-icon aria-hidden="true" [name]="moreIcon()"></ion-icon>
           <ion-label>More</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
   `,
 })
-export class TabsPage {}
+export class TabsPage {
+  private tabBar = viewChild.required(IonTabBar);
+  private selected = linkedSignal(() => this.tabBar()?.selectedTab ?? 'home');
+
+  trainingIcon = computed(() => (this.selected() === 'training' ? 'bicycle' : 'bicycle-outline'));
+  eatIcon = computed(() => (this.selected() === 'eat' ? 'restaurant' : 'restaurant-outline'));
+  overviewIcon = computed(() => (this.selected() === 'overview' ? 'person' : 'person-outline'));
+  logsIcon = computed(() => (this.selected() === 'logs' ? 'calendar' : 'calendar-outline'));
+  moreIcon = computed(() =>
+    this.selected() === 'more' ? 'ellipsis-horizontal' : 'ellipsis-horizontal-outline',
+  );
+
+  setCurrentTab(tab: string): void {
+    this.selected.set(tab);
+  }
+}

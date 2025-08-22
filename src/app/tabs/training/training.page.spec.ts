@@ -3,19 +3,19 @@ import { TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
-import { ActivityPage } from './activity.page';
+import { TrainingPage } from './training.page';
 
-describe('ActivityPage', () => {
-  let component: ActivityPage;
-  let fixture: ComponentFixture<ActivityPage>;
+describe('TrainingPage', () => {
+  let component: TrainingPage;
+  let fixture: ComponentFixture<TrainingPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ActivityPage],
+      declarations: [TrainingPage],
       imports: [IonicModule.forRoot(), ContentContainerComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ActivityPage);
+    fixture = TestBed.createComponent(TrainingPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

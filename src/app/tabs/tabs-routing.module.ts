@@ -9,16 +9,16 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: 'activity',
-        loadChildren: () => import('./activity/activity.module').then((m) => m.ActivityPageModule),
+        path: 'training',
+        loadChildren: () => import('./training/training.module').then((m) => m.TrainingPageModule),
       },
       {
         path: 'eat',
         loadChildren: () => import('./eat/eat.module').then((m) => m.EatPageModule),
       },
       {
-        path: 'home',
-        loadChildren: () => import('./home/home.module').then((m) => m.HomePageModule),
+        path: 'overview',
+        loadChildren: () => import('./overview/overview.module').then((m) => m.OverviewPageModule),
       },
       {
         path: 'logs',
@@ -30,14 +30,14 @@ const routes: Routes = [
       },
       {
         path: '',
-        redirectTo: '/tabs/home',
+        redirectTo: '/tabs/overview',
         pathMatch: 'full',
       },
     ],
   },
   {
     path: '',
-    redirectTo: '/tabs/home',
+    redirectTo: '/tabs/overview',
     pathMatch: 'full',
   },
 ];

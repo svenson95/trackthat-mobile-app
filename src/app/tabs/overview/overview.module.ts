@@ -5,8 +5,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
 
-import { ActivityPageRoutingModule } from './activity-routing.module';
-import { ActivityPage } from './activity.page';
+import { OverviewPageRoutingModule } from './overview-routing.module';
+import { OverviewPage } from './overview.page';
 
 @NgModule({
   imports: [
@@ -14,8 +14,8 @@ import { ActivityPage } from './activity.page';
     CommonModule,
     FormsModule,
     ContentContainerComponent,
-    ActivityPageRoutingModule,
+    OverviewPageRoutingModule,
   ],
-  declarations: [ActivityPage],
+  declarations: [OverviewPage],
 })
-export class ActivityPageModule {}
+export class OverviewPageModule {}

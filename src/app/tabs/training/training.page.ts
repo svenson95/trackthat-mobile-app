@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-activity-page',
+  selector: 'app-training-page',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Activity </ion-title>
+        <ion-title> Training </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Activity</ion-title>
+          <ion-title size="large">Training</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -22,4 +22,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     </ion-content>
   `,
 })
-export class ActivityPage {}
+export class TrainingPage {}

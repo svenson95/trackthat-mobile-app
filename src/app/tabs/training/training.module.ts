@@ -5,8 +5,8 @@ import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
 
-import { HomePageRoutingModule } from './home-routing.module';
-import { HomePage } from './home.page';
+import { TrainingPageRoutingModule } from './training-routing.module';
+import { TrainingPage } from './training.page';
 
 @NgModule({
   imports: [
@@ -14,8 +14,8 @@ import { HomePage } from './home.page';
     CommonModule,
     FormsModule,
     ContentContainerComponent,
-    HomePageRoutingModule,
+    TrainingPageRoutingModule,
   ],
-  declarations: [HomePage],
+  declarations: [TrainingPage],
 })
-export class HomePageModule {}
+export class TrainingPageModule {}

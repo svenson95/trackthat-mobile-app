@@ -1,20 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
-  selector: 'app-home-page',
+  selector: 'app-overview-page',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Home </ion-title>
+        <ion-title> Overview </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Home</ion-title>
+          <ion-title size="large">Overview</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -22,4 +22,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     </ion-content>
   `,
 })
-export class HomePage {}
+export class OverviewPage {}
