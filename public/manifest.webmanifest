@@ -1,6 +1,6 @@
 {
-  "name": "Track-e",
-  "short_name": "Track-e",
+  "name": "TrackThat",
+  "short_name": "TrackThat",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

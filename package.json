@@ -1,8 +1,7 @@
 {
-  "name": "track-e-mobile-app",
+  "name": "trackthat-mobile-app",
   "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "author": "Sven Brodny",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
