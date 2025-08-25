@@ -38,7 +38,7 @@ import { AuthService } from '../services';
         </ion-tab-button>
 
         <ion-tab-button tab="more" href="/tabs/more" [disabled]="!isLoggedIn()">
-          <ion-icon aria-hidden="true" [name]="moreIcon()"></ion-icon>
+          <ion-icon aria-hidden="true" name="ellipsis-horizontal"></ion-icon>
           <ion-label>More</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
@@ -56,9 +56,6 @@ export class TabsPage {
   eatIcon = computed(() => (this.selected() === 'eat' ? 'restaurant' : 'restaurant-outline'));
   overviewIcon = computed(() => (this.selected() === 'overview' ? 'person' : 'person-outline'));
   logsIcon = computed(() => (this.selected() === 'logs' ? 'calendar' : 'calendar-outline'));
-  moreIcon = computed(() =>
-    this.selected() === 'more' ? 'ellipsis-horizontal' : 'ellipsis-horizontal-outline',
-  );
 
   setCurrentTab(tab: string): void {
     this.selected.set(tab);
