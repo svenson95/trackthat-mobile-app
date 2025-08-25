@@ -10,8 +10,7 @@ describe('ContentContainerComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ContentContainerComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), ContentContainerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ContentContainerComponent);
