@@ -24,6 +24,7 @@ export class AuthService {
   }
 
   loginViaGoogle(token: GoogleJWT): Observable<AuthResponse> {
+    console.log('loginViaGoogle', token);
     return this.http
       .post<AuthResponse>(this.apiUrl + '/google', token)
       .pipe(tap((res) => this.login(res)));
