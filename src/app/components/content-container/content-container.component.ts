@@ -7,6 +7,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     :host {
       display: flex;
       margin: 1rem;
+      justify-content: center;
     }
   `,
   template: ` <ng-content></ng-content> `,
