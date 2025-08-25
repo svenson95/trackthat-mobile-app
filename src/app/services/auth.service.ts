@@ -24,7 +24,11 @@ export class AuthService {
   }
 
   loginViaGoogle(token: GoogleJWT): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(this.apiUrl + '/google', token);
+    return this.http.post<AuthResponse>(
+      this.apiUrl + '/google',
+      { token },
+      { headers: { 'Content-Type': 'application/json' } },
+    );
   }
 
   login(res: AuthResponse): void {
