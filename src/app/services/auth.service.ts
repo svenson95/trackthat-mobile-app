@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, linkedSignal } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { type Observable } from 'rxjs';
 
 import { environment } from 'src/environments/environment.prod';
 
@@ -24,22 +24,17 @@ export class AuthService {
   }
 
   loginViaGoogle(token: GoogleJWT): Observable<AuthResponse> {
-    console.log('loginViaGoogle', token);
-    return this.http
-      .post<AuthResponse>(this.apiUrl + '/google', token)
-      .pipe(tap((res) => this.login(res)));
+    return this.http.post<AuthResponse>(this.apiUrl + '/google', token);
+  }
+
+  login(res: AuthResponse): void {
+    localStorage.setItem('authToken', res.token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    this.user.set(res.user);
   }
 
   logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-  }
-
-  private login(res: AuthResponse): void {
-    // eslint-disable-next-line no-console
-    console.log('login', res);
-    localStorage.setItem('authToken', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
-    this.user.set(res.user);
   }
 }

@@ -75,6 +75,9 @@ export class LoginForm implements OnInit {
   }
 
   handleGoogleResponse(token: GoogleJWT): void {
-    this.authService.loginViaGoogle(token);
+    this.authService.loginViaGoogle(token).subscribe({
+      next: (res) => this.authService.login(res),
+      error: (err) => console.error('Google login failed', err),
+    });
   }
 }
