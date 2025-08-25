@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, linkedSignal } from '@angular/core';
+import { computed, inject, Injectable, linkedSignal, signal } from '@angular/core';
 import { type Observable } from 'rxjs';
 
 import { environment } from 'src/environments/environment.prod';
@@ -17,13 +17,11 @@ export class AuthService {
     return JSON.parse(token);
   });
 
+  isLoading = signal<boolean>(false);
   isLoggedIn = computed(() => this.user() !== undefined);
 
-  loginViaEmail(): void {
-    // TODO: implement register and login via email (2)
-  }
-
-  loginViaGoogle(token: GoogleJWT): Observable<AuthResponse> {
+  loginWithGoogleToken(token: GoogleJWT): Observable<AuthResponse> {
+    this.isLoading.set(true);
     return this.http.post<AuthResponse>(
       this.apiUrl + '/google',
       { token },
@@ -35,6 +33,7 @@ export class AuthService {
     localStorage.setItem('authToken', res.token);
     localStorage.setItem('user', JSON.stringify(res.user));
     this.user.set(res.user);
+    this.isLoading.set(false);
   }
 
   logout(): void {

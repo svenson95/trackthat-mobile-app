@@ -2,10 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   linkedSignal,
   viewChild,
 } from '@angular/core';
 import { IonTabBar, IonicModule } from '@ionic/angular';
+
+import { AuthService } from '../services';
 
 @Component({
   selector: 'app-tabs',
@@ -14,12 +17,12 @@ import { IonTabBar, IonicModule } from '@ionic/angular';
   template: `
     <ion-tabs #tabs (ionTabsDidChange)="setCurrentTab(tabs.getSelected()!)">
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="training" href="/tabs/training">
+        <ion-tab-button tab="training" href="/tabs/training" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="trainingIcon()"></ion-icon>
           <ion-label>Training</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="eat" href="/tabs/eat">
+        <ion-tab-button tab="eat" href="/tabs/eat" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="eatIcon()"></ion-icon>
           <ion-label>Eat</ion-label>
         </ion-tab-button>
@@ -29,12 +32,12 @@ import { IonTabBar, IonicModule } from '@ionic/angular';
           <ion-label>Überblick</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="logs" href="/tabs/logs">
+        <ion-tab-button tab="logs" href="/tabs/logs" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="logsIcon()"></ion-icon>
           <ion-label>Logs</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="more" href="/tabs/more">
+        <ion-tab-button tab="more" href="/tabs/more" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="moreIcon()"></ion-icon>
           <ion-label>More</ion-label>
         </ion-tab-button>
@@ -43,8 +46,11 @@ import { IonTabBar, IonicModule } from '@ionic/angular';
   `,
 })
 export class TabsPage {
+  private authService = inject(AuthService);
   private tabBar = viewChild.required(IonTabBar);
   private selected = linkedSignal(() => this.tabBar()?.selectedTab ?? 'home');
+
+  isLoggedIn = this.authService.isLoggedIn;
 
   trainingIcon = computed(() => (this.selected() === 'training' ? 'bicycle' : 'bicycle-outline'));
   eatIcon = computed(() => (this.selected() === 'eat' ? 'restaurant' : 'restaurant-outline'));
