@@ -35,6 +35,8 @@ export class AuthService {
   }
 
   private login(res: AuthResponse): void {
+    // eslint-disable-next-line no-console
+    console.log('login', res);
     localStorage.setItem('authToken', res.token);
     localStorage.setItem('user', JSON.stringify(res.user));
     this.user.set(res.user);
