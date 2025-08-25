@@ -3,7 +3,10 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 
-/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
+import type { GoogleJWT, GoogleResponse } from '../../../models';
+import { AuthService } from '../../../services';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare const google: any;
 
 @Component({
@@ -47,6 +50,7 @@ declare const google: any;
 })
 export class LoginForm implements OnInit {
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -56,22 +60,21 @@ export class LoginForm implements OnInit {
   ngOnInit(): void {
     google.accounts.id.initialize({
       client_id: '81384485805-o4b55e424moljjf98egavlhol819l18a.apps.googleusercontent.com',
-      callback: (response: any) => this.handleGoogleResponse(response),
+      callback: (res: GoogleResponse) => this.handleGoogleResponse(res.credential),
     });
   }
 
   onLogin(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { email, password } = this.loginForm.value;
-    console.log('Login ...', email, password);
+    // TODO: implement register and login via email (1)
   }
 
   loginWithGoogle(): void {
     google.accounts.id.prompt();
   }
 
-  handleGoogleResponse(response: any): void {
-    console.log('Google response:', response);
-    console.log('Google Token:', response.credential);
-    // Token an dein Backend schicken
+  handleGoogleResponse(token: GoogleJWT): void {
+    this.authService.loginViaGoogle(token);
   }
 }

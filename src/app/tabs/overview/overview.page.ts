@@ -1,14 +1,15 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
+import { AuthService } from '../../services';
 
-import { LoginBoxComponent } from './components';
+import { HelloBoxComponent, LoginBoxComponent } from './components';
 
 @Component({
   selector: 'app-overview-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, ContentContainerComponent, LoginBoxComponent],
+  imports: [IonicModule, ContentContainerComponent, LoginBoxComponent, HelloBoxComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -24,9 +25,17 @@ import { LoginBoxComponent } from './components';
       </ion-header>
 
       <app-content-container>
-        <app-login-box />
+        @if (isLoggedIn()) {
+          <app-hello-box [user]="user()" />
+        } @else {
+          <app-login-box />
+        }
       </app-content-container>
     </ion-content>
   `,
 })
-export class OverviewPage {}
+export class OverviewPage {
+  private authService = inject(AuthService);
+  isLoggedIn = this.authService.isLoggedIn;
+  user = this.authService.user;
+}

@@ -26,7 +26,7 @@ import { IonTabBar, IonicModule } from '@ionic/angular';
 
         <ion-tab-button tab="overview" href="/tabs/overview">
           <ion-icon aria-hidden="true" [name]="overviewIcon()"></ion-icon>
-          <ion-label>Overview</ion-label>
+          <ion-label>Überblick</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="logs" href="/tabs/logs">
