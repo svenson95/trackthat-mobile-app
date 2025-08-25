@@ -6,6 +6,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   styles: `
     :host {
       display: flex;
+      flex-direction: column;
       margin: 1rem;
       justify-content: center;
     }
