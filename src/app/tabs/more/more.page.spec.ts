@@ -12,8 +12,7 @@ describe('MorePage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MorePage],
-      imports: [IonicModule.forRoot(), ContentContainerComponent],
+      imports: [IonicModule.forRoot(), ContentContainerComponent, MorePage],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MorePage);

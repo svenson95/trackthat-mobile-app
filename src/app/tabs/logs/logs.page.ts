@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
+
+import { ContentContainerComponent } from '../../components';
 
 @Component({
   selector: 'app-logs-page',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [IonicModule, ContentContainerComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -22,6 +25,4 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     </ion-content>
   `,
 })
-export class LogsPage {
-  constructor() {}
-}
+export class LogsPage {}

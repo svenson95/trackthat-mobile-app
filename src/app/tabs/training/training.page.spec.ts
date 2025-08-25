@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
+
 import { TrainingPage } from './training.page';
 
 describe('TrainingPage', () => {
@@ -11,8 +12,7 @@ describe('TrainingPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TrainingPage],
-      imports: [IonicModule.forRoot(), ContentContainerComponent],
+      imports: [IonicModule.forRoot(), ContentContainerComponent, TrainingPage],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TrainingPage);

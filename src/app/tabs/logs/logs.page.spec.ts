@@ -1,6 +1,5 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
 
@@ -12,8 +11,7 @@ describe('LogsPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [LogsPage],
-      imports: [IonicModule.forRoot(), ContentContainerComponent],
+      imports: [LogsPage, ContentContainerComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LogsPage);

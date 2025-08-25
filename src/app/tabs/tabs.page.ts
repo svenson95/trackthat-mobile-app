@@ -5,12 +5,12 @@ import {
   linkedSignal,
   viewChild,
 } from '@angular/core';
-import { IonTabBar } from '@ionic/angular';
+import { IonTabBar, IonicModule } from '@ionic/angular';
 
 @Component({
   selector: 'app-tabs',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [IonicModule],
   template: `
     <ion-tabs #tabs (ionTabsDidChange)="setCurrentTab(tabs.getSelected()!)">
       <ion-tab-bar slot="bottom">

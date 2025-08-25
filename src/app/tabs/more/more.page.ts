@@ -1,12 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
+import { ContentContainerComponent } from '../../components';
 import { UserService } from '../../services';
 
 @Component({
   selector: 'app-more-page',
-  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [IonicModule, ContentContainerComponent],
   styles: `
     li:not(:last-child) .list-item {
       margin-bottom: 1rem;
