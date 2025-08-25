@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { ContentContainerComponent } from '../../components';
-import { UserService } from '../../services';
+import { AuthService, UserService } from '../../services';
 
 @Component({
   selector: 'app-more-page',
@@ -34,6 +34,8 @@ import { UserService } from '../../services';
       </ion-header>
 
       <app-content-container name="More page">
+        <ion-button expand="block" color="danger" (click)="logout()"> Abmelden </ion-button>
+
         <ul>
           @for (user of usersResource.value(); track user.email) {
             <li>
@@ -55,10 +57,14 @@ import { UserService } from '../../services';
   `,
 })
 export class MorePage {
-  usersService = inject(UserService);
+  private usersService = inject(UserService);
+  private authService = inject(AuthService);
+
   usersResource = resource({
     loader: async () => firstValueFrom(this.usersService.getUsers()),
   });
   isLoading = computed(() => this.usersResource.status() === 'loading');
   hasError = computed(() => this.usersResource.status() === 'error');
+
+  logout = this.authService.logout;
 }
