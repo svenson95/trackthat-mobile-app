@@ -25,8 +25,9 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
       </ion-header>
 
       <app-content-container>
-        @if (isLoggedIn()) {
-          <app-hello-box [user]="user()" />
+        @let data = user();
+        @if (isLoggedIn() && data !== undefined) {
+          <app-hello-box [user]="data" />
         } @else {
           <app-login-box />
         }
