@@ -34,7 +34,7 @@ const IONIC_ROUTE_REUSE_STRATEGY_PROVIDER = {
 
 const PWA_PROVIDER = provideServiceWorker('ngsw-worker.js', {
   enabled: !isDevMode(),
-  registrationStrategy: 'registerWhenStable:30000',
+  registrationStrategy: 'registerImmediately',
 });
 
 export const appConfig: ApplicationConfig = {
