@@ -39,7 +39,7 @@ import { AuthService } from '../services';
 
         <ion-tab-button tab="more" href="/tabs/more" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" name="ellipsis-horizontal"></ion-icon>
-          <ion-label>More</ion-label>
+          <ion-label>Mehr</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

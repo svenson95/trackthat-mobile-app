@@ -22,36 +22,59 @@ import { AuthService, UserService } from '../../services';
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> More </ion-title>
+        <ion-title> Mehr </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">More</ion-title>
+          <ion-title size="large">Mehr</ion-title>
         </ion-toolbar>
       </ion-header>
 
       <app-content-container name="More page">
-        <ion-button expand="block" color="danger" (click)="logout()"> Abmelden </ion-button>
+        <ion-list>
+          <ion-item-group>
+            <ion-item-divider>
+              <ion-label>Einstellungen</ion-label>
+            </ion-item-divider>
 
-        <ul>
-          @for (user of usersResource.value(); track user.email) {
-            <li>
-              <div class="list-item">
-                <span>{{ user.name }}</span>
-                <span>{{ user.email }}</span>
-                <span>{{ user.weight }}</span>
-              </div>
-            </li>
-          }
-          @if (isLoading()) {
-            <p>loading ...</p>
-          } @else if (hasError()) {
-            <p>Fehler aufgetreten: {{ hasError() }}</p>
-          }
-        </ul>
+            <ion-item button (click)="logout()" detail="true" lines="none">
+              <ion-label>Abmelden</ion-label>
+            </ion-item>
+          </ion-item-group>
+
+          <ion-item-group>
+            <ion-item-divider>
+              <ion-label>Nutzer</ion-label>
+            </ion-item-divider>
+
+            @let data = usersResource.value();
+            @if (data !== undefined) {
+              @for (user of data; track user.email) {
+                <ion-item>
+                  <ion-label>
+                    <h3>{{ user.name }}</h3>
+                    <p>{{ user.email }}</p>
+                  </ion-label>
+                </ion-item>
+              }
+            } @else if (isLoading()) {
+              <ion-item disabled>
+                <ion-label>
+                  <p>loading ...</p>
+                </ion-label>
+              </ion-item>
+            } @else if (hasError()) {
+              <ion-item disabled>
+                <ion-label>
+                  <p>Fehler aufgetreten</p>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-item-group>
+        </ion-list>
       </app-content-container>
     </ion-content>
   `,
