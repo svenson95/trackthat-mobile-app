@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { IonicModule, LoadingController } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
 import { ContentContainerComponent } from '../../components';
@@ -82,6 +83,8 @@ import { AuthService, UserService } from '../../services';
 export class MorePage {
   private usersService = inject(UserService);
   private authService = inject(AuthService);
+  private router = inject(Router);
+  private loadingCtrl = inject(LoadingController);
 
   usersResource = resource({
     loader: async () => firstValueFrom(this.usersService.getUsers()),
@@ -89,5 +92,16 @@ export class MorePage {
   isLoading = computed(() => this.usersResource.status() === 'loading');
   hasError = computed(() => this.usersResource.status() === 'error');
 
-  logout = this.authService.logout;
+  logout = async (): Promise<void> => {
+    const loading = await this.loadingCtrl.create({
+      message: 'Du wirst abgemeldet ...',
+      spinner: 'circles',
+    });
+    await loading.present();
+
+    this.authService.logout();
+    await this.router.navigate(['/tabs/overview']);
+
+    await loading.dismiss();
+  };
 }

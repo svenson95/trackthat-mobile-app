@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, linkedSignal, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { type Observable } from 'rxjs';
 
 import { environment } from 'src/environments/environment.prod';
@@ -11,7 +10,6 @@ import type { AuthResponse, GoogleJWT, GoogleUser } from '../models';
 export class AuthService {
   private apiUrl = environment.api + 'auth';
   private http = inject(HttpClient);
-  private router = inject(Router);
 
   user = linkedSignal<GoogleUser | undefined>(() => {
     const token = localStorage.getItem('user');
@@ -38,10 +36,9 @@ export class AuthService {
     this.isLoading.set(false);
   }
 
-  async logout(): Promise<void> {
+  logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     this.user.set(undefined);
-    await this.router.navigate(['/tabs/overview']);
   }
 }
