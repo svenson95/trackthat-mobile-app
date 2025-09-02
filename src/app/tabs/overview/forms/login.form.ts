@@ -26,12 +26,12 @@ declare const google: any;
     }
   `,
   template: `
-    <ion-button expand="block" color="danger" (click)="loginWithGoogle()">
+    <ion-button expand="block" color="danger" (click)="loginWithGoogle()" [disabled]="isLoading()">
       @if (isLoading()) {
         <ion-spinner name="dots"></ion-spinner>
       } @else {
         <ion-icon name="logo-google" slot="start"></ion-icon>
-        Mit Google anmelden
+        <span>Mit Google anmelden</span>
       }
     </ion-button>
   `,
