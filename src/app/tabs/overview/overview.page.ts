@@ -19,7 +19,7 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
-        <ion-toolbar>
+        <ion-toolbar color="light">
           <ion-title size="large">Überblick</ion-title>
         </ion-toolbar>
       </ion-header>

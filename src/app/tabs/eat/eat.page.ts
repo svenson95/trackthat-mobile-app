@@ -16,7 +16,7 @@ import { ContentContainerComponent } from '../../components';
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
-        <ion-toolbar>
+        <ion-toolbar color="light">
           <ion-title size="large">Eat</ion-title>
         </ion-toolbar>
       </ion-header>

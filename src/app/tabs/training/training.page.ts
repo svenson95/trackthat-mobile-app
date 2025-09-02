@@ -48,7 +48,7 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
-        <ion-toolbar>
+        <ion-toolbar color="light">
           <ion-title size="large">Trainingspläne</ion-title>
         </ion-toolbar>
       </ion-header>

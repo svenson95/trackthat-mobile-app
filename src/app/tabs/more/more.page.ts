@@ -29,7 +29,7 @@ import { AuthService, UserService } from '../../services';
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
-        <ion-toolbar>
+        <ion-toolbar color="light">
           <ion-title size="large">Mehr</ion-title>
         </ion-toolbar>
       </ion-header>
