@@ -1,1 +1,1 @@
-export * from './plans.component';
+export * from './workouts.component';

@@ -11,7 +11,7 @@ import {
 
 import { ContentContainerComponent } from '../../components';
 
-import { TrainingPlansComponent } from './components';
+import { WorkoutsComponent } from './components';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -26,7 +26,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-training-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, ContentContainerComponent, TrainingPlansComponent],
+  imports: [...ION_COMPONENTS, ContentContainerComponent, WorkoutsComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -54,7 +54,7 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <app-content-container>
-        <app-training-plans />
+        <app-workouts />
       </app-content-container>
     </ion-content>
   `,
