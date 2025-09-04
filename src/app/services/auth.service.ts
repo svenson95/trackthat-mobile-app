@@ -2,16 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, linkedSignal, signal } from '@angular/core';
 import { type Observable } from 'rxjs';
 
-import { environment } from 'src/environments/environment.prod';
-
-import type { AuthResponse, GoogleJWT, GoogleUser } from '../models';
+import { environment } from '../../environments/environment.prod';
+import type { AuthResponse, GoogleJWT, UserDoc } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private apiUrl = environment.api + 'auth';
   private http = inject(HttpClient);
 
-  user = linkedSignal<GoogleUser | undefined>(() => {
+  user = linkedSignal<undefined | UserDoc>(() => {
     const token = localStorage.getItem('user');
     if (!token) return undefined;
     return JSON.parse(token);

@@ -1,29 +1,14 @@
-import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { httpResource } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
 import { environment } from '../../environments/environment.prod';
-
-import type { User } from '../models';
-import { AuthService } from './auth.service';
+import type { GetUsersDTO } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiUrl = environment.api + 'users';
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
 
-  usersResource = httpResource<undefined | Array<User>>(() => {
-    const userId = this.authService.user()?.userId;
-    if (!userId) return undefined;
+  usersResource = httpResource<undefined | GetUsersDTO>(() => {
     return { url: `${this.apiUrl}/`, method: 'GET' };
   });
-
-  getUsers(): Observable<Array<User>> {
-    return this.http.get<Array<User>>(this.apiUrl + '/');
-  }
-
-  addUser(user: User): Observable<unknown> {
-    return this.http.post<unknown>(this.apiUrl + '/add', user);
-  }
 }

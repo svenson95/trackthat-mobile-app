@@ -15,7 +15,7 @@ import {
 import { filter, map } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
-import type { Workout } from '../../models';
+import type { WorkoutDoc } from '../../../../models';
 import { WorkoutsService } from '../../services';
 
 const ANGULAR_MODULES = [FormsModule];
@@ -71,7 +71,7 @@ export class WorkoutPage {
     ),
   );
 
-  selectedWorkout = computed<Workout>(() => {
+  selectedWorkout = computed<WorkoutDoc>(() => {
     const workouts = this.service.workoutsResource.value();
     if (!workouts) throw new Error('Workouts not loaded');
     const workout = workouts.find((w) => w.workoutId === this.workoutId());

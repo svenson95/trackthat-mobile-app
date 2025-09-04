@@ -1,8 +1,8 @@
-import type { GoogleUser } from './google.model';
+import type { UserDoc } from './users-dto.model';
 
 type JwtToken = string;
 
 export interface AuthResponse {
   token: JwtToken;
-  user: GoogleUser;
+  user: UserDoc;
 }

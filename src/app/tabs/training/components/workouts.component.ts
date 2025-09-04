@@ -24,7 +24,7 @@ import { WorkoutsService } from '../services';
         </ion-item>
       } @else {
         @let workouts = workoutsResource.value();
-        @if (!workouts) {
+        @if (workouts?.length === 0) {
           <ion-item disabled>
             <ion-label>
               <p>Keine aktiven Pläne</p>

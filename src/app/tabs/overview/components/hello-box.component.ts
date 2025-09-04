@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
-import type { GoogleUser } from '../../../models';
+import type { UserDoc } from '../../../models';
 
 @Component({
   selector: 'app-hello-box',
@@ -19,5 +19,5 @@ import type { GoogleUser } from '../../../models';
   `,
 })
 export class HelloBoxComponent {
-  user = input.required<GoogleUser>();
+  user = input.required<UserDoc>();
 }

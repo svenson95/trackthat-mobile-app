@@ -1,12 +1,11 @@
-import type { UnixTimestring } from '../../../models';
+import type { UnixTimestring } from './date-helper.model';
+import type { UserId } from './users-dto.model';
 
-export type UserId = string; // mongodb doc id
-
-export type GetWorkoutsDTO = Array<Workout>;
+export type WorkoutId = number; // mongodb doc id
 
 export interface Workout {
   userId: UserId;
-  workoutId: number;
+  workoutId: number; // user.workouts list id
   lastUpdated: UnixTimestring;
   name: string;
   list: Array<ListItem | Exercise>;
@@ -43,3 +42,9 @@ type MuscleGroup =
   | 'traps'
   | 'shoulders'
   | 'neck';
+
+export interface WorkoutDoc extends Workout {
+  readonly _id: WorkoutId;
+}
+
+export type GetWorkoutsDTO = Array<WorkoutDoc>;
