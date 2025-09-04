@@ -1,4 +1,4 @@
-import type { WorkoutId } from './workouts-dto.model';
+import type { WorkoutId } from '../workouts-dto.model';
 
 export type UserId = string; // mongodb doc id
 

@@ -1,4 +1,4 @@
-import type { UserDoc } from './users-dto.model';
+import type { UserDoc } from '../database/users-dto.model';
 
 type JwtToken = string;
 

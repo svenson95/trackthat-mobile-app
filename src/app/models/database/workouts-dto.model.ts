@@ -1,5 +1,5 @@
-import type { UserId } from './database/users-dto.model';
-import type { UnixTimestring } from './date-helper.model';
+import type { UnixTimestring } from '../date-helper.model';
+import type { UserId } from './users-dto.model';
 
 export type WorkoutId = number; // mongodb doc id
 
