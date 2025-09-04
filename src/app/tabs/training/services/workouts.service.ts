@@ -16,7 +16,7 @@ export class WorkoutsService {
   private authService = inject(AuthService);
 
   workoutsResource = httpResource<undefined | GetWorkoutsDTO>(() => {
-    const userId = this.authService.user()?._id;
+    const userId = this.authService.user()?.id;
     if (!userId) return undefined;
     return { url: `${this.apiUrl}/get/${userId}`, method: 'GET' };
   });
@@ -37,7 +37,7 @@ export class WorkoutsService {
     if (workouts === undefined) throw new Error('Workouts not loaded');
 
     return {
-      userId: this.authService.user()?._id ?? 'error',
+      userId: this.authService.user()?.id ?? 'error',
       workoutId: workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1,
       lastUpdated: Date.now(),
       name,

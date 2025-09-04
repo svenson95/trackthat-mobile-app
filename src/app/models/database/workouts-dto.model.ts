@@ -44,7 +44,7 @@ type MuscleGroup =
   | 'neck';
 
 export interface WorkoutDoc extends Workout {
-  readonly _id: WorkoutId;
+  readonly id: WorkoutId;
 }
 
 export type GetWorkoutsDTO = Array<WorkoutDoc>;

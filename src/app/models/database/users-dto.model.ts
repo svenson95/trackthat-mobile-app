@@ -13,7 +13,7 @@ export interface User {
 }
 
 export interface UserDoc extends User {
-  readonly _id: UserId;
+  readonly id: UserId;
 }
 
 export type GetUsersDTO = Array<UserDoc>;
