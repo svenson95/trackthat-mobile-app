@@ -1,13 +1,11 @@
 import type { UnixTimestring } from '../../../models';
 
-export type UserWorkoutsId = string; // mongodb id
+export type UserId = string; // mongodb doc id
 
-export interface WorkoutsDTO {
-  userId: UserWorkoutsId;
-  workouts: Array<WorkoutData>;
-}
+export type GetWorkoutsDTO = Array<Workout>;
 
-export interface WorkoutData {
+export interface Workout {
+  userId: UserId;
   workoutId: number;
   lastUpdated: UnixTimestring;
   name: string;

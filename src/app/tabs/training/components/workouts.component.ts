@@ -23,15 +23,15 @@ import { WorkoutsService } from '../services';
           </ion-label>
         </ion-item>
       } @else {
-        @let data = workouts();
-        @if (!data) {
+        @let workouts = workoutsResource.value();
+        @if (!workouts) {
           <ion-item disabled>
             <ion-label>
               <p>Keine aktiven Pläne</p>
             </ion-label>
           </ion-item>
         } @else {
-          @for (workout of data; track workout.name) {
+          @for (workout of workouts; track workout.name) {
             <ion-item [routerLink]="['/tabs/training/', workout.workoutId]">
               <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
               <ion-label>{{ workout.name }}</ion-label>
@@ -44,7 +44,7 @@ import { WorkoutsService } from '../services';
 })
 export class WorkoutsComponent {
   service = inject(WorkoutsService);
-  workouts = computed(() => this.service.workoutsResource.value()?.workouts ?? null);
-  isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
-  hasError = computed(() => this.service.workoutsResource.status() === 'error');
+  workoutsResource = this.service.workoutsResource;
+  isLoading = computed(() => this.workoutsResource.status() === 'loading');
+  hasError = computed(() => this.workoutsResource.status() === 'error');
 }

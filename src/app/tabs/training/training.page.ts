@@ -17,7 +17,6 @@ import { ContentContainerComponent } from '../../components';
 
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
-import type { WorkoutData } from './models';
 import { WorkoutsService } from './services';
 
 const ION_COMPONENTS = [
@@ -91,16 +90,7 @@ export class TrainingPage {
     const { data } = event.detail;
     if (!data) return;
 
-    const workouts = this.workoutsService.workoutsResource.value()?.workouts;
-    if (!workouts) throw new Error('Workouts not loaded');
-    const workoutId = workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1;
-    const workoutData: WorkoutData = {
-      workoutId,
-      lastUpdated: Date.now(),
-      name: data,
-      list: [],
-    };
-
+    const workoutData = this.workoutsService.initWorkout(data);
     this.workoutsService.addWorkout(workoutData).subscribe({
       next: (response) => this.router.navigate(['tabs', 'training', response.workoutId]),
       error: (error) => console.error('Error saving workout:', error),

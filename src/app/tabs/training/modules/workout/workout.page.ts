@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   IonBackButton,
   IonButton,
@@ -10,13 +12,10 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { filter, map } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
-
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
-import { filter, map } from 'rxjs';
-import type { WorkoutData } from '../../models';
+import type { Workout } from '../../models';
 import { WorkoutsService } from '../../services';
 
 const ANGULAR_MODULES = [FormsModule];
@@ -62,9 +61,9 @@ export class WorkoutPage {
   private route = inject(ActivatedRoute);
   private service = inject(WorkoutsService);
 
-  pageTitle = computed(() => this.selectedWorkout().name);
+  pageTitle = computed<string>(() => this.selectedWorkout().name);
 
-  workoutId = toSignal(
+  workoutId = toSignal<number>(
     this.route.paramMap.pipe(
       map((params) => params.get('workoutId')),
       filter((id): id is string => id !== null),
@@ -72,8 +71,8 @@ export class WorkoutPage {
     ),
   );
 
-  selectedWorkout = computed<WorkoutData>(() => {
-    const workouts = this.service.workoutsResource.value()?.workouts;
+  selectedWorkout = computed<Workout>(() => {
+    const workouts = this.service.workoutsResource.value();
     if (!workouts) throw new Error('Workouts not loaded');
     const workout = workouts.find((w) => w.workoutId === this.workoutId());
     if (!workout) throw new Error('Workout not found');

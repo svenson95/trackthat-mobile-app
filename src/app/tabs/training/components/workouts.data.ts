@@ -1,8 +1,9 @@
-import type { WorkoutData } from '../models';
+import type { Workout } from '../models';
 
-export const WORKOUTS_TEMPLATES: Array<WorkoutData> = [
+export const WORKOUTS_TEMPLATES: Array<Workout> = [
   {
-    workoutId: 0,
+    userId: 'user-1',
+    workoutId: 1,
     name: '5er Split Home',
     lastUpdated: 815350254,
     list: [
@@ -37,7 +38,8 @@ export const WORKOUTS_TEMPLATES: Array<WorkoutData> = [
     ],
   },
   {
-    workoutId: 1,
+    userId: 'user-1',
+    workoutId: 2,
     name: '4er Split Home',
     lastUpdated: 1756804801,
     list: [
@@ -72,7 +74,8 @@ export const WORKOUTS_TEMPLATES: Array<WorkoutData> = [
     ],
   },
   {
-    workoutId: 2,
+    userId: 'user-1',
+    workoutId: 3,
     name: 'Ganzkörper-Plan',
     lastUpdated: 1756804801,
     list: [
@@ -107,7 +110,8 @@ export const WORKOUTS_TEMPLATES: Array<WorkoutData> = [
     ],
   },
   {
-    workoutId: 3,
+    userId: 'user-1',
+    workoutId: 4,
     name: '2er Split Home',
     lastUpdated: 1756804801,
     list: [
