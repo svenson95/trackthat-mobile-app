@@ -51,7 +51,7 @@ import { AuthService, UserService } from '../../services';
             </ion-item-divider>
 
             @let data = usersResource.value();
-            @if (data !== undefined) {
+            @if (data) {
               @for (user of data; track user.email) {
                 <ion-item>
                   <ion-label>

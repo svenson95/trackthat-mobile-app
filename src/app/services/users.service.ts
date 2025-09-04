@@ -13,16 +13,11 @@ export class UserService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
 
-  usersResource = httpResource<Array<User>>(
-    () => {
-      const userId = this.authService.user()?.userId;
-      if (!userId) return undefined;
-      return { url: `${this.apiUrl}/id`, method: 'GET' };
-    },
-    {
-      defaultValue: {} as Array<User>,
-    },
-  );
+  usersResource = httpResource<undefined | Array<User>>(() => {
+    const userId = this.authService.user()?.userId;
+    if (!userId) return undefined;
+    return { url: `${this.apiUrl}/`, method: 'GET' };
+  });
 
   getUsers(): Observable<Array<User>> {
     return this.http.get<Array<User>>(this.apiUrl + '/');
