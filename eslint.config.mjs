@@ -52,7 +52,7 @@ export default defineConfig([
       '@angular-eslint/component-class-suffix': [
         'warn',
         {
-          suffixes: ['Form', 'Page', 'Component'],
+          suffixes: ['Component', 'Page', 'Form', 'Dialog'],
         },
       ],
 

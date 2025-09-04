@@ -9,7 +9,17 @@ export const tabsRoutes: Routes = [
     children: [
       {
         path: 'training',
-        loadComponent: () => import('./training/training.page').then((m) => m.TrainingPage),
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./training/training.page').then((m) => m.TrainingPage),
+          },
+          {
+            path: ':workoutId',
+            loadComponent: () =>
+              import('./training/modules/workout/workout.page').then((m) => m.WorkoutPage),
+          },
+        ],
       },
       {
         path: 'eat',

@@ -1,1 +1,1 @@
-export * from './workouts.model';
+export * from './workouts-dto.model';

@@ -1,55 +1,50 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/angular/standalone';
 
-import type { Workouts } from '../models';
-
-const EXAMPLE_DATA = {
-  plans: [
-    {
-      id: 0,
-      userId: 123,
-      name: '5er Split Home',
-      lastUpdated: 815350254,
-    },
-    {
-      id: 1,
-      userId: 123,
-      name: '4er Split Home',
-      lastUpdated: 1756804801,
-    },
-    {
-      id: 3,
-      userId: 123,
-      name: 'Ganzkörper-Plan',
-      lastUpdated: 1756804801,
-    },
-    {
-      id: 2,
-      userId: 123,
-      name: '2er Split Home',
-      lastUpdated: 1756804801,
-    },
-  ],
-  sorting: [0, 1, 3, 2],
-};
+import { WorkoutsService } from '../services';
 
 @Component({
   selector: 'app-workouts',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonList, IonItem, IonIcon, IonLabel],
-  styles: ``,
+  imports: [IonList, IonItem, IonIcon, IonLabel, RouterLink],
   template: `
     <ion-list>
-      @for (plan of data.plans; track plan.name) {
-        <ion-item>
-          <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
-          <ion-label>{{ plan.name }}</ion-label>
-          <ion-icon aria-hidden="true" name="create-outline" slot="end"></ion-icon>
+      @if (isLoading()) {
+        <ion-item disabled>
+          <ion-label>
+            <p>loading ...</p>
+          </ion-label>
         </ion-item>
+      } @else if (hasError()) {
+        <ion-item disabled>
+          <ion-label>
+            <p>Fehler aufgetreten</p>
+          </ion-label>
+        </ion-item>
+      } @else {
+        @let data = workouts();
+        @if (!data) {
+          <ion-item disabled>
+            <ion-label>
+              <p>Keine aktiven Pläne</p>
+            </ion-label>
+          </ion-item>
+        } @else {
+          @for (workout of data; track workout.name) {
+            <ion-item [routerLink]="['/tabs/training/', workout.workoutId]">
+              <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
+              <ion-label>{{ workout.name }}</ion-label>
+            </ion-item>
+          }
+        }
       }
     </ion-list>
   `,
 })
 export class WorkoutsComponent {
-  data: Workouts = EXAMPLE_DATA;
+  service = inject(WorkoutsService);
+  workouts = computed(() => this.service.workoutsResource.value()?.workouts ?? null);
+  isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
+  hasError = computed(() => this.service.workoutsResource.status() === 'error');
 }

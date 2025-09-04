@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule, LoadingController } from '@ionic/angular';
-import { firstValueFrom } from 'rxjs';
 
 import { ContentContainerComponent } from '../../components';
 import { AuthService, UserService } from '../../services';
@@ -86,9 +85,7 @@ export class MorePage {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
 
-  usersResource = resource({
-    loader: async () => firstValueFrom(this.usersService.getUsers()),
-  });
+  usersResource = this.usersService.usersResource;
   isLoading = computed(() => this.usersResource.status() === 'loading');
   hasError = computed(() => this.usersResource.status() === 'error');
 
