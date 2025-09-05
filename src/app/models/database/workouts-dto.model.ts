@@ -14,10 +14,10 @@ export interface Workout {
 
 export type WorkoutUnit = {
   name: string;
-  exercises: Array<Exercise>;
+  exercises: Array<WorkoutExercise>;
 };
 
-export interface Exercise {
+export interface WorkoutExercise {
   name: string;
   muscleGroupPrimary: null | MuscleGroup;
   muscleGroupSecondary: null | MuscleGroup;
