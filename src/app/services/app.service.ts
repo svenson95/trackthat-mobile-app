@@ -3,7 +3,7 @@ import type { VersionEvent } from '@angular/service-worker';
 import { SwUpdate } from '@angular/service-worker';
 import { AlertController } from '@ionic/angular';
 
-import { AuthService } from './auth.service';
+import { AuthService } from './auth/auth.service';
 
 @Injectable()
 export class AppService {

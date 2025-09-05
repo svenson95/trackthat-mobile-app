@@ -2,8 +2,8 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 
-import { environment } from '../../environments/environment.prod';
-import type { GetUsersDTO, UserDoc, UserId, WorkoutListId } from '../models';
+import { environment } from '../../../environments/environment.prod';
+import type { GetUsersDTO, UserDoc, UserId, WorkoutListId } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

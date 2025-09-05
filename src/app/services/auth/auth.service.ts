@@ -2,8 +2,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, linkedSignal, signal } from '@angular/core';
 import { type Observable } from 'rxjs';
 
-import { environment } from '../../environments/environment.prod';
-import type { AuthResponse, GoogleJWT, UserDoc } from '../models';
+import { environment } from '../../../environments/environment.prod';
+import type { AuthResponse, GoogleJWT, UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
