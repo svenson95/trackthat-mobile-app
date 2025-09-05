@@ -1,4 +1,4 @@
-import type { WorkoutId } from './workouts-dto.model';
+import type { WorkoutListId } from './workouts-dto.model';
 
 export type UserId = string; // mongodb doc id
 
@@ -9,7 +9,7 @@ export interface User {
   email: string;
   weight: number;
   height: number;
-  workoutIds: Array<WorkoutId>;
+  workoutIds: Array<WorkoutListId>;
 }
 
 export interface UserDoc extends User {

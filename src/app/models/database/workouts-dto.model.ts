@@ -1,11 +1,12 @@
 import type { UnixTimestring } from '../date-helper.model';
 import type { UserId } from './users-dto.model';
 
-export type WorkoutId = number; // mongodb doc id
+export type WorkoutId = string; // mongodb doc id
+export type WorkoutListId = number; // custom id (user.workoutIds)
 
 export interface Workout {
   userId: UserId;
-  workoutId: number; // user.workouts list id
+  workoutId: WorkoutListId;
   lastUpdated: UnixTimestring;
   name: string;
   list: Array<ListItem | Exercise>;
