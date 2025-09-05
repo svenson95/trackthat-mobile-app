@@ -39,7 +39,13 @@ export class WorkoutsService {
         const current = this.workoutsResource.value();
         if (!current) throw new Error('Unexpected workoutsResource not set');
 
-        this.workoutsResource.set([...current, createdWorkout]);
+        const workouts = [...current, createdWorkout];
+        this.workoutsResource.set(workouts);
+
+        const ids = workouts.map((w) => w.workoutId);
+        const user = this.authService.user();
+        if (!user) throw new Error('Unexpected user undefined');
+        this.authService.setUserData({ ...user, workoutIds: ids });
       }),
     );
   }
