@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LoadingController, type ItemReorderEventDetail } from '@ionic/angular';
 import {
@@ -58,7 +58,7 @@ const ION_COMPONENTS = [
             @for (workout of workouts; track workout.name) {
               <ion-item-sliding [disabled]="!isEditing()">
                 <ion-item-options side="start">
-                  <ion-item-option color="success">Name ändern</ion-item-option>
+                  <ion-item-option color="medium">Name ändern</ion-item-option>
                 </ion-item-options>
 
                 <ion-item
@@ -89,6 +89,8 @@ export class WorkoutsComponent {
   private service = inject(WorkoutsService);
   private editService = inject(SortingWorkoutsService);
 
+  workoutsList = viewChild.required(IonList);
+
   sortedWorkouts = this.service.sortedWorkouts;
   isEditing = this.editService.isEditing;
 
@@ -108,6 +110,7 @@ export class WorkoutsComponent {
   }
 
   async deleteWorkout(id: string): Promise<void> {
+    void this.workoutsList().closeSlidingItems();
     const loading = await this.loadingCtrl.create({
       message: 'Trainingsplan wird gelöscht ...',
       spinner: 'circles',

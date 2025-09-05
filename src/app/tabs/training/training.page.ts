@@ -54,7 +54,7 @@ const ION_COMPONENTS = [
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="toggleEditMode()"> Abbrechen </ion-button>
+            <ion-button (click)="abortEditing(workoutsComp.workoutsList())"> Abbrechen </ion-button>
           } @else {
             <ion-button id="add-workout-dialog">
               <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
@@ -88,7 +88,7 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <app-content-container>
-        <app-workouts />
+        <app-workouts #workoutsComp />
       </app-content-container>
 
       <ion-modal
@@ -104,7 +104,7 @@ const ION_COMPONENTS = [
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
           <ion-list>
-            <ion-item [button]="true" [detail]="false" lines="none" (click)="toggleEditMode()">
+            <ion-item [button]="true" [detail]="false" lines="none" (click)="startEditing()">
               Bearbeiten
             </ion-item>
           </ion-list>
@@ -135,10 +135,14 @@ export class TrainingPage {
     this.isMoreMenuOpen.set(true);
   }
 
-  toggleEditMode(): void {
-    const current = this.isEditing();
-    this.isEditing.set(!current);
+  startEditing(): void {
+    this.isEditing.set(true);
     void this.moreMenu().dismiss();
+  }
+
+  abortEditing(list: IonList): void {
+    void list.closeSlidingItems();
+    this.isEditing.set(false);
   }
 
   async saveEdit(): Promise<void> {
