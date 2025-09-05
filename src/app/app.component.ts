@@ -19,6 +19,6 @@ export class AppComponent {
 
   constructor() {
     this.appService.getVersionUpdates();
-    // this.refreshUserData();
+    this.appService.updateUserData();
   }
 }

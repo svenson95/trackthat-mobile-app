@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, linkedSignal, signal } from '@angular/core';
 import { type Observable } from 'rxjs';
 
@@ -44,5 +44,14 @@ export class AuthService {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
     this.user.set(user);
+  }
+
+  verify(token: string): Observable<AuthResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.get<AuthResponse>(`${this.apiUrl}/verify`, { headers });
   }
 }
