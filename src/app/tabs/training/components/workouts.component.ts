@@ -4,6 +4,9 @@ import type { ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
   IonItem,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
   IonLabel,
   IonList,
   IonReorder,
@@ -12,7 +15,17 @@ import {
 
 import { SortingWorkoutsService, WorkoutsService } from '../services';
 
-const ION_COMPONENTS = [IonList, IonItem, IonIcon, IonLabel, IonReorder, IonReorderGroup];
+const ION_COMPONENTS = [
+  IonList,
+  IonItem,
+  IonIcon,
+  IonLabel,
+  IonReorder,
+  IonReorderGroup,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
+];
 
 @Component({
   selector: 'app-workouts',
@@ -43,15 +56,27 @@ const ION_COMPONENTS = [IonList, IonItem, IonIcon, IonLabel, IonReorder, IonReor
             </ion-item>
           } @else {
             @for (workout of workouts; track workout.name) {
-              <ion-item
-                button
-                [routerLink]="isEditing() ? null : ['/tabs/training/', workout.workoutId]"
-                [detail]="!isEditing()"
-              >
-                <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
-                <ion-label>{{ workout.name }}</ion-label>
-                <ion-reorder slot="end"></ion-reorder>
-              </ion-item>
+              <ion-item-sliding [disabled]="!isEditing()">
+                <ion-item-options side="start">
+                  <ion-item-option color="success">Name ändern</ion-item-option>
+                </ion-item-options>
+
+                <ion-item
+                  button
+                  [routerLink]="isEditing() ? null : ['/tabs/training/', workout.workoutId]"
+                  [detail]="!isEditing()"
+                >
+                  <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
+                  <ion-label>{{ workout.name }}</ion-label>
+                  <ion-reorder slot="end"></ion-reorder>
+                </ion-item>
+
+                <ion-item-options side="end">
+                  <ion-item-option color="danger" (click)="deleteWorkout(workout.id)">
+                    Löschen
+                  </ion-item-option>
+                </ion-item-options>
+              </ion-item-sliding>
             }
           }
         }
@@ -80,5 +105,12 @@ export class WorkoutsComponent {
     this.workoutIds.set(workouts);
 
     event.detail.complete();
+  }
+
+  deleteWorkout(id: string): void {
+    this.service.deleteWorkout(id).subscribe({
+      next: () => console.log('deleted workout', id),
+      error: (err) => console.error('Unexpected delete workout fail: ', err),
+    });
   }
 }

@@ -3,7 +3,7 @@ import { computed, inject, Injectable } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import type { GetWorkoutsDTO, Workout, WorkoutDoc } from '../../../models';
+import type { GetWorkoutsDTO, Workout, WorkoutDoc, WorkoutId } from '../../../models';
 import { AuthService } from '../../../services';
 
 @Injectable({
@@ -40,6 +40,18 @@ export class WorkoutsService {
         if (!current) throw new Error('Unexpected workoutsResource not set');
 
         this.workoutsResource.set([...current, createdWorkout]);
+      }),
+    );
+  }
+
+  deleteWorkout(id: WorkoutId): Observable<void> {
+    return this.http.delete<void>(this.apiUrl + '/delete/' + id).pipe(
+      tap(() => {
+        const current = this.workoutsResource.value();
+        if (!current) throw new Error('Unexpected workoutsResource not set');
+
+        const filtered = current.filter((w) => w.id !== id);
+        this.workoutsResource.set(filtered);
       }),
     );
   }
