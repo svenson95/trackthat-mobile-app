@@ -44,7 +44,9 @@ import { AuthService, UserService } from '../../services';
               <ion-label>Abmelden</ion-label>
             </ion-item>
           </ion-item-group>
+        </ion-list>
 
+        <ion-list [inset]="true">
           <ion-item-group>
             <ion-item-divider>
               <ion-label>Nutzer</ion-label>
