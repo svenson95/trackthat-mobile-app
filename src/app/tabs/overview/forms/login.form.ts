@@ -42,7 +42,7 @@ export class LoginForm implements OnInit {
 
   ngOnInit(): void {
     google.accounts.id.initialize({
-      client_id: process.env['GOOGLE_CLIENT_ID'],
+      client_id: '81384485805-o4b55e424moljjf98egavlhol819l18a.apps.googleusercontent.com',
       callback: (res: GoogleResponse) =>
         this.authService.loginWithGoogleToken(res.credential).subscribe({
           next: (res) => this.authService.login(res),
