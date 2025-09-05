@@ -92,3 +92,8 @@
   // --ion-color-dark-shade: #1e2023;
   // --ion-color-dark-tint: #383a3e;
 }
+
+html,
+body {
+  overscroll-behavior-x: none; // disable swipe navigation
+}
