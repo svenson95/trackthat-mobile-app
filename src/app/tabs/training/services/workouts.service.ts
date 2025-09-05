@@ -58,6 +58,11 @@ export class WorkoutsService {
 
         const filtered = current.filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);
+
+        const ids = filtered.map((w) => w.workoutId);
+        const user = this.authService.user();
+        if (!user) throw new Error('Unexpected user undefined');
+        this.authService.setUserData({ ...user, workoutIds: ids });
       }),
     );
   }
