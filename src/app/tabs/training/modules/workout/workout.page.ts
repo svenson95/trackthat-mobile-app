@@ -18,6 +18,8 @@ import { ContentContainerComponent } from '../../../../components';
 import type { WorkoutDoc } from '../../../../models';
 import { WorkoutsService } from '../../services';
 
+import { WorkoutUnitsComponent } from './components';
+
 const ANGULAR_MODULES = [FormsModule];
 
 const ION_COMPONENTS = [
@@ -32,9 +34,14 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-training-workout-page',
+  selector: 'app-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ANGULAR_MODULES, ...ION_COMPONENTS, ContentContainerComponent],
+  imports: [
+    ...ANGULAR_MODULES,
+    ...ION_COMPONENTS,
+    ContentContainerComponent,
+    WorkoutUnitsComponent,
+  ],
   template: `
     <ion-header>
       <ion-toolbar>
@@ -53,7 +60,9 @@ const ION_COMPONENTS = [
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
-      <app-content-container> workout ... </app-content-container>
+      <app-content-container>
+        <app-workout-units [workout]="selectedWorkout()" />
+      </app-content-container>
     </ion-content>
   `,
 })
