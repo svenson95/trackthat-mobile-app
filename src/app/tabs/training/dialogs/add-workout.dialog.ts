@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LoadingController } from '@ionic/angular';
 import type { IonModal } from '@ionic/angular/standalone';
 import {
   IonButton,
@@ -13,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { WorkoutsTemplatesComponent } from '../components';
+import { WorkoutsService } from '../services';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -42,7 +44,9 @@ const ION_COMPONENTS = [
         </ion-buttons>
         <ion-title>Neuer Plan</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="confirm()" [strong]="true">Speichern</ion-button>
+          <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
+            Speichern
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -63,16 +67,40 @@ const ION_COMPONENTS = [
   `,
 })
 export class AddWorkoutDialog {
+  private workoutService = inject(WorkoutsService);
+  private loadingCtrl = inject(LoadingController);
   modal = input.required<IonModal>();
   name = '';
 
   // TODO: add validation: not same name as other workouts, only specific letters and numbers
+  isLoading = signal(false);
 
   cancel(): void {
     void this.modal().dismiss(null, 'cancel');
   }
 
-  confirm(): void {
-    void this.modal().dismiss(this.name, 'confirm');
+  async confirm(): Promise<void> {
+    if (this.name === '' || !this.name) return;
+    const workoutData = this.workoutService.initWorkout(this.name);
+    const loading = await this.loadingCtrl.create({
+      message: 'Trainingsplan wird erstellt ...',
+      spinner: 'circles',
+    });
+    void loading.present();
+    this.isLoading.set(true);
+
+    this.workoutService.addWorkout(workoutData).subscribe({
+      next: (response) => {
+        void loading.dismiss();
+        this.isLoading.set(false);
+        void this.modal().dismiss(response, 'confirm');
+      },
+      error: (error) => {
+        void loading.dismiss();
+        this.isLoading.set(false);
+        void this.modal().dismiss(null, 'cancel');
+        console.error('Error saving workout:', error);
+      },
+    });
   }
 }

@@ -17,11 +17,12 @@ import {
 import type { OverlayEventDetail } from '@ionic/core';
 
 import { ContentContainerComponent } from '../../components';
+import type { WorkoutDoc } from '../../models';
 import { AuthService, UserService } from '../../services';
 
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
-import { SortingWorkoutsService, WorkoutsService } from './services';
+import { SortingWorkoutsService } from './services';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -109,7 +110,6 @@ const ION_COMPONENTS = [
 })
 export class TrainingPage {
   private router = inject(Router);
-  private workoutsService = inject(WorkoutsService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
 
@@ -118,17 +118,10 @@ export class TrainingPage {
 
   private sortService = inject(SortingWorkoutsService);
   isEditing = this.sortService.isEditing;
-  workoutsList = this.sortService.workoutIds;
 
-  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail>): void {
-    const { data } = event.detail;
-    if (!data) return;
-
-    const workoutData = this.workoutsService.initWorkout(data);
-    this.workoutsService.addWorkout(workoutData).subscribe({
-      next: (response) => this.router.navigate(['tabs', 'training', response.workoutId]),
-      error: (error) => console.error('Error saving workout:', error),
-    });
+  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
+    const workoutId = event.detail.data!.workoutId;
+    void this.router.navigate(['tabs', 'training', workoutId]);
   }
 
   presentPopover(ev: Event): void {
@@ -143,11 +136,11 @@ export class TrainingPage {
   }
 
   saveEdit(): void {
-    const list = this.workoutsList();
+    const ids = this.sortService.workoutIds();
     const userId = this.authService.user()?.id;
     if (!userId) throw new Error('Unexpected userId not defined');
 
-    this.userService.updateUserWorkoutList(userId, list).subscribe({
+    this.userService.updateUserWorkoutList(userId, ids).subscribe({
       next: (user) => {
         this.authService.setUserData(user);
         this.sortService.isEditing.set(false);
