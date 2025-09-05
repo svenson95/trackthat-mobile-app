@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { computed, inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, untracked } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
@@ -16,7 +16,7 @@ export class WorkoutsService {
   private authService = inject(AuthService);
 
   workoutsResource = httpResource<undefined | GetWorkoutsDTO>(() => {
-    const user = this.authService.user();
+    const user = untracked(this.authService.user);
     if (!user) throw new Error('Unexpected user undefined');
     const userId = user.id;
 
