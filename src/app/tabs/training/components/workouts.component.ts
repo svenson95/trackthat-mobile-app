@@ -116,11 +116,9 @@ export class WorkoutsComponent {
 
     this.service.deleteWorkout(id).subscribe({
       next: () => {
-        this.isEditing.set(false);
         void loading.dismiss();
       },
       error: (err) => {
-        this.isEditing.set(false);
         void loading.dismiss();
         console.error('Unexpected fail during delete user.workoutId', err);
       },
