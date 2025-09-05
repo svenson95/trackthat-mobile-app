@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import type { ItemReorderEventDetail } from '@ionic/angular';
+import { LoadingController, type ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
   IonItem,
@@ -85,12 +85,12 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutsComponent {
-  service = inject(WorkoutsService);
-  editService = inject(SortingWorkoutsService);
-  sortedWorkouts = this.service.sortedWorkouts;
+  private loadingCtrl = inject(LoadingController);
+  private service = inject(WorkoutsService);
+  private editService = inject(SortingWorkoutsService);
 
+  sortedWorkouts = this.service.sortedWorkouts;
   isEditing = this.editService.isEditing;
-  workoutIds = this.editService.workoutIds;
 
   isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
   hasError = computed(() => this.service.workoutsResource.status() === 'error');
@@ -99,18 +99,29 @@ export class WorkoutsComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const workouts = [...this.workoutIds()];
+    const workouts = [...this.editService.workoutIds()];
     const moved = workouts.splice(from, 1)[0];
     workouts.splice(to, 0, moved);
-    this.workoutIds.set(workouts);
+    this.editService.workoutIds.set(workouts);
 
     event.detail.complete();
   }
 
-  deleteWorkout(id: string): void {
+  async deleteWorkout(id: string): Promise<void> {
+    const loading = await this.loadingCtrl.create({
+      message: 'Trainingsplan wird gelöscht ...',
+      spinner: 'circles',
+    });
+    await loading.present();
+
     this.service.deleteWorkout(id).subscribe({
-      next: () => this.service.workoutsResource.update((list) => list!.filter((w) => w.id !== id)),
+      next: () => {
+        this.service.workoutsResource.update((list) => list!.filter((w) => w.id !== id));
+        this.isEditing.set(false);
+      },
       error: (err) => console.error('Unexpected delete workout fail: ', err),
     });
+
+    await loading.dismiss();
   }
 }

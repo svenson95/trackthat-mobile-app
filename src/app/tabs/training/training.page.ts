@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -114,6 +115,7 @@ const ION_COMPONENTS = [
 })
 export class TrainingPage {
   private router = inject(Router);
+  private loadingCtrl = inject(LoadingController);
   private authService = inject(AuthService);
   private userService = inject(UserService);
 
@@ -139,7 +141,13 @@ export class TrainingPage {
     void this.moreMenu().dismiss();
   }
 
-  saveEdit(): void {
+  async saveEdit(): Promise<void> {
+    const loading = await this.loadingCtrl.create({
+      message: 'Sortierung wird gespeichert ...',
+      spinner: 'circles',
+    });
+    await loading.present();
+
     const ids = this.sortService.workoutIds();
     const userId = this.authService.user()?.id;
     if (!userId) throw new Error('Unexpected userId not defined');
@@ -147,9 +155,11 @@ export class TrainingPage {
     this.userService.updateUserWorkoutList(userId, ids).subscribe({
       next: (user) => {
         this.authService.setUserData(user);
-        this.sortService.isEditing.set(false);
+        this.isEditing.set(false);
       },
       error: (err) => console.error('Update failed', err),
     });
+
+    await loading.dismiss();
   }
 }
