@@ -34,7 +34,7 @@ import { AuthService, UserService } from '../../services';
       </ion-header>
 
       <app-content-container name="More page">
-        <ion-list>
+        <ion-list [inset]="true">
           <ion-item-group>
             <ion-item-divider>
               <ion-label>Einstellungen</ion-label>
