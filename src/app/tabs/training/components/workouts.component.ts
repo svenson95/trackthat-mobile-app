@@ -112,16 +112,19 @@ export class WorkoutsComponent {
       message: 'Trainingsplan wird gelöscht ...',
       spinner: 'circles',
     });
-    await loading.present();
+    void loading.present();
 
     this.service.deleteWorkout(id).subscribe({
       next: () => {
         this.service.workoutsResource.update((list) => list!.filter((w) => w.id !== id));
         this.isEditing.set(false);
+        void loading.dismiss();
       },
-      error: (err) => console.error('Unexpected delete workout fail: ', err),
+      error: (err) => {
+        this.isEditing.set(false);
+        void loading.dismiss();
+        console.error('Unexpected fail during delete user.workoutId', err);
+      },
     });
-
-    await loading.dismiss();
   }
 }

@@ -156,10 +156,13 @@ export class TrainingPage {
       next: (user) => {
         this.authService.setUserData(user);
         this.isEditing.set(false);
+        void loading.dismiss();
       },
-      error: (err) => console.error('Update failed', err),
+      error: (err) => {
+        this.isEditing.set(false);
+        void loading.dismiss();
+        console.error('Unexpected fail during update user.workoutIds', err);
+      },
     });
-
-    await loading.dismiss();
   }
 }
