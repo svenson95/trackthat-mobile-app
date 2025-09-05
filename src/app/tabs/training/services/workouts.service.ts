@@ -27,10 +27,12 @@ export class WorkoutsService {
   });
 
   sortedWorkouts = computed<Array<WorkoutDoc>>(() => {
-    const user = this.authService.user();
+    const user = untracked(this.authService.user);
     if (!user) throw new Error('Unexpected user undefined');
-    const workouts = user.workoutIds;
-    return workouts.map((id) => this.workoutsResource.value()!.find((w) => w.workoutId === id)!);
+    const workouts = this.workoutsResource.value();
+    if (!workouts) throw new Error('Unexpected workouts undefined');
+    const ids = user.workoutIds;
+    return ids.map((id) => workouts.find((w) => w.workoutId === id)!);
   });
 
   addWorkout(workout: Workout): Observable<WorkoutDoc> {
