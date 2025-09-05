@@ -109,7 +109,7 @@ export class WorkoutsComponent {
 
   deleteWorkout(id: string): void {
     this.service.deleteWorkout(id).subscribe({
-      next: () => console.log('deleted workout', id),
+      next: () => this.service.workoutsResource.update((list) => list!.filter((w) => w.id !== id)),
       error: (err) => console.error('Unexpected delete workout fail: ', err),
     });
   }
