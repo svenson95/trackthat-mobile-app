@@ -29,9 +29,7 @@ export class AuthService {
   }
 
   login(res: AuthResponse): void {
-    localStorage.setItem('authToken', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
-    this.user.set(res.user);
+    this.setUserData(res.user);
     this.isLoading.set(false);
   }
 
@@ -39,5 +37,12 @@ export class AuthService {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     this.user.set(undefined);
+  }
+
+  setUserData(user: UserDoc): void {
+    const token = localStorage.getItem('authToken')!;
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    this.user.set(user);
   }
 }

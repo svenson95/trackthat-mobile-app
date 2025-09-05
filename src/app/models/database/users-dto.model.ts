@@ -9,7 +9,7 @@ export interface User {
   email: string;
   weight: number;
   height: number;
-  workouts: Array<WorkoutId>;
+  workoutIds: Array<WorkoutId>;
 }
 
 export interface UserDoc extends User {

@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
@@ -16,9 +16,21 @@ export class WorkoutsService {
   private authService = inject(AuthService);
 
   workoutsResource = httpResource<undefined | GetWorkoutsDTO>(() => {
-    const userId = this.authService.user()?.id;
-    if (!userId) return undefined;
-    return { url: `${this.apiUrl}/get/${userId}`, method: 'GET' };
+    const user = this.authService.user();
+    if (!user) throw new Error('Unexpected user undefined');
+    const userId = user.id;
+
+    return {
+      url: `${this.apiUrl}/get/${userId}`,
+      method: 'GET',
+    };
+  });
+
+  sortedWorkouts = computed<Array<WorkoutDoc>>(() => {
+    const user = this.authService.user();
+    if (!user) throw new Error('Unexpected user undefined');
+    const workouts = user.workoutIds;
+    return workouts.map((id) => this.workoutsResource.value()!.find((w) => w.workoutId === id)!);
   });
 
   addWorkout(workout: Workout): Observable<WorkoutDoc> {

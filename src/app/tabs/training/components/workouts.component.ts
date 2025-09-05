@@ -1,50 +1,84 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonIcon, IonItem, IonLabel, IonList } from '@ionic/angular/standalone';
+import type { ItemReorderEventDetail } from '@ionic/angular';
+import {
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonReorder,
+  IonReorderGroup,
+} from '@ionic/angular/standalone';
 
-import { WorkoutsService } from '../services';
+import { SortingWorkoutsService, WorkoutsService } from '../services';
+
+const ION_COMPONENTS = [IonList, IonItem, IonIcon, IonLabel, IonReorder, IonReorderGroup];
 
 @Component({
   selector: 'app-workouts',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonList, IonItem, IonIcon, IonLabel, RouterLink],
+  imports: [...ION_COMPONENTS, RouterLink],
   template: `
-    <ion-list>
-      @if (isLoading()) {
-        <ion-item disabled>
-          <ion-label>
-            <p>loading ...</p>
-          </ion-label>
-        </ion-item>
-      } @else if (hasError()) {
-        <ion-item disabled>
-          <ion-label>
-            <p>Fehler aufgetreten</p>
-          </ion-label>
-        </ion-item>
-      } @else {
-        @let workouts = workoutsResource.value();
-        @if (workouts?.length === 0) {
+    <ion-list [inset]="true">
+      <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
+        @if (isLoading()) {
           <ion-item disabled>
             <ion-label>
-              <p>Keine aktiven Pläne</p>
+              <p>loading ...</p>
+            </ion-label>
+          </ion-item>
+        } @else if (hasError()) {
+          <ion-item disabled>
+            <ion-label>
+              <p>Fehler aufgetreten</p>
             </ion-label>
           </ion-item>
         } @else {
-          @for (workout of workouts; track workout.name) {
-            <ion-item [routerLink]="['/tabs/training/', workout.workoutId]">
-              <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
-              <ion-label>{{ workout.name }}</ion-label>
+          @let workouts = sortedWorkouts();
+          @if (workouts?.length === 0) {
+            <ion-item disabled>
+              <ion-label>
+                <p>Keine aktiven Pläne</p>
+              </ion-label>
             </ion-item>
+          } @else {
+            @for (workout of workouts; track workout.name) {
+              <ion-item
+                button
+                [routerLink]="isEditing() ? null : ['/tabs/training/', workout.workoutId]"
+                [detail]="!isEditing()"
+              >
+                <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
+                <ion-label>{{ workout.name }}</ion-label>
+                <ion-reorder slot="end"></ion-reorder>
+              </ion-item>
+            }
           }
         }
-      }
+      </ion-reorder-group>
     </ion-list>
   `,
 })
 export class WorkoutsComponent {
   service = inject(WorkoutsService);
-  workoutsResource = this.service.workoutsResource;
-  isLoading = computed(() => this.workoutsResource.status() === 'loading');
-  hasError = computed(() => this.workoutsResource.status() === 'error');
+  editService = inject(SortingWorkoutsService);
+  sortedWorkouts = this.service.sortedWorkouts;
+
+  isEditing = this.editService.isEditing;
+  workoutIds = this.editService.workoutIds;
+
+  isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
+  hasError = computed(() => this.service.workoutsResource.status() === 'error');
+
+  handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
+    const from = event.detail.from;
+    const to = event.detail.to;
+
+    const workouts = [...this.workoutIds()];
+    const moved = workouts.splice(from, 1)[0];
+    workouts.splice(to, 0, moved);
+    this.workoutIds.set(workouts);
+
+    event.detail.complete();
+  }
 }
