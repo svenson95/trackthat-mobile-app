@@ -52,9 +52,13 @@ const ION_COMPONENTS = [
     <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-button id="add-workout-dialog">
-            <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
-          </ion-button>
+          @if (isEditing()) {
+            <ion-button (click)="toggleEditMode()"> Abbrechen </ion-button>
+          } @else {
+            <ion-button id="add-workout-dialog">
+              <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
+            </ion-button>
+          }
         </ion-buttons>
 
         <ion-title> Trainingspläne </ion-title>
