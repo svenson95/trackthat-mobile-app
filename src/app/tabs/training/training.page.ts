@@ -126,7 +126,10 @@ export class TrainingPage {
   isEditing = this.sortService.isEditing;
 
   onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
-    const workoutId = event.detail.data!.workoutId;
+    const { data } = event.detail;
+    if (!data) return;
+
+    const workoutId = data.workoutId;
     void this.router.navigate(['tabs', 'training', workoutId]);
   }
 

@@ -3,7 +3,7 @@ import { computed, inject, Injectable, untracked } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import type { GetWorkoutsDTO, Workout, WorkoutDoc, WorkoutId } from '../../../models';
+import type { GetWorkoutsDTO, Workout, WorkoutDoc, WorkoutId, WorkoutUnit } from '../../../models';
 import { AuthService } from '../../../services';
 
 @Injectable({
@@ -69,7 +69,7 @@ export class WorkoutsService {
     );
   }
 
-  initWorkout(name: string): Workout {
+  initWorkout(name: string, units: Array<WorkoutUnit>): Workout {
     const workouts = this.workoutsResource.value();
     if (workouts === undefined) throw new Error('Workouts not loaded');
 
@@ -78,7 +78,7 @@ export class WorkoutsService {
       workoutId: workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1,
       lastUpdated: Date.now(),
       name,
-      units: [],
+      units,
     };
   }
 }

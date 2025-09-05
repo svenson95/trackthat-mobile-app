@@ -3,7 +3,7 @@ import type { Workout } from '../../../models';
 export const WORKOUTS_TEMPLATES: Array<Workout> = [
   {
     userId: 'user-1',
-    workoutId: 1,
+    workoutId: 5,
     name: '5er Split',
     lastUpdated: 815350254,
     units: [
@@ -172,7 +172,7 @@ export const WORKOUTS_TEMPLATES: Array<Workout> = [
   },
   {
     userId: 'user-1',
-    workoutId: 2,
+    workoutId: 4,
     name: '4er Split',
     lastUpdated: 1756804801,
     units: [
@@ -336,7 +336,7 @@ export const WORKOUTS_TEMPLATES: Array<Workout> = [
   },
   {
     userId: 'user-1',
-    workoutId: 4,
+    workoutId: 2,
     name: '2er Split',
     lastUpdated: 1756804801,
     units: [

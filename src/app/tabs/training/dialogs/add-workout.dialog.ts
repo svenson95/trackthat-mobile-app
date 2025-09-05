@@ -5,15 +5,16 @@ import type { IonModal } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonButtons,
-  IonContent,
   IonHeader,
   IonInput,
   IonItem,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
 
-import { WorkoutsTemplatesComponent } from '../components';
+import { WORKOUTS_TEMPLATES } from '../components';
 import { WorkoutsService } from '../services';
 
 const ION_COMPONENTS = [
@@ -22,15 +23,16 @@ const ION_COMPONENTS = [
   IonButtons,
   IonButton,
   IonTitle,
-  IonContent,
   IonItem,
   IonInput,
+  IonSelect,
+  IonSelectOption,
 ];
 
 @Component({
   selector: 'app-add-workout-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, FormsModule, WorkoutsTemplatesComponent],
+  imports: [...ION_COMPONENTS, FormsModule],
   styles: `
     h4 {
       margin-left: 1rem;
@@ -51,19 +53,24 @@ const ION_COMPONENTS = [
       </ion-toolbar>
     </ion-header>
 
-    <ion-content class="ion-padding">
-      <ion-item>
-        <ion-input
-          label="Name"
-          type="text"
-          placeholder="Ganzkörper-Plan"
-          [(ngModel)]="name"
-        ></ion-input>
-      </ion-item>
+    <ion-item>
+      <ion-input
+        id="name-input"
+        label="Name"
+        type="text"
+        placeholder="Ganzkörper-Plan"
+        [(ngModel)]="name"
+      ></ion-input>
+    </ion-item>
 
-      <h4>Vorlagen</h4>
-      <app-workouts-templates />
-    </ion-content>
+    <ion-item>
+      <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
+        <ion-select-option [value]="-1">Keine</ion-select-option>
+        @for (template of templates; track template.workoutId) {
+          <ion-select-option [value]="template.workoutId">{{ template.name }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
   `,
 })
 export class AddWorkoutDialog {
@@ -71,6 +78,8 @@ export class AddWorkoutDialog {
   private loadingCtrl = inject(LoadingController);
   modal = input.required<IonModal>();
   name = '';
+  templateId = -1;
+  templates = WORKOUTS_TEMPLATES;
 
   // TODO: add validation: not same name as other workouts, only specific letters and numbers
   isLoading = signal(false);
@@ -81,23 +90,27 @@ export class AddWorkoutDialog {
 
   async confirm(): Promise<void> {
     if (this.name === '' || !this.name) return;
-    const workoutData = this.workoutService.initWorkout(this.name);
+
+    const template = this.templates.find((t) => t.workoutId === this.templateId);
+    const units = template ? template.units : [];
+    const workoutData = this.workoutService.initWorkout(this.name, units);
+
     const loading = await this.loadingCtrl.create({
       message: 'Trainingsplan wird erstellt ...',
       spinner: 'circles',
     });
-    void loading.present();
     this.isLoading.set(true);
+    void loading.present();
 
     this.workoutService.addWorkout(workoutData).subscribe({
       next: (response) => {
-        void loading.dismiss();
         this.isLoading.set(false);
+        void loading.dismiss();
         void this.modal().dismiss(response, 'confirm');
       },
       error: (error) => {
-        void loading.dismiss();
         this.isLoading.set(false);
+        void loading.dismiss();
         void this.modal().dismiss(null, 'cancel');
         console.error('Error saving workout:', error);
       },
