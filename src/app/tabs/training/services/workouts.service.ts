@@ -78,7 +78,7 @@ export class WorkoutsService {
       workoutId: workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1,
       lastUpdated: Date.now(),
       name,
-      list: [],
+      units: [],
     };
   }
 }

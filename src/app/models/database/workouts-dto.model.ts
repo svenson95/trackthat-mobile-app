@@ -9,18 +9,18 @@ export interface Workout {
   workoutId: WorkoutListId;
   lastUpdated: UnixTimestring;
   name: string;
-  list: Array<ListItem | Exercise>;
+  units: Array<WorkoutUnit>;
 }
 
-export type ListItem = {
-  name: null | string;
-  type: ItemType;
+export type WorkoutUnit = {
+  name: string;
+  exercises: Array<Exercise>;
 };
 
-export type ItemType = 'EXERCISE' | 'LABEL' | 'SPACE';
-
-export interface Exercise extends ListItem {
-  muscleGroup: null | MuscleGroup;
+export interface Exercise {
+  name: string;
+  muscleGroupPrimary: null | MuscleGroup;
+  muscleGroupSecondary: null | MuscleGroup;
   sets: null | string;
   reps: null | string;
   rest: null | string;
