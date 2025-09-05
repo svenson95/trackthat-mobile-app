@@ -30,6 +30,7 @@ export class AuthService {
 
   login(res: AuthResponse): void {
     this.setUserData(res.user);
+    this.setToken(res.token);
     this.isLoading.set(false);
   }
 
@@ -39,9 +40,11 @@ export class AuthService {
     this.user.set(undefined);
   }
 
-  setUserData(user: UserDoc): void {
-    const token = localStorage.getItem('authToken')!;
+  setToken(token: string): void {
     localStorage.setItem('authToken', token);
+  }
+
+  setUserData(user: UserDoc): void {
     localStorage.setItem('user', JSON.stringify(user));
     this.user.set(user);
   }
