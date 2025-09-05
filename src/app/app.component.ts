@@ -7,6 +7,7 @@ import { AppService } from './services';
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonApp, IonRouterOutlet],
+  providers: [AppService],
   template: `
     <ion-app>
       <ion-router-outlet></ion-router-outlet>

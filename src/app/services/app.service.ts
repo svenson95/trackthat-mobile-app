@@ -3,7 +3,7 @@ import type { VersionEvent } from '@angular/service-worker';
 import { SwUpdate } from '@angular/service-worker';
 import { AlertController } from '@ionic/angular';
 
-@Injectable({ providedIn: 'root' })
+@Injectable()
 export class AppService {
   private swUpdate = inject(SwUpdate);
   private alertCtrl = inject(AlertController);
