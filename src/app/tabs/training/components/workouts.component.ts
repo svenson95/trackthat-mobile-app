@@ -116,7 +116,6 @@ export class WorkoutsComponent {
 
     this.service.deleteWorkout(id).subscribe({
       next: () => {
-        this.service.workoutsResource.update((list) => list!.filter((w) => w.id !== id));
         this.isEditing.set(false);
         void loading.dismiss();
       },
