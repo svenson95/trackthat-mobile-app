@@ -12,16 +12,18 @@ import {
   IonList,
   IonModal,
   IonPopover,
+  IonRefresher,
+  IonRefresherContent,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import type { OverlayEventDetail } from '@ionic/core';
+import type { OverlayEventDetail, RefresherCustomEvent } from '@ionic/core';
 
 import { ContentContainerComponent } from '../../../../components';
 import { AuthService, UserService } from '../../../../services';
 import type { WorkoutDoc } from './../../../../models';
 
-import { SortingWorkoutsService } from '../../services';
+import { SortingWorkoutsService, WorkoutsService } from '../../services';
 
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
@@ -38,6 +40,8 @@ const ION_COMPONENTS = [
   IonPopover,
   IonList,
   IonItem,
+  IonRefresher,
+  IonRefresherContent,
 ];
 
 @Component({
@@ -82,6 +86,15 @@ const ION_COMPONENTS = [
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
+      <ion-refresher slot="fixed" [pullFactor]="1" (ionRefresh)="handleRefresh($event)">
+        <ion-refresher-content
+          pullingIcon="chevron-down"
+          pullingText="Liste aktualisieren ..."
+          refreshingSpinner="circles"
+          refreshingText="Wird geladen ..."
+        ></ion-refresher-content>
+      </ion-refresher>
+
       <ion-header collapse="condense">
         <ion-toolbar color="light">
           <ion-title size="large">Trainingspläne</ion-title>
@@ -119,12 +132,18 @@ export class WorkoutListPage {
   private loadingCtrl = inject(LoadingController);
   private authService = inject(AuthService);
   private userService = inject(UserService);
+  private workoutsService = inject(WorkoutsService);
 
   private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   isMoreMenuOpen = signal<boolean>(false);
 
   private sortService = inject(SortingWorkoutsService);
   isEditing = this.sortService.isEditing;
+
+  handleRefresh(event: RefresherCustomEvent): void {
+    this.workoutsService.workoutsResource.reload();
+    void event.target.complete();
+  }
 
   onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
     const { data } = event.detail;
