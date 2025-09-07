@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { LoadingController } from '@ionic/angular';
 import {
@@ -16,6 +24,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import type { RefresherCustomEvent } from '@ionic/core';
+import { filter, first } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
 import { AuthService, UserService } from '../../../../services';
@@ -116,7 +125,9 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutListPage {
+  private injector = inject(Injector);
   private loadingCtrl = inject(LoadingController);
+
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private workoutsService = inject(WorkoutsService);
@@ -128,8 +139,20 @@ export class WorkoutListPage {
   isEditing = this.sortService.isEditing;
 
   handleRefresh(event: RefresherCustomEvent): void {
-    this.workoutsService.workoutsResource.reload();
-    void event.target.complete();
+    const res = this.workoutsService.workoutsResource;
+    const started = res.reload();
+
+    if (!started && !res.isLoading()) {
+      void event.target?.complete();
+      return;
+    }
+
+    toObservable(res.isLoading, { injector: this.injector })
+      .pipe(
+        filter((loading) => !loading),
+        first(),
+      )
+      .subscribe(() => event.target.complete());
   }
 
   presentPopover(ev: Event): void {
