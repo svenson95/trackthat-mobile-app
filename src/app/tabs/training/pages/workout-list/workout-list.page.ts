@@ -82,7 +82,7 @@ const ION_COMPONENTS = [
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
-      <ion-refresher slot="fixed" [pullFactor]="1" (ionRefresh)="handleRefresh($event)">
+      <ion-refresher slot="fixed" [pullFactor]="1.5" (ionRefresh)="handleRefresh($event)">
         <ion-refresher-content
           pullingIcon="chevron-down"
           pullingText="Liste aktualisieren ..."
