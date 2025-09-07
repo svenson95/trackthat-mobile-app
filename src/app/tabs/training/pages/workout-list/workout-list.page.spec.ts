@@ -2,20 +2,20 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ContentContainerComponent } from '../../components';
+import { ContentContainerComponent } from '../../../../components';
 
-import { TrainingPage } from './training.page';
+import { WorkoutListPage } from './workout-list.page';
 
-describe('TrainingPage', () => {
-  let component: TrainingPage;
-  let fixture: ComponentFixture<TrainingPage>;
+describe('WorkoutListPage', () => {
+  let component: WorkoutListPage;
+  let fixture: ComponentFixture<WorkoutListPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ContentContainerComponent, TrainingPage],
+      imports: [IonicModule.forRoot(), ContentContainerComponent, WorkoutListPage],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TrainingPage);
+    fixture = TestBed.createComponent(WorkoutListPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

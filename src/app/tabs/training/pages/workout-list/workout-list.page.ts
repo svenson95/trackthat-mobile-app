@@ -17,13 +17,14 @@ import {
 } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
 
-import { ContentContainerComponent } from '../../components';
-import type { WorkoutDoc } from '../../models';
-import { AuthService, UserService } from '../../services';
+import { ContentContainerComponent } from '../../../../components';
+import { AuthService, UserService } from '../../../../services';
+import type { WorkoutDoc } from './../../../../models';
+
+import { SortingWorkoutsService } from '../../services';
 
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
-import { SortingWorkoutsService } from './services';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -40,7 +41,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-training-page',
+  selector: 'app-workout-list-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ION_COMPONENTS,
@@ -113,7 +114,7 @@ const ION_COMPONENTS = [
     </ion-content>
   `,
 })
-export class TrainingPage {
+export class WorkoutListPage {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private authService = inject(AuthService);

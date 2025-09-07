@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import type { IonModal } from '@ionic/angular/standalone';
 import {
@@ -14,8 +15,8 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 
+import { WorkoutsService } from '../../../services';
 import { WORKOUTS_TEMPLATES } from '../components';
-import { WorkoutsService } from '../services';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -76,6 +77,7 @@ const ION_COMPONENTS = [
 export class AddWorkoutDialog {
   private workoutService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
+  private router = inject(Router);
   modal = input.required<IonModal>();
   name = '';
   templateId = -1;

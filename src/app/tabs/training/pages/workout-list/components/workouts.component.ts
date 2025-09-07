@@ -13,7 +13,7 @@ import {
   IonReorderGroup,
 } from '@ionic/angular/standalone';
 
-import { SortingWorkoutsService, WorkoutsService } from '../services';
+import { SortingWorkoutsService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
   IonList,

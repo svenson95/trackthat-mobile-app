@@ -16,6 +16,7 @@ import { filter, map } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
 import type { WorkoutDoc } from '../../../../models';
+
 import { WorkoutsService } from '../../services';
 
 import { WorkoutUnitsComponent } from './components';
@@ -34,7 +35,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-workout-page',
+  selector: 'app-workout-detail-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ANGULAR_MODULES,
@@ -66,7 +67,7 @@ const ION_COMPONENTS = [
     </ion-content>
   `,
 })
-export class WorkoutPage {
+export class WorkoutDetailPage {
   private route = inject(ActivatedRoute);
   private service = inject(WorkoutsService);
 

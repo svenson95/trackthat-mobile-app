@@ -12,12 +12,17 @@ export const tabsRoutes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./training/training.page').then((m) => m.TrainingPage),
+            loadComponent: () =>
+              import('./training/pages/workout-list/workout-list.page').then(
+                (m) => m.WorkoutListPage,
+              ),
           },
           {
             path: ':workoutId',
             loadComponent: () =>
-              import('./training/modules/workout/workout.page').then((m) => m.WorkoutPage),
+              import('./training/pages/workout-detail/workout-detail.page').then(
+                (m) => m.WorkoutDetailPage,
+              ),
           },
         ],
       },
