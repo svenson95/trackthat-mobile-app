@@ -1,19 +1,22 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
-import type { IonModal } from '@ionic/angular/standalone';
 import {
   IonButton,
   IonButtons,
   IonHeader,
   IonInput,
   IonItem,
+  IonModal,
   IonSelect,
   IonSelectOption,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import type { OverlayEventDetail } from '@ionic/core';
+
+import type { WorkoutDoc } from '../../../../../models';
 
 import { WorkoutsService } from '../../../services';
 import { WORKOUTS_TEMPLATES } from '../components';
@@ -28,10 +31,11 @@ const ION_COMPONENTS = [
   IonInput,
   IonSelect,
   IonSelectOption,
+  IonModal,
 ];
 
 @Component({
-  selector: 'app-add-workout-dialog',
+  selector: 'app-add-workout-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule],
   styles: `
@@ -40,45 +44,55 @@ const ION_COMPONENTS = [
     }
   `,
   template: `
-    <ion-header>
-      <ion-toolbar>
-        <ion-buttons slot="start">
-          <ion-button (click)="cancel()">Abbrechen</ion-button>
-        </ion-buttons>
-        <ion-title>Neuer Plan</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
-            Speichern
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
+    <ion-modal
+      trigger="add-workout-modal"
+      (willDismiss)="onAddWorkoutSubmit($event)"
+      #newWorkoutModal
+    >
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="cancel()">Abbrechen</ion-button>
+            </ion-buttons>
+            <ion-title>Neuer Plan</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
+                Speichern
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
 
-    <ion-item>
-      <ion-input
-        id="name-input"
-        label="Name"
-        type="text"
-        placeholder="Ganzkörper-Plan"
-        [(ngModel)]="name"
-      ></ion-input>
-    </ion-item>
+        <ion-item>
+          <ion-input
+            id="name-input"
+            label="Name"
+            type="text"
+            placeholder="Ganzkörper-Plan"
+            [(ngModel)]="name"
+          ></ion-input>
+        </ion-item>
 
-    <ion-item>
-      <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
-        <ion-select-option [value]="-1">Keine</ion-select-option>
-        @for (template of templates; track template.workoutId) {
-          <ion-select-option [value]="template.workoutId">{{ template.name }}</ion-select-option>
-        }
-      </ion-select>
-    </ion-item>
+        <ion-item>
+          <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
+            <ion-select-option [value]="-1">Keine</ion-select-option>
+            @for (template of templates; track template.workoutId) {
+              <ion-select-option [value]="template.workoutId">{{
+                template.name
+              }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      </ng-template>
+    </ion-modal>
   `,
 })
 export class AddWorkoutDialog {
   private workoutService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
   private router = inject(Router);
-  modal = input.required<IonModal>();
+  modal = viewChild.required(IonModal);
   name = '';
   templateId = -1;
   templates = WORKOUTS_TEMPLATES;
@@ -117,5 +131,13 @@ export class AddWorkoutDialog {
         console.error('Error saving workout:', error);
       },
     });
+  }
+
+  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
+    const { data } = event.detail;
+    if (!data) return;
+
+    const workoutId = data.workoutId;
+    void this.router.navigate(['tabs', 'training', workoutId]);
   }
 }

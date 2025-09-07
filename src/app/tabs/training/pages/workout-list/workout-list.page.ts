@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import {
   IonButton,
@@ -10,18 +9,16 @@ import {
   IonIcon,
   IonItem,
   IonList,
-  IonModal,
   IonPopover,
   IonRefresher,
   IonRefresherContent,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import type { OverlayEventDetail, RefresherCustomEvent } from '@ionic/core';
+import type { RefresherCustomEvent } from '@ionic/core';
 
 import { ContentContainerComponent } from '../../../../components';
 import { AuthService, UserService } from '../../../../services';
-import type { WorkoutDoc } from './../../../../models';
 
 import { SortingWorkoutsService, WorkoutsService } from '../../services';
 
@@ -36,7 +33,6 @@ const ION_COMPONENTS = [
   IonIcon,
   IonTitle,
   IonContent,
-  IonModal,
   IonPopover,
   IonList,
   IonItem,
@@ -61,7 +57,7 @@ const ION_COMPONENTS = [
           @if (isEditing()) {
             <ion-button (click)="abortEditing(workoutsComp.workoutsList())"> Abbrechen </ion-button>
           } @else {
-            <ion-button id="add-workout-dialog">
+            <ion-button id="add-workout-modal">
               <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
             </ion-button>
           }
@@ -105,15 +101,7 @@ const ION_COMPONENTS = [
         <app-workouts #workoutsComp />
       </app-content-container>
 
-      <ion-modal
-        trigger="add-workout-dialog"
-        (willDismiss)="onAddWorkoutSubmit($event)"
-        #newWorkoutModal
-      >
-        <ng-template>
-          <app-add-workout-dialog [modal]="newWorkoutModal"></app-add-workout-dialog>
-        </ng-template>
-      </ion-modal>
+      <app-add-workout-modal></app-add-workout-modal>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
@@ -128,7 +116,6 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutListPage {
-  private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
   private authService = inject(AuthService);
   private userService = inject(UserService);
@@ -143,14 +130,6 @@ export class WorkoutListPage {
   handleRefresh(event: RefresherCustomEvent): void {
     this.workoutsService.workoutsResource.reload();
     void event.target.complete();
-  }
-
-  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
-    const { data } = event.detail;
-    if (!data) return;
-
-    const workoutId = data.workoutId;
-    void this.router.navigate(['tabs', 'training', workoutId]);
   }
 
   presentPopover(ev: Event): void {
@@ -186,9 +165,9 @@ export class WorkoutListPage {
         void loading.dismiss();
       },
       error: (err) => {
+        console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
         void loading.dismiss();
-        console.error('Unexpected fail during update user.workoutIds', err);
       },
     });
   }
