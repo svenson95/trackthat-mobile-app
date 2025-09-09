@@ -3,7 +3,15 @@ import { computed, inject, Injectable, untracked } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import type { GetWorkoutsDTO, Workout, WorkoutDoc, WorkoutId, WorkoutUnit } from '../../../models';
+import type {
+  GetWorkoutsDTO,
+  PostWorkoutBody,
+  PostWorkoutResponse,
+  Workout,
+  WorkoutDoc,
+  WorkoutId,
+  WorkoutList,
+} from '../../../models';
 import { AuthService } from '../../../services';
 
 @Injectable({
@@ -35,8 +43,8 @@ export class WorkoutsService {
     return ids.map((id) => workouts.find((w) => w.workoutId === id)!);
   });
 
-  addWorkout(workout: Workout): Observable<WorkoutDoc> {
-    return this.http.post<WorkoutDoc>(this.apiUrl + '/add', workout).pipe(
+  addWorkout(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
+    return this.http.post<PostWorkoutResponse>(this.apiUrl + '/add', workout).pipe(
       tap((createdWorkout) => {
         const current = this.workoutsResource.value();
         if (!current) throw new Error('Unexpected workoutsResource not set');
@@ -69,7 +77,7 @@ export class WorkoutsService {
     );
   }
 
-  initWorkout(name: string, units: Array<WorkoutUnit>): Workout {
+  initWorkout(name: string, list: WorkoutList): Workout {
     const workouts = this.workoutsResource.value();
     if (workouts === undefined) throw new Error('Workouts not loaded');
 
@@ -78,7 +86,7 @@ export class WorkoutsService {
       workoutId: workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1,
       lastUpdated: Date.now(),
       name,
-      units,
+      list,
     };
   }
 }

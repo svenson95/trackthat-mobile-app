@@ -5,6 +5,7 @@ import { LoadingController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
+  IonContent,
   IonHeader,
   IonInput,
   IonItem,
@@ -17,15 +18,16 @@ import {
 import type { OverlayEventDetail } from '@ionic/core';
 
 import type { WorkoutDoc } from '../../../../../models';
+import { WORKOUT_TEMPLATES } from '../../../../../shared';
 
 import { WorkoutsService } from '../../../services';
-import { WORKOUTS_TEMPLATES } from '../components';
 
 const ION_COMPONENTS = [
   IonHeader,
   IonToolbar,
   IonButtons,
   IonButton,
+  IonContent,
   IonTitle,
   IonItem,
   IonInput,
@@ -64,26 +66,28 @@ const ION_COMPONENTS = [
           </ion-toolbar>
         </ion-header>
 
-        <ion-item>
-          <ion-input
-            id="name-input"
-            label="Name"
-            type="text"
-            placeholder="Ganzkörper-Plan"
-            [(ngModel)]="name"
-          ></ion-input>
-        </ion-item>
+        <ion-content [fullscreen]="true">
+          <ion-item>
+            <ion-input
+              id="name-input"
+              label="Name"
+              type="text"
+              placeholder="Ganzkörper-Plan"
+              [(ngModel)]="name"
+            ></ion-input>
+          </ion-item>
 
-        <ion-item>
-          <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
-            <ion-select-option [value]="-1">Keine</ion-select-option>
-            @for (template of templates; track template.workoutId) {
-              <ion-select-option [value]="template.workoutId">{{
-                template.name
-              }}</ion-select-option>
-            }
-          </ion-select>
-        </ion-item>
+          <ion-item>
+            <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
+              <ion-select-option [value]="-1">Keine</ion-select-option>
+              @for (template of templates; track template.workoutId) {
+                <ion-select-option [value]="template.workoutId">{{
+                  template.name
+                }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        </ion-content>
       </ng-template>
     </ion-modal>
   `,
@@ -95,7 +99,7 @@ export class AddWorkoutDialog {
   modal = viewChild.required(IonModal);
   name = '';
   templateId = -1;
-  templates = WORKOUTS_TEMPLATES;
+  templates = WORKOUT_TEMPLATES;
 
   // TODO: add validation: not same name as other workouts, only specific letters and numbers
   isLoading = signal(false);
@@ -108,8 +112,8 @@ export class AddWorkoutDialog {
     if (this.name === '' || !this.name) return;
 
     const template = this.templates.find((t) => t.workoutId === this.templateId);
-    const units = template ? template.units : [];
-    const workoutData = this.workoutService.initWorkout(this.name, units);
+    const list = template ? template.list : [];
+    const workoutData = this.workoutService.initWorkout(this.name, list);
 
     const loading = await this.loadingCtrl.create({
       message: 'Trainingsplan wird erstellt ...',

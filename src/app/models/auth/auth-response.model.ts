@@ -1,8 +1,10 @@
-import type { UserDoc } from '../database/users-dto.model';
+import type { UserDoc } from '../database/users.model';
+import type { GoogleJWT } from './google.model';
 
-type JwtToken = string;
+export type JwtToken = string;
 
-export interface AuthResponse {
+export type GetAuthBody = { token: GoogleJWT };
+export type GetAuthResponse = {
   token: JwtToken;
   user: UserDoc;
-}
+};

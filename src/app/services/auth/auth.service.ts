@@ -3,7 +3,7 @@ import { computed, inject, Injectable, linkedSignal, signal } from '@angular/cor
 import { type Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment.prod';
-import type { AuthResponse, GoogleJWT, UserDoc } from '../../models';
+import type { GetAuthBody, GetAuthResponse, GoogleJWT, JwtToken, UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -19,16 +19,15 @@ export class AuthService {
   isLoading = signal<boolean>(false);
   isLoggedIn = computed(() => this.user() !== undefined);
 
-  loginWithGoogleToken(token: GoogleJWT): Observable<AuthResponse> {
+  loginWithGoogleToken(token: GoogleJWT): Observable<GetAuthResponse> {
     this.isLoading.set(true);
-    return this.http.post<AuthResponse>(
-      this.apiUrl + '/google',
-      { token },
-      { headers: { 'Content-Type': 'application/json' } },
-    );
+    const body: GetAuthBody = { token };
+    return this.http.post<GetAuthResponse>(this.apiUrl + '/google', body, {
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  login(res: AuthResponse): void {
+  login(res: GetAuthResponse): void {
     this.setUserData(res.user);
     this.setToken(res.token);
     this.isLoading.set(false);
@@ -40,7 +39,7 @@ export class AuthService {
     this.user.set(undefined);
   }
 
-  setToken(token: string): void {
+  setToken(token: JwtToken): void {
     localStorage.setItem('authToken', token);
   }
 
@@ -49,12 +48,12 @@ export class AuthService {
     this.user.set(user);
   }
 
-  verify(token: string): Observable<AuthResponse> {
+  verify(token: JwtToken): Observable<GetAuthResponse> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
 
-    return this.http.get<AuthResponse>(`${this.apiUrl}/verify`, { headers });
+    return this.http.get<GetAuthResponse>(`${this.apiUrl}/verify`, { headers });
   }
 }

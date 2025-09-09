@@ -10,8 +10,8 @@ const ION_COMPONENTS = [IonList, IonItem, IonIcon, IonLabel, IonListHeader];
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS],
   template: `
-    @let units = workout().units;
-    @if (units.length === 0) {
+    @let list = workout().list;
+    @if (list.length === 0) {
       <ion-list [inset]="true">
         <ion-item disabled>
           <ion-label>
@@ -20,20 +20,30 @@ const ION_COMPONENTS = [IonList, IonItem, IonIcon, IonLabel, IonListHeader];
         </ion-item>
       </ion-list>
     } @else {
-      @for (unit of units; track unit.name) {
-        <ion-list [inset]="true">
-          <ion-list-header lines="inset">
-            <ion-label>{{ unit.name }}</ion-label>
-          </ion-list-header>
-
-          @for (exercise of unit.exercises; track exercise.name) {
+      <ion-list [inset]="true">
+        @for (item of list; track item.name) {
+          @if (item.type === 'HEADER') {
+            <ion-list-header lines="inset">
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-list-header>
+          } @else if (item.type === 'EXERCISE') {
             <ion-item button>
-              <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
-              <ion-label>{{ exercise.name }}</ion-label>
+              <ion-icon aria-hidden="true" slot="start"></ion-icon>
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-item>
+          } @else if (item.type === 'LABEL') {
+            <ion-item button>
+              <ion-icon aria-hidden="true" slot="start"></ion-icon>
+              <ion-label>{{ item.name }}</ion-label>
+            </ion-item>
+          } @else if (item.type === 'SPACER') {
+            <ion-item button>
+              <ion-icon aria-hidden="true" slot="start"></ion-icon>
+              <ion-label></ion-label>
             </ion-item>
           }
-        </ion-list>
-      }
+        }
+      </ion-list>
     }
   `,
 })
