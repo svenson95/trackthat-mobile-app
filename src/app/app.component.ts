@@ -20,5 +20,6 @@ export class AppComponent {
   constructor() {
     this.appService.getVersionUpdates();
     this.appService.updateUserData();
+    this.appService.preventBrowserSwipeBack();
   }
 }

@@ -47,4 +47,16 @@ export class AppService {
       error: () => console.error('Verify authToken failed'),
     });
   }
+
+  preventBrowserSwipeBack(): void {
+    window.addEventListener(
+      'touchstart',
+      function (event) {
+        if (event.touches[0].pageX < 30) {
+          event.preventDefault();
+        }
+      },
+      { passive: false },
+    );
+  }
 }
