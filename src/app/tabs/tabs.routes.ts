@@ -1,6 +1,7 @@
 import type { Routes } from '@angular/router';
 
 import { TabsPage } from './tabs.page';
+import { WorkoutResolver } from './training/services';
 
 export const tabsRoutes: Routes = [
   {
@@ -23,6 +24,9 @@ export const tabsRoutes: Routes = [
               import('./training/pages/workout-detail/workout-detail.page').then(
                 (m) => m.WorkoutDetailPage,
               ),
+            resolve: {
+              workout: WorkoutResolver,
+            },
           },
         ],
       },

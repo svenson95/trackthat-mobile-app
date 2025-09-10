@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
-import { AuthService } from '../../services';
+import { AuthService, UserService } from '../../services';
 
 import { HelloBoxComponent, LoginBoxComponent } from './components';
 
@@ -25,9 +25,8 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
       </ion-header>
 
       <app-content-container>
-        @let data = user();
-        @if (isLoggedIn() && data !== undefined) {
-          <app-hello-box [user]="data" />
+        @if (isLoggedIn()) {
+          <app-hello-box [user]="user()" />
         } @else {
           <app-login-box />
         }
@@ -38,5 +37,7 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
 export class OverviewPage {
   private authService = inject(AuthService);
   isLoggedIn = this.authService.isLoggedIn;
-  user = this.authService.user;
+
+  private userService = inject(UserService);
+  user = this.userService.user;
 }

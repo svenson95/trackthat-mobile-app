@@ -36,14 +36,10 @@ export class AppService {
   }
 
   updateUserData(): void {
-    const token = localStorage.getItem('authToken');
+    const token = this.authService.getToken();
     if (!token) return;
 
-    this.authService.verify(token).subscribe({
-      next: (res) => {
-        this.authService.setUserData(res.user);
-        this.authService.setToken(res.token);
-      },
+    this.authService.getVerify(token).subscribe({
       error: () => console.error('Verify authToken failed'),
     });
   }

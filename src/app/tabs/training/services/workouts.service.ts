@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, untracked } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { computed, inject, Injectable } from '@angular/core';
+import { map, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import type {
@@ -12,7 +12,7 @@ import type {
   WorkoutId,
   WorkoutList,
 } from '../../../models';
-import { AuthService } from '../../../services';
+import { UserService } from '../../../services';
 
 @Injectable({
   providedIn: 'root',
@@ -21,41 +21,39 @@ export class WorkoutsService {
   private apiUrl = environment.api + 'workouts';
 
   private http = inject(HttpClient);
-  private authService = inject(AuthService);
+  private userService = inject(UserService);
 
-  workoutsResource = httpResource<undefined | GetWorkoutsDTO>(() => {
-    const user = untracked(this.authService.user);
-    if (!user) throw new Error('Unexpected user undefined');
-    const userId = user.id;
+  workoutsResource = httpResource<GetWorkoutsDTO | undefined>(() => ({
+    url: `${this.apiUrl}/get/${this.userService.user().id}`,
+    method: 'GET',
+  }));
 
-    return {
-      url: `${this.apiUrl}/get/${userId}`,
-      method: 'GET',
-    };
-  });
-
-  sortedWorkouts = computed<Array<WorkoutDoc>>(() => {
-    const user = untracked(this.authService.user);
-    if (!user) throw new Error('Unexpected user undefined');
+  private workouts = computed<GetWorkoutsDTO>(() => {
     const workouts = this.workoutsResource.value();
     if (!workouts) throw new Error('Unexpected workouts undefined');
-    const ids = user.workoutIds;
-    return ids.map((id) => workouts.find((w) => w.workoutId === id)!);
+    return workouts;
   });
+
+  sortedWorkouts = computed<Array<WorkoutDoc>>(() =>
+    this.userService
+      .user()
+      .workoutIds.map((id) => this.workouts().find((w) => w.workoutId === id)!),
+  );
+
+  getWorkout(id: number): Observable<WorkoutDoc> {
+    return this.http
+      .get<GetWorkoutsDTO>(this.apiUrl + '/get/' + this.userService.user().id)
+      .pipe(map((workouts) => workouts.find((w) => w.workoutId === id)!));
+  }
 
   addWorkout(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
     return this.http.post<PostWorkoutResponse>(this.apiUrl + '/add', workout).pipe(
       tap((createdWorkout) => {
-        const current = this.workoutsResource.value();
-        if (!current) throw new Error('Unexpected workoutsResource not set');
-
-        const workouts = [...current, createdWorkout];
+        const workouts = [...this.workouts(), createdWorkout];
         this.workoutsResource.set(workouts);
 
         const ids = workouts.map((w) => w.workoutId);
-        const user = this.authService.user();
-        if (!user) throw new Error('Unexpected user undefined');
-        this.authService.setUserData({ ...user, workoutIds: ids });
+        this.userService.setUser({ ...this.userService.user(), workoutIds: ids });
       }),
     );
   }
@@ -63,27 +61,22 @@ export class WorkoutsService {
   deleteWorkout(id: WorkoutId): Observable<void> {
     return this.http.delete<void>(this.apiUrl + '/delete/' + id).pipe(
       tap(() => {
-        const current = this.workoutsResource.value();
-        if (!current) throw new Error('Unexpected workoutsResource not set');
-
-        const filtered = current.filter((w) => w.id !== id);
+        const filtered = this.workouts().filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);
 
         const ids = filtered.map((w) => w.workoutId);
-        const user = this.authService.user();
-        if (!user) throw new Error('Unexpected user undefined');
-        this.authService.setUserData({ ...user, workoutIds: ids });
+        this.userService.setUser({ ...this.userService.user(), workoutIds: ids });
       }),
     );
   }
 
   initWorkout(name: string, list: WorkoutList): Workout {
-    const workouts = this.workoutsResource.value();
-    if (workouts === undefined) throw new Error('Workouts not loaded');
+    const user = this.userService.user();
+    const ids = user.workoutIds;
 
     return {
-      userId: this.authService.user()?.id ?? 'error',
-      workoutId: workouts.length === 0 ? 1 : Math.max(...workouts.map((e) => e.workoutId)) + 1,
+      userId: user.id,
+      workoutId: ids.length === 0 ? 1 : Math.max(...ids) + 1,
       lastUpdated: Date.now(),
       name,
       list,

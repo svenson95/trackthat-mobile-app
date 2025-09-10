@@ -52,9 +52,8 @@ import { AuthService, UserService } from '../../services';
               <ion-label>Nutzer</ion-label>
             </ion-item-divider>
 
-            @let data = usersResource.value();
-            @if (data) {
-              @for (user of data; track user.email) {
+            @if (isResolved()) {
+              @for (user of allUsers.value(); track user.email) {
                 <ion-item>
                   <ion-label>
                     <h3>{{ user.name }}</h3>
@@ -87,9 +86,10 @@ export class MorePage {
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
 
-  usersResource = this.usersService.usersResource;
-  isLoading = computed(() => this.usersResource.status() === 'loading');
-  hasError = computed(() => this.usersResource.status() === 'error');
+  allUsers = this.usersService.allUsersResource;
+  isLoading = computed(() => this.allUsers.status() === 'loading');
+  isResolved = computed(() => this.allUsers.status() === 'resolved');
+  hasError = computed(() => this.allUsers.status() === 'error');
 
   logout = async (): Promise<void> => {
     const loading = await this.loadingCtrl.create({

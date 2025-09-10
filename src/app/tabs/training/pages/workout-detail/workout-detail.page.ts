@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -12,12 +11,9 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { filter, map } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
 import type { WorkoutDoc } from '../../../../models';
-
-import { WorkoutsService } from '../../services';
 
 import { WorkoutUnitsComponent } from './components';
 
@@ -50,7 +46,7 @@ const ION_COMPONENTS = [
           <ion-back-button text="Pläne" defaultHref="/tabs/training"></ion-back-button>
         </ion-buttons>
 
-        <ion-title> {{ pageTitle() }} </ion-title>
+        <ion-title> {{ workout.name }} </ion-title>
 
         <ion-buttons slot="primary">
           <ion-button>
@@ -62,30 +58,13 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <app-content-container>
-        <app-workout-units [workout]="selectedWorkout()" />
+        <app-workout-units [workout]="workout" />
       </app-content-container>
     </ion-content>
   `,
 })
 export class WorkoutDetailPage {
   private route = inject(ActivatedRoute);
-  private service = inject(WorkoutsService);
 
-  pageTitle = computed<string>(() => this.selectedWorkout().name);
-
-  workoutId = toSignal<number>(
-    this.route.paramMap.pipe(
-      map((params) => params.get('workoutId')),
-      filter((id): id is string => id !== null),
-      map((id) => Number(id)),
-    ),
-  );
-
-  selectedWorkout = computed<WorkoutDoc>(() => {
-    const workouts = this.service.workoutsResource.value();
-    if (!workouts) throw new Error('Workouts not loaded');
-    const workout = workouts.find((w) => w.workoutId === this.workoutId());
-    if (!workout) throw new Error('Workout not found');
-    return workout;
-  });
+  workout: WorkoutDoc = this.route.snapshot.data['workout'];
 }

@@ -27,7 +27,7 @@ import type { RefresherCustomEvent } from '@ionic/core';
 import { filter, first } from 'rxjs';
 
 import { ContentContainerComponent } from '../../../../components';
-import { AuthService, UserService } from '../../../../services';
+import { UserService } from '../../../../services';
 
 import { SortingWorkoutsService, WorkoutsService } from '../../services';
 
@@ -128,7 +128,6 @@ export class WorkoutListPage {
   private injector = inject(Injector);
   private loadingCtrl = inject(LoadingController);
 
-  private authService = inject(AuthService);
   private userService = inject(UserService);
   private workoutsService = inject(WorkoutsService);
 
@@ -178,12 +177,10 @@ export class WorkoutListPage {
     await loading.present();
 
     const ids = this.sortService.workoutIds();
-    const userId = this.authService.user()?.id;
-    if (!userId) throw new Error('Unexpected userId not defined');
+    const userId = this.userService.user().id;
 
     this.userService.updateUserWorkoutList(userId, ids).subscribe({
-      next: (user) => {
-        this.authService.setUserData(user);
+      next: () => {
         this.isEditing.set(false);
         void loading.dismiss();
       },
