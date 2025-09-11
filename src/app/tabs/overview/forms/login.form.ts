@@ -26,7 +26,13 @@ declare const google: any;
     }
   `,
   template: `
-    <ion-button expand="block" color="danger" (click)="loginWithGoogle()" [disabled]="isLoading()">
+    <ion-button
+      data-test="google-login-btn"
+      expand="block"
+      color="danger"
+      (click)="loginWithGoogle()"
+      [disabled]="isLoading()"
+    >
       @if (isLoading()) {
         <ion-spinner name="dots"></ion-spinner>
       } @else {
