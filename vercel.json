@@ -9,5 +9,8 @@
       "source": "/ngsw-worker.js",
       "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }
