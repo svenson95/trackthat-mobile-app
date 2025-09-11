@@ -1,6 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 
 import { ContentContainerComponent } from '../../components';
 
@@ -12,7 +12,8 @@ describe('MorePage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [IonicModule.forRoot(), ContentContainerComponent, MorePage],
+      imports: [ContentContainerComponent, MorePage],
+      providers: [provideHttpClient()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MorePage);

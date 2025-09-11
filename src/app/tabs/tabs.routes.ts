@@ -1,5 +1,7 @@
 import type { Routes } from '@angular/router';
 
+import { AuthGuard } from '../services';
+
 import { TabsPage } from './tabs.page';
 import { WorkoutResolver } from './training/services';
 
@@ -10,6 +12,7 @@ export const tabsRoutes: Routes = [
     children: [
       {
         path: 'training',
+        canActivate: [AuthGuard],
         children: [
           {
             path: '',
@@ -32,6 +35,7 @@ export const tabsRoutes: Routes = [
       },
       {
         path: 'eat',
+        canActivate: [AuthGuard],
         loadComponent: () => import('./eat/eat.page').then((m) => m.EatPage),
       },
       {
@@ -40,10 +44,12 @@ export const tabsRoutes: Routes = [
       },
       {
         path: 'logs',
+        canActivate: [AuthGuard],
         loadComponent: () => import('./logs/logs.page').then((m) => m.LogsPage),
       },
       {
         path: 'more',
+        canActivate: [AuthGuard],
         loadComponent: () => import('./more/more.page').then((m) => m.MorePage),
       },
       {
