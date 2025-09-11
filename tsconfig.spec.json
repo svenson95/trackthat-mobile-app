@@ -6,5 +6,6 @@
     "types": ["jasmine"]
   },
   "files": ["src/test.ts", "src/polyfills.ts"],
+  "exclude": [],
   "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
 }
