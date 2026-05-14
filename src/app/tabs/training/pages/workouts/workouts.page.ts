@@ -26,6 +26,8 @@ import {
 import type { RefresherCustomEvent } from '@ionic/core';
 import { filter, first } from 'rxjs';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { ContentContainerComponent } from '../../../../components';
 import { UserService } from '../../../../services';
 
@@ -54,6 +56,7 @@ const ION_COMPONENTS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ION_COMPONENTS,
+    TranslateModule,
     FormsModule,
     ContentContainerComponent,
     WorkoutsComponent,
