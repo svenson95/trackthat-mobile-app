@@ -1,7 +1,7 @@
+import type { OnDestroy, OnInit } from '@angular/core';
 import {
   ChangeDetectionStrategy,
   Component,
-  HostListener,
   inject,
   input,
   signal,
@@ -96,23 +96,27 @@ const ION_COMPONENTS = [
     }
   `,
 })
-export class WorkoutUnitsComponent {
+export class WorkoutUnitsComponent implements OnInit, OnDestroy {
   workout = input.required<Workout>();
   private editService = inject(SortingItemsService);
   isEditing = this.editService.isEditing;
   itemsList = viewChild.required(IonList);
 
-  darkPath = signal<string>('');
+  private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-  @HostListener('window:matchMedia("(prefers-color-scheme: dark)").change')
-  onThemeChange(): void {
-    this.checkTheme();
+  darkPath = signal(this.mediaQuery.matches ? '-white' : '');
+
+  ngOnInit(): void {
+    this.mediaQuery.addEventListener('change', this.darkPathListener);
   }
 
-  checkTheme(): void {
-    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.darkPath.set(preferDark ? '-white' : '');
+  ngOnDestroy(): void {
+    this.mediaQuery.removeEventListener('change', this.darkPathListener);
   }
+
+  private darkPathListener = (event: MediaQueryListEvent): void => {
+    this.darkPath.set(event.matches ? '-white' : '');
+  };
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;
