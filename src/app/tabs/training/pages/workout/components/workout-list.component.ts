@@ -19,7 +19,6 @@ import {
 } from '@ionic/angular/standalone';
 
 import type { Workout } from '../../../../../models';
-import { EXERCISES_METADATA } from '../../../../../shared';
 import { SortingItemsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -40,6 +39,9 @@ const ION_COMPONENTS = [
     .exercise-image {
       margin-right: 0.5rem;
     }
+    .label-item {
+      font-weight: 700;
+    }
   `,
   template: `
     @let list = workout().list;
@@ -57,31 +59,29 @@ const ION_COMPONENTS = [
           @for (item of list; track item.name) {
             <ion-item-sliding [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
-                <ion-item button>
-                  <ion-label>{{ item.name }}</ion-label>
+                <ion-item>
+                  <ion-label class="label-item">{{ item.name }}</ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
-                <ion-item button>
-                  @if (exerciseWithImage(item.name)) {
-                    <img
-                      class="exercise-image"
-                      [src]="'assets/images/exercises' + darkPath() + '/' + item.name + '.png'"
-                      width="24"
-                      height="24"
-                    />
-                  }
+                <ion-item [button]="!isEditing()">
+                  <img
+                    class="exercise-image"
+                    [src]="'assets/images/exercises' + darkPath() + '/' + item.name + '.png'"
+                    width="24"
+                    height="24"
+                  />
                   <ion-label>{{ item.name }}</ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'LABEL') {
-                <ion-item button>
+                <ion-item [button]="!isEditing()">
                   <ion-icon aria-hidden="true" slot="start"></ion-icon>
                   <ion-label>{{ item.name }}</ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'SPACER') {
-                <ion-item button>
+                <ion-item>
                   <ion-icon aria-hidden="true" slot="start"></ion-icon>
                   <ion-label></ion-label>
                   <ion-reorder slot="end"></ion-reorder>
@@ -126,10 +126,5 @@ export class WorkoutUnitsComponent implements OnInit, OnDestroy {
     this.editService.itemIds.set(items);
 
     event.detail.complete();
-  }
-
-  exerciseWithImage(name: null | string): boolean {
-    if (!name) return false;
-    return EXERCISES_METADATA.some((e) => e.name === name && !!e.image);
   }
 }
