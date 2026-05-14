@@ -37,13 +37,13 @@ const ION_COMPONENTS = [
     <ion-list [inset]="true">
       <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
         @if (isLoading()) {
-          <ion-item disabled>
+          <ion-item>
             <ion-label>
               <p>{{ 'general.loading' | translate }} ...</p>
             </ion-label>
           </ion-item>
         } @else if (hasError()) {
-          <ion-item disabled>
+          <ion-item>
             <ion-label>
               <p>{{ 'general.error' | translate }}</p>
             </ion-label>
@@ -51,7 +51,7 @@ const ION_COMPONENTS = [
         } @else {
           @let workouts = sortedWorkouts();
           @if (workouts?.length === 0) {
-            <ion-item disabled>
+            <ion-item>
               <ion-label>
                 <p>{{ 'tabs.training.workouts.no-plans' | translate }}</p>
               </ion-label>

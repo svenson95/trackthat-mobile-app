@@ -99,7 +99,7 @@ const ION_COMPONENTS = [
       <ion-refresher slot="fixed" [pullFactor]="1.5" (ionRefresh)="handleRefresh($event)">
         <ion-refresher-content
           pullingIcon="chevron-down"
-          pullingText="('general.loading' | translate) + '...'"
+          [pullingText]="('general.loading' | translate) + '...'"
           refreshingSpinner="circles"
           [refreshingText]="('general.loading' | translate) + '...'"
         ></ion-refresher-content>

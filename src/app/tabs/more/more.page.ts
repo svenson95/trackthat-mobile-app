@@ -80,13 +80,13 @@ import { AuthService, UserService } from '../../services';
                 </ion-item>
               }
             } @else if (isLoading()) {
-              <ion-item disabled>
+              <ion-item>
                 <ion-label>
                   <p>{{ 'general.loading' | translate }} ...</p>
                 </ion-label>
               </ion-item>
             } @else if (hasError()) {
-              <ion-item disabled>
+              <ion-item>
                 <ion-label>
                   <p>{{ 'general.error' | translate }}</p>
                 </ion-label>
