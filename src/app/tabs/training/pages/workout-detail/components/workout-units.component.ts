@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, input, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { type ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
@@ -60,7 +68,7 @@ const ION_COMPONENTS = [
                   @if (exerciseWithImage(item.name)) {
                     <img
                       class="exercise-image"
-                      [src]="'assets/images/exercises/' + item.name + '.png'"
+                      [src]="'assets/images/exercises' + darkPath() + '/' + item.name + '.png'"
                       width="24"
                       height="24"
                     />
@@ -93,6 +101,18 @@ export class WorkoutUnitsComponent {
   private editService = inject(SortingItemsService);
   isEditing = this.editService.isEditing;
   itemsList = viewChild.required(IonList);
+
+  darkPath = signal<string>('');
+
+  @HostListener('window:matchMedia("(prefers-color-scheme: dark)").change')
+  onThemeChange(): void {
+    this.checkTheme();
+  }
+
+  checkTheme(): void {
+    const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.darkPath.set(preferDark ? '-white' : '');
+  }
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;
