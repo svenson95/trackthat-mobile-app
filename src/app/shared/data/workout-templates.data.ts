@@ -191,7 +191,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 2,
-        name: 'fly_dumbbell',
+        name: 'fly_incline_dumbbell',
         equipment: 'dumbbell',
       },
       {
