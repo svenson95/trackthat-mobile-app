@@ -93,7 +93,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 14,
-        name: 'calf-raise',
+        name: 'calf_raise_standing_one_arm_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -110,14 +110,21 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 17,
+        name: 'pull_up_wide_grip',
+        variant: 'wide-grip',
+        equipment: 'bodyweight',
+      },
+      {
+        type: 'EXERCISE',
+        itemId: 18,
         name: 'rows_dumbbell_one_arm',
         variant: 'one-arm',
         equipment: 'dumbbell',
       },
       {
         type: 'EXERCISE',
-        itemId: 18,
-        name: 'bent-over-reverse-fly',
+        itemId: 19,
+        name: 'reverse_fly_bent_over_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -146,7 +153,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 23,
-        name: 'side-plank',
+        name: 'side_plank',
         equipment: 'bodyweight',
       },
       {
@@ -158,7 +165,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 25,
-        name: 'russian-twist',
+        name: 'russian_twist',
         equipment: 'dumbbell',
       },
     ],
@@ -213,7 +220,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 7,
-        name: 'bent-over-reverse-fly',
+        name: 'reverse_fly_bent_over_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -226,7 +233,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 9,
-        name: 'side-plank',
+        name: 'side_plank',
         equipment: 'bodyweight',
       },
       {
@@ -238,7 +245,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 11,
-        name: 'russian-twist',
+        name: 'russian_twist',
         equipment: 'dumbbell',
       },
       {
@@ -309,7 +316,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 23,
-        name: 'calf-raise',
+        name: 'calf_raise_standing_one_arm_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -336,7 +343,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 2,
-        name: 'bent-over-reverse-fly',
+        name: 'reverse_fly_bent_over_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },

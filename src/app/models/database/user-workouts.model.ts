@@ -58,7 +58,7 @@ export type ExerciseVariant =
   | 'concentration'
 
   // back
-  | 'wide'
+  | 'wide-grip'
   | 'close'
   | 'one-arm'
   | 'two-arm'
