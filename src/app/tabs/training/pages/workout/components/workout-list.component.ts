@@ -51,7 +51,7 @@ const ION_COMPONENTS = [
       <ion-list [inset]="true">
         <ion-item>
           <ion-label>
-            <p>Keine Trainingseinheiten</p>
+            <p>{{ 'tabs.training.workout.empty-list' | translate }}</p>
           </ion-label>
         </ion-item>
       </ion-list>

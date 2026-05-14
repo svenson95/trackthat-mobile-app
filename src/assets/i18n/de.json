@@ -28,6 +28,7 @@
       },
       "workout": {
         "plans": "Pläne",
+        "empty-list": "Liste ist leer",
         "exercise": {
           "squats_dumbbell": "Kniebeugen Kurzhantel",
           "lunges": "Ausfallschritte",

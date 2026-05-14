@@ -28,6 +28,7 @@
       },
       "workout": {
         "plans": "Plans",
+        "empty-list": "List is empty",
         "exercise": {
           "squats_dumbbell": "Squats Dumbbell",
           "lunges": "Lunges",
