@@ -12,9 +12,9 @@ export interface ExerciseMetadata {
 export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
   /* legs */
   {
-    name: 'squats',
-    image: null,
-    equipmentTypes: ['dumbbell', 'barbell', 'machine'],
+    name: 'squats_dumbbell',
+    image: 'squats_dumbbell',
+    equipmentTypes: ['dumbbell'],
     variants: null,
     muscleGroups: ['quads', 'glutes', 'hamstrings'],
   },
@@ -79,15 +79,15 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
 
   /* core & abs */
   {
-    name: 'deadlift',
-    image: null,
+    name: 'deadlift_dumbbell',
+    image: 'deadlift_dumbbell',
     equipmentTypes: ['dumbbell', 'barbell'],
     variants: ['normal', 'stiff-leg'],
     muscleGroups: ['core', 'abs', 'hamstrings'],
   },
   {
     name: 'plank',
-    image: null,
+    image: 'plank',
     equipmentTypes: ['bodyweight'],
     variants: [],
     muscleGroups: ['core', 'abs'],
@@ -107,9 +107,9 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
     muscleGroups: ['core', 'abs'],
   },
   {
-    name: 'crunches',
-    image: null,
-    equipmentTypes: ['bodyweight', 'machine', 'cable-tower'],
+    name: 'sit_ups',
+    image: 'sit_ups',
+    equipmentTypes: ['bodyweight'],
     variants: [],
     muscleGroups: ['abs'],
   },
@@ -135,6 +135,20 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
     equipmentTypes: ['dumbbell', 'barbell', 'cable-tower', 'machine'],
     variants: ['one-arm', 'two-arm'],
     muscleGroups: ['lats', 'traps', 'biceps', 'core'],
+  },
+  {
+    name: 'rows_dumbbell_bent_over',
+    image: 'rows_dumbbell_bent_over',
+    equipmentTypes: ['dumbbell'],
+    variants: ['two-arm'],
+    muscleGroups: ['lats', 'traps', 'biceps', 'core'],
+  },
+  {
+    name: 'rows_dumbbell_one_arm',
+    image: 'rows_dumbbell_one_arm',
+    equipmentTypes: ['dumbbell'],
+    variants: ['one-arm'],
+    muscleGroups: ['lats', 'biceps'],
   },
 
   /* chest */
@@ -190,17 +204,17 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
 
   /* shoulders */
   {
-    name: 'shoulder-press',
-    image: null,
-    equipmentTypes: ['dumbbell', 'barbell', 'machine'],
+    name: 'shoulder_press_dumbbell',
+    image: 'shoulder_press_dumbbell',
+    equipmentTypes: ['dumbbell'],
     variants: [],
     muscleGroups: ['front-delta', 'middle-delta', 'triceps', 'traps'],
   },
   {
-    name: 'lateral-raises',
-    image: null,
-    equipmentTypes: ['dumbbell', 'machine'],
-    variants: ['standing', 'seated'],
+    name: 'lateral_raises_dumbbell',
+    image: 'lateral_raises_dumbbell',
+    equipmentTypes: ['dumbbell'],
+    variants: ['standing'],
     muscleGroups: ['middle-delta', 'front-delta'],
   },
   {
@@ -219,9 +233,16 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
   },
   {
     name: 'shrugs',
-    image: null,
-    equipmentTypes: ['dumbbell', 'barbell'],
-    variants: [],
+    image: 'shrugs_dumbbell',
+    equipmentTypes: ['dumbbell'],
+    variants: ['standing'],
+    muscleGroups: ['rear-delta', 'traps'],
+  },
+  {
+    name: 'shrugs',
+    image: 'shrugs_dumbbell_sitting',
+    equipmentTypes: ['dumbbell'],
+    variants: ['seated'],
     muscleGroups: ['rear-delta', 'traps'],
   },
 ];

@@ -45,13 +45,13 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 6,
-        name: 'shoulder-press',
+        name: 'shoulder_press_dumbbell',
         equipment: 'dumbbell',
       },
       {
         type: 'EXERCISE',
         itemId: 7,
-        name: 'lateral-raises',
+        name: 'lateral_raises_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -75,7 +75,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 11,
-        name: 'squats',
+        name: 'squats_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -87,7 +87,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 13,
-        name: 'deadlift',
+        name: 'deadlift_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -110,7 +110,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 17,
-        name: 'rows',
+        name: 'rows_dumbbell_one_arm',
         variant: 'one-arm',
         equipment: 'dumbbell',
       },
@@ -124,7 +124,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 19,
-        name: 'shrugs',
+        name: 'shrugs_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -152,7 +152,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 24,
-        name: 'crunches',
+        name: 'sit_ups',
         equipment: 'bodyweight',
       },
       {
@@ -190,7 +190,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 3,
-        name: 'shrugs',
+        name: 'shrugs_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -206,8 +206,8 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 6,
-        name: 'rows',
-        variant: 'one-arm',
+        name: 'rows_dumbbell_bent_over',
+        variant: 'two-arm',
         equipment: 'dumbbell',
       },
       {
@@ -232,7 +232,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 10,
-        name: 'crunches',
+        name: 'sit_ups',
         equipment: 'bodyweight',
       },
       {
@@ -254,13 +254,13 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 14,
-        name: 'shoulder-press',
+        name: 'shoulder_press_dumbbell',
         equipment: 'dumbbell',
       },
       {
         type: 'EXERCISE',
         itemId: 15,
-        name: 'lateral-raises',
+        name: 'lateral_raises_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
@@ -291,7 +291,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 20,
-        name: 'squats',
+        name: 'squats_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -303,7 +303,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 22,
-        name: 'deadlift',
+        name: 'deadlift_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -329,7 +329,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 1,
-        name: 'rows',
+        name: 'rows_dumbbell_one_arm',
         variant: 'one-arm',
         equipment: 'dumbbell',
       },
@@ -343,7 +343,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 3,
-        name: 'squats',
+        name: 'squats_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -355,7 +355,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 5,
-        name: 'deadlift',
+        name: 'deadlift_dumbbell',
         equipment: 'dumbbell',
       },
       {
@@ -378,20 +378,20 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
       {
         type: 'EXERCISE',
         itemId: 9,
-        name: 'shoulder-press',
+        name: 'shoulder_press_dumbbell',
         equipment: 'dumbbell',
       },
       {
         type: 'EXERCISE',
         itemId: 10,
-        name: 'lateral-raises',
+        name: 'lateral_raises_dumbbell',
         equipment: 'dumbbell',
         variant: 'standing',
       },
       {
         type: 'EXERCISE',
         itemId: 11,
-        name: 'shrugs',
+        name: 'shrugs_dumbbell',
         equipment: 'dumbbell',
       },
       {
