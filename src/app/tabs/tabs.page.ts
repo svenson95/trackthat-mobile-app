@@ -21,27 +21,27 @@ import { AuthService } from '../services';
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="training" href="/tabs/training" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="trainingIcon()"></ion-icon>
-          <ion-label>{{ 'tabs.training.tab-title' | translate }}</ion-label>
+          <ion-label>{{ 'tabs.training.tab-label' | translate }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="eat" href="/tabs/eat" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="eatIcon()"></ion-icon>
-          <ion-label>{{ 'tabs.eat.tab-title' | translate }}</ion-label>
+          <ion-label>{{ 'tabs.eat.tab-label' | translate }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="overview" href="/tabs/overview">
           <ion-icon aria-hidden="true" [name]="overviewIcon()"></ion-icon>
-          <ion-label>{{ 'tabs.overview.tab-title' | translate }}</ion-label>
+          <ion-label>{{ 'tabs.overview.tab-label' | translate }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="logs" href="/tabs/logs" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="logsIcon()"></ion-icon>
-          <ion-label>{{ 'tabs.logs.tab-title' | translate }}</ion-label>
+          <ion-label>{{ 'tabs.logs.tab-label' | translate }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="more" href="/tabs/more" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" name="ellipsis-horizontal"></ion-icon>
-          <ion-label>{{ 'tabs.more.tab-title' | translate }}</ion-label>
+          <ion-label>{{ 'tabs.more.tab-label' | translate }}</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
