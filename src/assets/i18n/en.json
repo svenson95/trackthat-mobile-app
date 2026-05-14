@@ -2,6 +2,7 @@
   "general": {
     "abort": "Abort",
     "save": "Save",
+    "edit": "Edit",
     "loading": "Loading",
     "error": "Error occured",
     "delete": "Delete"
