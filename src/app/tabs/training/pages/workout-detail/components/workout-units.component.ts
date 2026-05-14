@@ -14,7 +14,6 @@ import {
   IonItemSliding,
   IonLabel,
   IonList,
-  IonListHeader,
   IonReorder,
   IonReorderGroup,
 } from '@ionic/angular/standalone';
@@ -28,7 +27,6 @@ const ION_COMPONENTS = [
   IonItem,
   IonIcon,
   IonLabel,
-  IonListHeader,
   IonReorder,
   IonReorderGroup,
   IonItemSliding,
@@ -59,10 +57,10 @@ const ION_COMPONENTS = [
           @for (item of list; track item.name) {
             <ion-item-sliding [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
-                <ion-list-header lines="inset">
+                <ion-item button>
                   <ion-label>{{ item.name }}</ion-label>
                   <ion-reorder slot="end"></ion-reorder>
-                </ion-list-header>
+                </ion-item>
               } @else if (item.type === 'EXERCISE') {
                 <ion-item button>
                   @if (exerciseWithImage(item.name)) {
