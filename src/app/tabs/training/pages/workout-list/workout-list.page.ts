@@ -66,7 +66,7 @@ const ION_COMPONENTS = [
           @if (isEditing()) {
             <ion-button (click)="abortEditing(workoutsComp.workoutsList())"> Abbrechen </ion-button>
           } @else {
-            <ion-button id="add-workout-modal">
+            <ion-button (click)="openAddWorkoutModal()">
               <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
             </ion-button>
           }
@@ -110,7 +110,7 @@ const ION_COMPONENTS = [
         <app-workouts #workoutsComp />
       </app-content-container>
 
-      <app-add-workout-modal></app-add-workout-modal>
+      <app-add-workout-dialog></app-add-workout-dialog>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
@@ -137,6 +137,8 @@ export class WorkoutListPage {
   private sortService = inject(SortingWorkoutsService);
   isEditing = this.sortService.isEditing;
 
+  addWorkoutDialog = viewChild.required(AddWorkoutDialog);
+
   handleRefresh(event: RefresherCustomEvent): void {
     const res = this.workoutsService.workoutsResource;
     const started = res.reload();
@@ -152,6 +154,10 @@ export class WorkoutListPage {
         first(),
       )
       .subscribe(() => event.target.complete());
+  }
+
+  openAddWorkoutModal(): void {
+    void this.addWorkoutDialog().modal().present();
   }
 
   presentPopover(ev: Event): void {

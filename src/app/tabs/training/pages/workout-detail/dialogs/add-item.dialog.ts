@@ -37,7 +37,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-add-workout-dialog',
+  selector: 'app-add-item-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule],
   styles: `
@@ -53,7 +53,7 @@ const ION_COMPONENTS = [
             <ion-buttons slot="start">
               <ion-button (click)="cancel()">Abbrechen</ion-button>
             </ion-buttons>
-            <ion-title>Neuer Plan</ion-title>
+            <ion-title>Element hinzufügen</ion-title>
             <ion-buttons slot="end">
               <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
                 Speichern
@@ -68,7 +68,7 @@ const ION_COMPONENTS = [
               id="name-input"
               label="Name"
               type="text"
-              placeholder="Ganzkörper-Plan"
+              placeholder="Bankdrücken"
               [(ngModel)]="name"
             ></ion-input>
           </ion-item>
@@ -88,7 +88,7 @@ const ION_COMPONENTS = [
     </ion-modal>
   `,
 })
-export class AddWorkoutDialog {
+export class AddItemDialog {
   private workoutService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
   private router = inject(Router);
