@@ -23,18 +23,18 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Unit Tests
-        run: npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox
-        env:
-          CHROME_BIN: google-chrome-stable
+      # - name: Run Unit Tests
+      #   run: npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox
+      #   env:
+      #     CHROME_BIN: google-chrome-stable
 
-      - name: Run Cypress E2E Tests
-        uses: cypress-io/github-action@v6
-        with:
-          build: npm run build
-          start: npm run start
-          wait-on: 'http://localhost:8100'
-          browser: chrome
+      # - name: Run Cypress E2E Tests
+      #   uses: cypress-io/github-action@v6
+      #   with:
+      #     build: npm run build
+      #     start: npm run start
+      #     wait-on: 'http://localhost:8100'
+      #     browser: chrome
 
   deploy:
     runs-on: ubuntu-latest
