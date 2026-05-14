@@ -39,7 +39,7 @@ const ION_COMPONENTS = [
   imports: [...ION_COMPONENTS, TranslateModule],
   styles: `
     .exercise-image {
-      margin-right: 0.5rem;
+      margin-right: 0.75rem;
     }
     .label-item {
       font-weight: 700;
