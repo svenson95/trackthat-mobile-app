@@ -50,7 +50,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-workout-list-page',
+  selector: 'app-workouts-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ION_COMPONENTS,
@@ -107,7 +107,7 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <app-content-container>
-        <app-workouts #workoutsComp />
+        <app-workouts-list #workoutsComp />
       </app-content-container>
 
       <app-add-workout-dialog></app-add-workout-dialog>
@@ -124,7 +124,7 @@ const ION_COMPONENTS = [
     </ion-content>
   `,
 })
-export class WorkoutListPage {
+export class WorkoutsPage {
   private injector = inject(Injector);
   private loadingCtrl = inject(LoadingController);
 

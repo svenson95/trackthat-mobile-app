@@ -28,7 +28,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-workouts',
+  selector: 'app-workouts-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, RouterLink],
   template: `

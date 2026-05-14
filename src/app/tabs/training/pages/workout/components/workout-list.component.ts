@@ -33,7 +33,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-workout-units',
+  selector: 'app-workout-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS],
   styles: `
@@ -98,7 +98,7 @@ export class WorkoutUnitsComponent implements OnInit, OnDestroy {
   workout = input.required<Workout>();
   private editService = inject(SortingItemsService);
   isEditing = this.editService.isEditing;
-  itemsList = viewChild.required(IonList);
+  workoutList = viewChild.required(IonList);
 
   private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 

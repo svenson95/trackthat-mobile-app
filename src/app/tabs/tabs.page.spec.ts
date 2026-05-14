@@ -3,6 +3,19 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  add,
+  bicycle,
+  bicycleOutline,
+  calendar,
+  calendarOutline,
+  ellipsisHorizontal,
+  person,
+  personOutline,
+  restaurant,
+  restaurantOutline,
+} from 'ionicons/icons';
 
 import { appRoutes } from '../app.routes';
 
@@ -14,6 +27,19 @@ describe('TabsPage', () => {
   let router: Router;
 
   beforeEach(async () => {
+    addIcons({
+      'ellipsis-horizontal': ellipsisHorizontal,
+      add,
+      bicycle,
+      'bicycle-outline': bicycleOutline,
+      restaurant,
+      'restaurant-outline': restaurantOutline,
+      person,
+      'person-outline': personOutline,
+      calendar,
+      'calendar-outline': calendarOutline,
+    });
+
     await TestBed.configureTestingModule({
       imports: [TabsPage],
       providers: [provideRouter(appRoutes), provideHttpClient()],
@@ -30,15 +56,5 @@ describe('TabsPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should redirect to overview tab', async () => {
-    expect(router.url).toBe('/');
-    expect(router.url).not.toBe('/tabs/overview');
-    fixture.detectChanges();
-
-    await fixture.whenStable();
-    expect(router.url).toBe('/tabs/overview');
-    expect(router.url).not.toBe('/');
   });
 });

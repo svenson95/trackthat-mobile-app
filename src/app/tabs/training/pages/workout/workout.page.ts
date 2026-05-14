@@ -41,7 +41,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-workout-detail-page',
+  selector: 'app-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ...ANGULAR_MODULES,
@@ -55,7 +55,7 @@ const ION_COMPONENTS = [
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="abortEditing(itemsComp.itemsList())"> Abbrechen </ion-button>
+            <ion-button (click)="abortEditing(workoutComp.workoutList())"> Abbrechen </ion-button>
           } @else {
             <ion-back-button text="Pläne" defaultHref="/tabs/training"></ion-back-button>
           }
@@ -83,7 +83,7 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <app-content-container>
-        <app-workout-units [workout]="workout" #itemsComp />
+        <app-workout-list [workout]="workout" #workoutComp />
       </app-content-container>
 
       <app-add-item-dialog></app-add-item-dialog>
@@ -100,7 +100,7 @@ const ION_COMPONENTS = [
     </ion-content>
   `,
 })
-export class WorkoutDetailPage {
+export class WorkoutPage {
   private route = inject(ActivatedRoute);
 
   private sortService = inject(SortingItemsService);
@@ -124,8 +124,8 @@ export class WorkoutDetailPage {
     void this.moreMenu().dismiss();
   }
 
-  abortEditing(list: IonList): void {
-    void list.closeSlidingItems();
+  async abortEditing(list: IonList): Promise<void> {
+    await list.closeSlidingItems();
     this.isEditing.set(false);
   }
 

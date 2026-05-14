@@ -17,16 +17,12 @@ export const tabsRoutes: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./training/pages/workout-list/workout-list.page').then(
-                (m) => m.WorkoutListPage,
-              ),
+              import('./training/pages/workouts/workouts.page').then((m) => m.WorkoutsPage),
           },
           {
             path: ':workoutId',
             loadComponent: () =>
-              import('./training/pages/workout-detail/workout-detail.page').then(
-                (m) => m.WorkoutDetailPage,
-              ),
+              import('./training/pages/workout/workout.page').then((m) => m.WorkoutPage),
             resolve: {
               workout: WorkoutResolver,
             },
