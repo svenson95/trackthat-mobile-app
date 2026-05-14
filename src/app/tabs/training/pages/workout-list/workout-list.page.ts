@@ -137,7 +137,7 @@ export class WorkoutListPage {
   private sortService = inject(SortingWorkoutsService);
   isEditing = this.sortService.isEditing;
 
-  addWorkoutDialog = viewChild.required(AddWorkoutDialog);
+  private addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
   handleRefresh(event: RefresherCustomEvent): void {
     const res = this.workoutsService.workoutsResource;
@@ -156,8 +156,15 @@ export class WorkoutListPage {
       .subscribe(() => event.target.complete());
   }
 
-  openAddWorkoutModal(): void {
-    void this.addWorkoutDialog().modal().present();
+  async openAddWorkoutModal(): Promise<void> {
+    try {
+      const dialog = this.addWorkoutDialog();
+      const modal = dialog.modal();
+
+      await modal.present();
+    } catch (error) {
+      console.error('Add workout modal could not be opened:', error);
+    }
   }
 
   presentPopover(ev: Event): void {
