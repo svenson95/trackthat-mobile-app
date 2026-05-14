@@ -49,7 +49,7 @@ const ION_COMPONENTS = [
     @let list = workout().list;
     @if (list.length === 0) {
       <ion-list [inset]="true">
-        <ion-item disabled>
+        <ion-item>
           <ion-label>
             <p>Keine Trainingseinheiten</p>
           </ion-label>
