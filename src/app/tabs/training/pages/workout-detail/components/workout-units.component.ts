@@ -12,6 +12,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import type { Workout } from '../../../../../models';
+import { EXERCISES_METADATA } from '../../../../../shared';
 import { SortingItemsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -29,6 +30,11 @@ const ION_COMPONENTS = [
   selector: 'app-workout-units',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS],
+  styles: `
+    .exercise-image {
+      margin-right: 0.5rem;
+    }
+  `,
   template: `
     @let list = workout().list;
     @if (list.length === 0) {
@@ -51,7 +57,14 @@ const ION_COMPONENTS = [
                 </ion-list-header>
               } @else if (item.type === 'EXERCISE') {
                 <ion-item button>
-                  <ion-icon aria-hidden="true" slot="start"></ion-icon>
+                  @if (exerciseWithImage(item.name)) {
+                    <img
+                      class="exercise-image"
+                      [src]="'assets/images/exercises/' + item.name + '.png'"
+                      width="24"
+                      height="24"
+                    />
+                  }
                   <ion-label>{{ item.name }}</ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
@@ -91,5 +104,10 @@ export class WorkoutUnitsComponent {
     this.editService.itemIds.set(items);
 
     event.detail.complete();
+  }
+
+  exerciseWithImage(name: null | string): boolean {
+    if (!name) return false;
+    return EXERCISES_METADATA.some((e) => e.name === name && !!e.image);
   }
 }
