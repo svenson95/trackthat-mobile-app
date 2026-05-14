@@ -17,6 +17,8 @@ export class UserService {
 
   private http = inject(HttpClient);
 
+  currentLanguage = localStorage.getItem('language') || 'de';
+
   userData = linkedSignal<undefined | UserDoc>(() => {
     const token = localStorage.getItem('user');
     if (token) return JSON.parse(token);

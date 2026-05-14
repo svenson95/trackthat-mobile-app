@@ -12,6 +12,9 @@ import {
 import { provideServiceWorker } from '@angular/service-worker';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { appRoutes } from './app.routes';
 
 const BASE_PROVIDERS = [
@@ -43,5 +46,12 @@ export const appConfig: ApplicationConfig = {
     PWA_PROVIDER,
     importProvidersFrom(IonicModule.forRoot()),
     IONIC_ROUTE_REUSE_STRATEGY_PROVIDER,
+    provideTranslateService({
+      fallbackLang: 'de',
+      loader: provideTranslateHttpLoader({
+        prefix: './assets/i18n/',
+        suffix: '.json',
+      }),
+    }),
   ],
 };

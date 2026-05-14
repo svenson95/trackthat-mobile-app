@@ -64,7 +64,9 @@ const ION_COMPONENTS = [
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="abortEditing(workoutsComp.workoutsList())"> Abbrechen </ion-button>
+            <ion-button (click)="abortEditing(workoutsComp.workoutsList())">
+              {{ 'general.abort' | translate }}
+            </ion-button>
           } @else {
             <ion-button (click)="openAddWorkoutModal()">
               <ion-icon slot="icon-only" ios="add" md="add"></ion-icon>
@@ -72,11 +74,11 @@ const ION_COMPONENTS = [
           }
         </ion-buttons>
 
-        <ion-title> Trainingspläne </ion-title>
+        <ion-title> {{ 'tabs.training.tab-title' | translate }} </ion-title>
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEdit()"> Speichern </ion-button>
+            <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
           } @else {
             <ion-button (click)="presentPopover($event)">
               <ion-icon
@@ -94,15 +96,15 @@ const ION_COMPONENTS = [
       <ion-refresher slot="fixed" [pullFactor]="1.5" (ionRefresh)="handleRefresh($event)">
         <ion-refresher-content
           pullingIcon="chevron-down"
-          pullingText="Liste aktualisieren ..."
+          pullingText="('general.loading' | translate) + '...'"
           refreshingSpinner="circles"
-          refreshingText="Wird geladen ..."
+          [refreshingText]="('general.loading' | translate) + '...'"
         ></ion-refresher-content>
       </ion-refresher>
 
       <ion-header collapse="condense">
         <ion-toolbar color="light">
-          <ion-title size="large">Trainingspläne</ion-title>
+          <ion-title size="large">{{ 'tabs.training.tab-title' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -116,7 +118,7 @@ const ION_COMPONENTS = [
         <ng-template>
           <ion-list>
             <ion-item [button]="true" [detail]="false" lines="none" (click)="startEditing()">
-              Bearbeiten
+              {{ 'general.edit' | translate }}
             </ion-item>
           </ion-list>
         </ng-template>

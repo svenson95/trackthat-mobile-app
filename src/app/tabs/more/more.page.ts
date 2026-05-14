@@ -2,13 +2,15 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { Router } from '@angular/router';
 import { IonicModule, LoadingController } from '@ionic/angular';
 
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { ContentContainerComponent } from '../../components';
 import { AuthService, UserService } from '../../services';
 
 @Component({
   selector: 'app-more-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, ContentContainerComponent],
+  imports: [IonicModule, ContentContainerComponent, TranslateModule],
   styles: `
     li:not(:last-child) .list-item {
       margin-bottom: 1rem;
@@ -22,14 +24,14 @@ import { AuthService, UserService } from '../../services';
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Mehr </ion-title>
+        <ion-title> {{ 'tabs.more.tab-title' | translate }} </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
         <ion-toolbar color="light">
-          <ion-title size="large">Mehr</ion-title>
+          <ion-title size="large">{{ 'tabs.more.tab-title' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -37,11 +39,27 @@ import { AuthService, UserService } from '../../services';
         <ion-list [inset]="true">
           <ion-item-group>
             <ion-item-divider>
-              <ion-label>Einstellungen</ion-label>
+              <ion-label>{{ 'tabs.more.settings.label' | translate }}</ion-label>
             </ion-item-divider>
 
             <ion-item button (click)="logout()" detail="true" lines="none">
-              <ion-label>Abmelden</ion-label>
+              <ion-label>{{ 'tabs.more.settings.sign-off' | translate }}</ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-select
+                [label]="'tabs.more.settings.language.label' | translate"
+                [value]="currentLanguage"
+                (ionChange)="changeLanguage($event.detail.value)"
+                [cancelText]="'general.abort' | translate"
+              >
+                <ion-select-option value="de">
+                  {{ 'tabs.more.settings.language.german' | translate }}
+                </ion-select-option>
+                <ion-select-option value="en">
+                  {{ 'tabs.more.settings.language.english' | translate }}
+                </ion-select-option>
+              </ion-select>
             </ion-item>
           </ion-item-group>
         </ion-list>
@@ -49,7 +67,7 @@ import { AuthService, UserService } from '../../services';
         <ion-list [inset]="true">
           <ion-item-group>
             <ion-item-divider>
-              <ion-label>Nutzer</ion-label>
+              <ion-label>{{ 'tabs.more.user.label' | translate }}</ion-label>
             </ion-item-divider>
 
             @if (isResolved()) {
@@ -64,13 +82,13 @@ import { AuthService, UserService } from '../../services';
             } @else if (isLoading()) {
               <ion-item disabled>
                 <ion-label>
-                  <p>loading ...</p>
+                  <p>{{ 'general.loading' | translate }} ...</p>
                 </ion-label>
               </ion-item>
             } @else if (hasError()) {
               <ion-item disabled>
                 <ion-label>
-                  <p>Fehler aufgetreten</p>
+                  <p>{{ 'general.error' | translate }}</p>
                 </ion-label>
               </ion-item>
             }
@@ -85,6 +103,9 @@ export class MorePage {
   private authService = inject(AuthService);
   private router = inject(Router);
   private loadingCtrl = inject(LoadingController);
+
+  currentLanguage = this.usersService.currentLanguage;
+  private translate = inject(TranslateService);
 
   allUsers = this.usersService.allUsersResource;
   isLoading = computed(() => this.allUsers.status() === 'loading');
@@ -103,4 +124,9 @@ export class MorePage {
 
     await loading.dismiss();
   };
+
+  changeLanguage(lang: string): void {
+    this.translate.use(lang);
+    localStorage.setItem('language', lang);
+  }
 }

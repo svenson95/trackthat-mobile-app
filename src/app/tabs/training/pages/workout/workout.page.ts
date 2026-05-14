@@ -16,6 +16,8 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { ContentContainerComponent } from '../../../../components';
 import type { WorkoutDoc } from '../../../../models';
 import { UserService } from '../../../../services';
@@ -46,6 +48,7 @@ const ION_COMPONENTS = [
   imports: [
     ...ANGULAR_MODULES,
     ...ION_COMPONENTS,
+    TranslateModule,
     ContentContainerComponent,
     WorkoutUnitsComponent,
     AddItemDialog,
@@ -55,9 +58,14 @@ const ION_COMPONENTS = [
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="abortEditing(workoutComp.workoutList())"> Abbrechen </ion-button>
+            <ion-button (click)="abortEditing(workoutComp.workoutList())">
+              {{ 'general.abort' | translate }}
+            </ion-button>
           } @else {
-            <ion-back-button text="Pläne" defaultHref="/tabs/training"></ion-back-button>
+            <ion-back-button
+              [text]="'tabs.training.workout.plans' | translate"
+              defaultHref="/tabs/training"
+            ></ion-back-button>
           }
         </ion-buttons>
 
@@ -66,7 +74,7 @@ const ION_COMPONENTS = [
         <ion-buttons slot="primary">
           <ion-button>
             @if (isEditing()) {
-              <ion-button (click)="saveEdit()"> Speichern </ion-button>
+              <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
             } @else {
               <ion-button (click)="presentPopover($event)">
                 <ion-icon
@@ -92,7 +100,7 @@ const ION_COMPONENTS = [
         <ng-template>
           <ion-list>
             <ion-item [button]="true" [detail]="false" lines="none" (click)="startEditing()">
-              Bearbeiten
+              {{ 'general.edit' | translate }}
             </ion-item>
           </ion-list>
         </ng-template>

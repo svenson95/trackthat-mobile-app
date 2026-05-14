@@ -17,9 +17,10 @@ import {
 } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import type { WorkoutDoc } from '../../../../../models';
 import { WORKOUT_TEMPLATES } from '../../../../../shared';
-
 import { WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -39,7 +40,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-add-workout-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, FormsModule],
+  imports: [...ION_COMPONENTS, FormsModule, TranslateModule],
   styles: `
     h4 {
       margin-left: 1rem;
@@ -51,12 +52,14 @@ const ION_COMPONENTS = [
         <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-button (click)="cancel()">Abbrechen</ion-button>
+              <ion-button (click)="cancel()">{{ 'general.abort' | translate }}</ion-button>
             </ion-buttons>
-            <ion-title>Neuer Plan</ion-title>
+            <ion-title>
+              {{ 'tabs.training.workouts.actions.add-workout.title' | translate }}
+            </ion-title>
             <ion-buttons slot="end">
               <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
-                Speichern
+                {{ 'general.save' | translate }}
               </ion-button>
             </ion-buttons>
           </ion-toolbar>
@@ -68,14 +71,20 @@ const ION_COMPONENTS = [
               id="name-input"
               label="Name"
               type="text"
-              placeholder="Ganzkörper-Plan"
+              [placeholder]="
+                'tabs.training.workouts.actions.add-workout.name-placeholder' | translate
+              "
               [(ngModel)]="name"
             ></ion-input>
           </ion-item>
 
           <ion-item>
             <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
-              <ion-select-option [value]="-1">Keine</ion-select-option>
+              <ion-select-option [value]="-1">
+                {{
+                  'tabs.training.workouts.actions.add-workout.template-dropdown.empty' | translate
+                }}
+              </ion-select-option>
               @for (template of templates; track template.workoutId) {
                 <ion-select-option [value]="template.workoutId">{{
                   template.name
@@ -112,6 +121,7 @@ export class AddWorkoutDialog {
     const workoutData = this.workoutService.initWorkout(this.name, list);
 
     const loading = await this.loadingCtrl.create({
+      // TODO: add translation german/english
       message: 'Trainingsplan wird erstellt ...',
       spinner: 'circles',
     });

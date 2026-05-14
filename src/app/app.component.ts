@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
+import { TranslateService } from '@ngx-translate/core';
+
 import { AppService } from './services';
 
 @Component({
@@ -15,11 +17,20 @@ import { AppService } from './services';
   `,
 })
 export class AppComponent {
-  appService = inject(AppService);
+  private appService = inject(AppService);
+  private translate = inject(TranslateService);
 
   constructor() {
     this.appService.getVersionUpdates();
     this.appService.updateUserData();
     this.appService.preventBrowserSwipeBack();
+
+    this.configureTranslate();
+  }
+
+  private configureTranslate(): void {
+    this.translate.addLangs(['de', 'en']);
+    const lang = localStorage.getItem('language') || this.translate.getBrowserLang() || 'de';
+    this.translate.use(lang);
   }
 }

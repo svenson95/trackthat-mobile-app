@@ -1,0 +1,95 @@
+{
+  "general": {
+    "abort": "Abbrechen",
+    "save": "Speichern",
+    "loading": "Laden",
+    "error": "Fehler aufgetreten",
+    "delete": "Löschen"
+  },
+  "tabs": {
+    "training": {
+      "tab-label": "Training",
+      "tab-title": "Trainingspläne",
+      "workouts": {
+        "actions": {
+          "add-workout": {
+            "title": "Neuer Plan",
+            "name-placeholder": "Ganzkörper-Plan",
+            "template-label": "Vorlage",
+            "template-dropdown": {
+              "empty": "Leer"
+            }
+          },
+          "edit": "Bearbeiten"
+        },
+        "no-plans": "Keine Pläne vorhanden",
+        "change-name": "Name ändern"
+      },
+      "workout": {
+        "plans": "Pläne",
+        "exercise": {
+          "squats_dumbbell": "Kniebeugen Kurzhantel",
+          "lunges": "Ausfallschritte",
+          "calf_raise_standing_one_arm_dumbbell": "Wadenheben stehend einseitig Kurzhantel",
+
+          "frenchpress_dumbbell": "Frenchpress Kurzhantel",
+          "frenchpress_dumbbell_standing": "Frenchpress stehend Kurzhantel",
+          "biceps_curls_sitting_dumbbell": "Bizeps-Curls sitzend Kurzhantel",
+          "biceps_curls_standing_dumbbell": "Bizeps-Curls stehend Kurzhantel",
+
+          "deadlift_dumbbell": "Kreuzheben Kurzhantel",
+          "plank": "Unterarmstütz",
+          "side_plank": "Seitliche Unterarmstütz",
+          "russian_twist": "Russian Twist",
+          "sit_ups": "Sit-Ups",
+
+          "pull_up_wide_grip": "Klimmzug Breiter Griff",
+          "rows_dumbbell_bent_over": "Rudern vorgebeugt Kurzhantel",
+          "rows_dumbbell_one_arm": "Rudern einarmig Kurzhantel",
+
+          "benchpress_dumbbell": "Bankdrücken Kurzhantel",
+          "benchpress_incline_dumbbell": "Bankdrücken Schrägbank Kurzhantel",
+          "benchpress_incline_multipress": "Bankdrücken Schrägbank Multipresse",
+          "fly_dumbbell": "Fliegende Kurzhantel",
+          "fly_incline_dumbbell": "Fliegende Schrägbank Kurzhantel",
+          "dips": "Dips",
+
+          "shoulder_press_dumbbell": "Schulterdrücken Kurzhantel",
+          "lateral_raises_dumbbell": "Seitheben Kurzhantel",
+          "reverse_fly_bent_over_dumbbell": "Vorgebeugtes Seitheben Kurzhantel",
+          "shrugs_dumbbell": "Nackenheben Kurzhantel",
+          "shrugs_dumbbell_sitting": "Nackenheben Kurzhantel sitzend"
+        }
+      }
+    },
+    "eat": {
+      "tab-label": "Essen",
+      "tab-title": "Essen"
+    },
+    "overview": {
+      "tab-label": "Überblick",
+      "tab-title": "Überblick",
+      "hello": "Hallo"
+    },
+    "logs": {
+      "tab-label": "Logs",
+      "tab-title": "Logs"
+    },
+    "more": {
+      "tab-label": "Mehr",
+      "tab-title": "Mehr",
+      "settings": {
+        "label": "Einstellungen",
+        "sign-off": "Abmelden",
+        "language": {
+          "label": "Sprache",
+          "english": "Englisch",
+          "german": "Deutsch"
+        }
+      },
+      "user": {
+        "label": "Nutzer"
+      }
+    }
+  }
+}

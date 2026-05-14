@@ -102,13 +102,6 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
 
   /* back */
   {
-    name: 'lat-pulldown',
-    image: null,
-    equipmentTypes: ['machine'],
-    variants: ['wide-grip', 'close'],
-    muscleGroups: ['lats', 'traps', 'biceps'],
-  },
-  {
     name: 'pull_up_wide_grip',
     image: 'pull_up_wide_grip',
     equipmentTypes: ['bodyweight', 'machine'],
@@ -132,13 +125,6 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
 
   /* chest */
   {
-    name: 'benchpress',
-    image: null,
-    equipmentTypes: ['dumbbell'],
-    variants: ['flat', 'decline', 'incline'],
-    muscleGroups: ['chest', 'triceps', 'front-delta'],
-  },
-  {
     name: 'benchpress_dumbbell',
     image: 'benchpress_dumbbell.png',
     equipmentTypes: ['dumbbell'],
@@ -160,22 +146,15 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
     muscleGroups: ['chest', 'triceps', 'front-delta'],
   },
   {
-    name: 'fly',
-    image: null,
-    equipmentTypes: ['dumbbell', 'cable-tower', 'machine'],
-    variants: [],
-    muscleGroups: ['chest', 'triceps', 'front-delta'],
-  },
-  {
     name: 'fly_dumbbell',
-    image: 'fly_dumbbell.png',
+    image: 'fly_dumbbell',
     equipmentTypes: ['dumbbell'],
     variants: ['flat'],
     muscleGroups: ['chest'],
   },
   {
     name: 'fly_incline_dumbbell',
-    image: 'fly_incline_dumbbell.png',
+    image: 'fly_incline_dumbbell',
     equipmentTypes: ['dumbbell'],
     variants: ['incline'],
     muscleGroups: ['chest'],
@@ -202,13 +181,6 @@ export const EXERCISES_METADATA: Array<ExerciseMetadata> = [
     equipmentTypes: ['dumbbell'],
     variants: ['standing'],
     muscleGroups: ['middle-delta', 'front-delta'],
-  },
-  {
-    name: 'butterfly-reverse',
-    image: null,
-    equipmentTypes: ['machine'],
-    variants: [],
-    muscleGroups: ['rear-delta', 'traps'],
   },
   {
     name: 'reverse_fly_bent_over_dumbbell',

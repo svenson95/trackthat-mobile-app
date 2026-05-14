@@ -18,6 +18,8 @@ import {
   IonReorderGroup,
 } from '@ionic/angular/standalone';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import type { Workout } from '../../../../../models';
 import { SortingItemsService } from '../../../services';
 
@@ -34,7 +36,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-workout-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS],
+  imports: [...ION_COMPONENTS, TranslateModule],
   styles: `
     .exercise-image {
       margin-right: 0.5rem;
@@ -71,7 +73,9 @@ const ION_COMPONENTS = [
                     width="24"
                     height="24"
                   />
-                  <ion-label>{{ item.name }}</ion-label>
+                  <ion-label>
+                    {{ 'tabs.training.workout.exercise.' + item.name | translate }}
+                  </ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'LABEL') {

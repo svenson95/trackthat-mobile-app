@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { ContentContainerComponent } from '../../components';
 import { AuthService, UserService } from '../../services';
 
@@ -9,18 +11,24 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
 @Component({
   selector: 'app-overview-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, ContentContainerComponent, LoginBoxComponent, HelloBoxComponent],
+  imports: [
+    IonicModule,
+    TranslateModule,
+    ContentContainerComponent,
+    LoginBoxComponent,
+    HelloBoxComponent,
+  ],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> Überblick </ion-title>
+        <ion-title> {{ 'tabs.overview.tab-title' | translate }} </ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
         <ion-toolbar color="light">
-          <ion-title size="large">Überblick</ion-title>
+          <ion-title size="large">{{ 'tabs.overview.tab-title' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>
 

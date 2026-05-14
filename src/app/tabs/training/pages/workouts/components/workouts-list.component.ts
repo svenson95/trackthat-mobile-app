@@ -13,6 +13,8 @@ import {
   IonReorderGroup,
 } from '@ionic/angular/standalone';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { SortingWorkoutsService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -30,20 +32,20 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-workouts-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, RouterLink],
+  imports: [...ION_COMPONENTS, TranslateModule, RouterLink],
   template: `
     <ion-list [inset]="true">
       <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
         @if (isLoading()) {
           <ion-item disabled>
             <ion-label>
-              <p>loading ...</p>
+              <p>{{ 'general.loading' | translate }} ...</p>
             </ion-label>
           </ion-item>
         } @else if (hasError()) {
           <ion-item disabled>
             <ion-label>
-              <p>Fehler aufgetreten</p>
+              <p>{{ 'general.error' | translate }}</p>
             </ion-label>
           </ion-item>
         } @else {
@@ -51,14 +53,16 @@ const ION_COMPONENTS = [
           @if (workouts?.length === 0) {
             <ion-item disabled>
               <ion-label>
-                <p>Keine aktiven Pläne</p>
+                <p>{{ 'tabs.training.workouts.no-plans' | translate }}</p>
               </ion-label>
             </ion-item>
           } @else {
             @for (workout of workouts; track workout.name) {
               <ion-item-sliding [disabled]="!isEditing()">
                 <ion-item-options side="start">
-                  <ion-item-option color="medium">Name ändern</ion-item-option>
+                  <ion-item-option color="medium">
+                    {{ 'tabs.training.workouts.change-name' | translate }}
+                  </ion-item-option>
                 </ion-item-options>
 
                 <ion-item
@@ -73,7 +77,7 @@ const ION_COMPONENTS = [
 
                 <ion-item-options side="end">
                   <ion-item-option color="danger" (click)="deleteWorkout(workout.id)">
-                    Löschen
+                    {{ 'general.delete' | translate }}
                   </ion-item-option>
                 </ion-item-options>
               </ion-item-sliding>
