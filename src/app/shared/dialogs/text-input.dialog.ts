@@ -13,6 +13,8 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 
+import { Capacitor } from '@capacitor/core';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { TranslateModule } from '@ngx-translate/core';
 
 const ION_COMPONENTS = [IonButton, IonContent, IonHeader, IonInput, IonItem, IonTitle, IonToolbar];
@@ -71,8 +73,27 @@ export class TextInputDialogComponent implements OnInit {
 
   initialValue = '';
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initialValue = this.value.trim();
+
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    await Keyboard.setResizeMode({
+      mode: KeyboardResize.Body,
+    });
+
+    await Keyboard.addListener('keyboardWillShow', () => {
+      const active = document.activeElement as HTMLElement;
+
+      setTimeout(() => {
+        active?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 250);
+    });
   }
 
   async close(): Promise<void> {
