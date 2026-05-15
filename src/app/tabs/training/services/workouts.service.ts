@@ -58,6 +58,18 @@ export class WorkoutsService {
     );
   }
 
+  changeWorkoutName(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
+    return this.http.post<PostWorkoutResponse>(this.apiUrl + '/change-name', workout).pipe(
+      tap((updatedWorkout) => {
+        const updated = this.workouts().map((w) =>
+          w.workoutId === updatedWorkout.workoutId ? { ...w, ...updatedWorkout } : w,
+        );
+
+        this.workoutsResource.set(updated);
+      }),
+    );
+  }
+
   deleteWorkout(id: WorkoutId): Observable<void> {
     return this.http.delete<void>(this.apiUrl + '/delete/' + id).pipe(
       tap(() => {

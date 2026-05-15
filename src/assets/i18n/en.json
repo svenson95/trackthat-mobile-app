@@ -12,6 +12,7 @@
       "tab-label": "Training",
       "tab-title": "Training Plans",
       "workouts": {
+        "no-plans": "No Plans available",
         "actions": {
           "add-workout": {
             "title": "New Plan",
@@ -21,10 +22,11 @@
               "empty": "Empty"
             }
           },
-          "edit": "Edit"
-        },
-        "no-plans": "No Plans available",
-        "change-name": "Change name"
+          "edit": "Edit",
+          "delete": "Training Plan is being deleted ...",
+          "change-name": "Change name",
+          "change-name-process": "Name is being changed ..."
+        }
       },
       "workout": {
         "plans": "Plans",

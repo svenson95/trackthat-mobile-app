@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LoadingController, type ItemReorderEventDetail } from '@ionic/angular';
+import { LoadingController, ModalController, type ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
   IonItem,
@@ -13,8 +13,10 @@ import {
   IonReorderGroup,
 } from '@ionic/angular/standalone';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import type { PostWorkoutBody } from '../../../../../models';
+import { TextInputDialogComponent } from '../../../../../shared';
 import { SortingWorkoutsService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -60,8 +62,8 @@ const ION_COMPONENTS = [
             @for (workout of workouts; track workout.name) {
               <ion-item-sliding [disabled]="!isEditing()">
                 <ion-item-options side="start">
-                  <ion-item-option color="medium">
-                    {{ 'tabs.training.workouts.change-name' | translate }}
+                  <ion-item-option color="medium" (click)="changeWorkoutName(workout)">
+                    {{ 'tabs.training.workouts.actions.change-name' | translate }}
                   </ion-item-option>
                 </ion-item-options>
 
@@ -92,6 +94,8 @@ export class WorkoutsComponent {
   private loadingCtrl = inject(LoadingController);
   private service = inject(WorkoutsService);
   private editService = inject(SortingWorkoutsService);
+  private translate = inject(TranslateService);
+  private modalCtrl = inject(ModalController);
 
   workoutsList = viewChild.required(IonList);
 
@@ -113,20 +117,58 @@ export class WorkoutsComponent {
     event.detail.complete();
   }
 
-  async deleteWorkout(id: string): Promise<void> {
-    void this.workoutsList().closeSlidingItems();
+  async changeWorkoutName(workout: PostWorkoutBody): Promise<void> {
+    await this.workoutsList().closeSlidingItems();
+    const modal = await this.modalCtrl.create({
+      component: TextInputDialogComponent,
+      componentProps: {
+        title: this.translate.instant('tabs.training.workouts.actions.change-name'),
+        label: 'Name',
+        placeholder: 'Name',
+        value: workout.name,
+      },
+      breakpoints: [0, 0.35],
+      initialBreakpoint: 0.35,
+    });
+    await modal.present();
+
+    const { data } = await modal.onDidDismiss<string>();
+    if (!data || data === workout.name) return;
+
     const loading = await this.loadingCtrl.create({
-      message: 'Trainingsplan wird gelöscht ...',
+      message: this.translate.instant('tabs.training.workouts.actions.change-name-process'),
       spinner: 'circles',
     });
-    void loading.present();
+    await loading.present();
+
+    this.service
+      .changeWorkoutName({
+        ...workout,
+        name: data,
+      })
+      .subscribe({
+        next: async () => await loading.dismiss(),
+        error: async (err) => {
+          await loading.dismiss();
+          console.error('Unexpected fail during change name user.workoutId', err);
+        },
+      });
+  }
+
+  async deleteWorkout(id: string): Promise<void> {
+    await this.workoutsList().closeSlidingItems();
+    const loading = await this.loadingCtrl.create({
+      message: this.translate.instant('tabs.training.workouts.actions.delete'),
+      spinner: 'circles',
+    });
+    await loading.present();
 
     this.service.deleteWorkout(id).subscribe({
-      next: () => {
-        void loading.dismiss();
+      next: async () => {
+        await loading.dismiss();
       },
-      error: (err) => {
-        void loading.dismiss();
+      error: async (err) => {
+        await loading.dismiss();
         console.error('Unexpected fail during delete user.workoutId', err);
       },
     });
