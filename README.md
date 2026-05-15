@@ -1,6 +1,6 @@
 # TrackThat mobile app
 
-Fitness tracking app, Cross-Platform Application.
+Fitness tracking Cross-Platform Application, uses API from [TrackThat-Backend](https://github.com/svenson95/trackthat-backend).
 
 ## Tech Stack
 
