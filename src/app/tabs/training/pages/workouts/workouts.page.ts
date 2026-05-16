@@ -196,7 +196,11 @@ export class WorkoutsPage {
 
     const workouts = this.editService
       .workoutIds()
-      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.workoutId === id)!);
+      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.workoutId === id)!)
+      .map((w, idx) => ({
+        ...w,
+        listId: idx,
+      }));
     const userId = this.userService.user().id;
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
