@@ -43,9 +43,9 @@ GOOGLE_CLIENT_ID=your-google-client-id
 ## Versions
 
 | Technology | Version |
-|---|---|
-| Ionic | 8.0.0 |
-| Angular | 20.0.0 |
+| ---------- | ------- |
+| Ionic      | 8.0.0   |
+| Angular    | 20.0.0  |
 
 Check versions locally:
 

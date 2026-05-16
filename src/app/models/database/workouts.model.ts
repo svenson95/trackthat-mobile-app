@@ -2,11 +2,12 @@ import type { UnixTimestring } from '../date-helper.model';
 import type { UserId } from './users.model';
 
 export type WorkoutId = string; // mongodb doc id
-export type WorkoutListId = number; // custom id (user.workoutIds)
+export type WorkoutListId = number;
 
 export interface Workout {
   userId: UserId;
-  workoutId: WorkoutListId;
+  workoutId: number;
+  listId: WorkoutListId;
   lastUpdated: UnixTimestring;
   name: string;
   list: WorkoutList;
@@ -17,11 +18,12 @@ export type WorkoutList = Array<ListItem | ListItemExercise>;
 export type ItemListId = number; // custom id for sorting
 export type ListItem = {
   name: null | string;
-  itemId: ItemListId;
+  itemId: number;
+  listId: ItemListId;
   type: ListItemType;
 };
 
-export type ListItemType = 'HEADER' | 'EXERCISE' | 'LABEL' | 'SPACER';
+export type ListItemType = 'HEADER' | 'EXERCISE' | 'SPACER';
 
 export interface ListItemExercise extends ListItem {
   equipment: ExerciseEquipment;
@@ -83,6 +85,20 @@ export type MuscleGroup =
   | 'rear-delta'
   | 'traps'
   | 'neck';
+
+export const WORKOUT_LIST_ITEM_SPACER: ListItem = {
+  type: 'SPACER',
+  itemId: 0,
+  listId: 0,
+  name: null,
+};
+
+export const WORKOUT_LIST_ITEM_HEADER: ListItem = {
+  type: 'HEADER',
+  itemId: 0,
+  listId: 0,
+  name: '#1 Header',
+};
 
 export interface WorkoutDoc extends Workout {
   readonly id: WorkoutId;

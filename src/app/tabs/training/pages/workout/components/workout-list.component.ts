@@ -21,7 +21,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { Workout } from '../../../../../models';
-import { SortingItemsService } from '../../../services';
+import { IsEditingService } from '../../../services';
 
 const ION_COMPONENTS = [
   IonList,
@@ -78,12 +78,6 @@ const ION_COMPONENTS = [
                   </ion-label>
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
-              } @else if (item.type === 'LABEL') {
-                <ion-item [button]="!isEditing()">
-                  <ion-icon aria-hidden="true" slot="start"></ion-icon>
-                  <ion-label>{{ item.name }}</ion-label>
-                  <ion-reorder slot="end"></ion-reorder>
-                </ion-item>
               } @else if (item.type === 'SPACER') {
                 <ion-item>
                   <ion-icon aria-hidden="true" slot="start"></ion-icon>
@@ -100,7 +94,7 @@ const ION_COMPONENTS = [
 })
 export class WorkoutUnitsComponent implements OnInit, OnDestroy {
   workout = input.required<Workout>();
-  private editService = inject(SortingItemsService);
+  private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
   workoutList = viewChild.required(IonList);
 
@@ -124,10 +118,10 @@ export class WorkoutUnitsComponent implements OnInit, OnDestroy {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const items = [...this.editService.itemIds()];
+    const items = [...this.editService.workoutListIds()];
     const moved = items.splice(from, 1)[0];
     items.splice(to, 0, moved);
-    this.editService.itemIds.set(items);
+    this.editService.workoutListIds.set(items);
 
     event.detail.complete();
   }

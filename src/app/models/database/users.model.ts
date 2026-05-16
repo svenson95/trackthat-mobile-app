@@ -1,4 +1,4 @@
-import type { WorkoutListId } from './user-workouts.model';
+import type { Workout, WorkoutDoc } from './workouts.model';
 
 export type UserId = string; // mongodb doc id
 
@@ -9,7 +9,6 @@ export interface User {
   email: string;
   weight: number;
   height: number;
-  workoutIds: Array<WorkoutListId>;
 }
 
 export interface UserDoc extends User {
@@ -18,5 +17,8 @@ export interface UserDoc extends User {
 
 export type GetUsersResponse = Array<UserDoc>;
 
-export type PutUserWorkoutsBody = Array<WorkoutListId>;
-export type PutUserWorkoutsResponse = UserDoc;
+export type PutWorkoutsBody = Array<WorkoutDoc>;
+export type PutWorkoutsResponse = Array<WorkoutDoc>;
+
+export type PutWorkoutBody = Workout;
+export type PutWorkoutResponse = WorkoutDoc;

@@ -17,7 +17,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { PostWorkoutBody } from '../../../../../models';
 import { TextInputDialogComponent } from '../../../../../shared';
-import { SortingWorkoutsService, WorkoutsService } from '../../../services';
+import { IsEditingService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
   IonList,
@@ -93,13 +93,13 @@ const ION_COMPONENTS = [
 export class WorkoutsComponent {
   private loadingCtrl = inject(LoadingController);
   private service = inject(WorkoutsService);
-  private editService = inject(SortingWorkoutsService);
   private translate = inject(TranslateService);
   private modalCtrl = inject(ModalController);
 
   workoutsList = viewChild.required(IonList);
-
   sortedWorkouts = this.service.sortedWorkouts;
+
+  private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
 
   isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
@@ -109,7 +109,7 @@ export class WorkoutsComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const workouts = [...this.editService.workoutIds()];
+    const workouts = [...this.sortedWorkouts().map((w) => w.workoutId)];
     const moved = workouts.splice(from, 1)[0];
     workouts.splice(to, 0, moved);
     this.editService.workoutIds.set(workouts);

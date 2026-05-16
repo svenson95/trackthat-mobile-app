@@ -1,21 +1,12 @@
-import { HttpClient, httpResource } from '@angular/common/http';
-import { computed, inject, Injectable, linkedSignal } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { httpResource } from '@angular/common/http';
+import { computed, Injectable, linkedSignal } from '@angular/core';
 
 import { environment } from '../../../environments/environment.prod';
-import type {
-  GetUsersResponse,
-  PutUserWorkoutsBody,
-  PutUserWorkoutsResponse,
-  UserDoc,
-  UserId,
-} from '../../models';
+import type { GetUsersResponse, UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private apiUrl = environment.api + 'users';
-
-  private http = inject(HttpClient);
 
   currentLanguage = localStorage.getItem('language') || 'de';
 
@@ -40,15 +31,6 @@ export class UserService {
     if (!user) throw new Error('Unexpected user undefined');
     return user;
   });
-
-  updateUserWorkoutList(
-    userId: UserId,
-    workoutIds: PutUserWorkoutsBody,
-  ): Observable<PutUserWorkoutsResponse> {
-    return this.http
-      .put<PutUserWorkoutsResponse>(`${this.apiUrl}/edit/${userId}/update-sorting`, workoutIds)
-      .pipe(tap((user) => this.setUser(user)));
-  }
 
   allUsersResource = httpResource<GetUsersResponse>(() => {
     return { url: `${this.apiUrl}/`, method: 'GET' };

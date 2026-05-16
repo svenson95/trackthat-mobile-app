@@ -88,7 +88,7 @@ const ION_COMPONENTS = [
     </ion-modal>
   `,
 })
-export class AddItemDialog {
+export class AddExerciseDialog {
   private workoutService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
   private router = inject(Router);

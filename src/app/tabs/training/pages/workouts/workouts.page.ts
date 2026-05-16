@@ -31,7 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ContentContainerComponent } from '../../../../components';
 import { UserService } from '../../../../services';
 
-import { SortingWorkoutsService, WorkoutsService } from '../../services';
+import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
@@ -139,8 +139,8 @@ export class WorkoutsPage {
   private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   isMoreMenuOpen = signal<boolean>(false);
 
-  private sortService = inject(SortingWorkoutsService);
-  isEditing = this.sortService.isEditing;
+  private editService = inject(IsEditingService);
+  isEditing = this.editService.isEditing;
 
   private addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
@@ -177,9 +177,9 @@ export class WorkoutsPage {
     this.isMoreMenuOpen.set(true);
   }
 
-  startEditing(): void {
+  async startEditing(): Promise<void> {
     this.isEditing.set(true);
-    void this.moreMenu().dismiss();
+    await this.moreMenu().dismiss();
   }
 
   abortEditing(list: IonList): void {
@@ -194,10 +194,12 @@ export class WorkoutsPage {
     });
     await loading.present();
 
-    const ids = this.sortService.workoutIds();
+    const workouts = this.editService
+      .workoutIds()
+      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.workoutId === id)!);
     const userId = this.userService.user().id;
 
-    this.userService.updateUserWorkoutList(userId, ids).subscribe({
+    this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
       next: () => {
         this.isEditing.set(false);
         void loading.dismiss();

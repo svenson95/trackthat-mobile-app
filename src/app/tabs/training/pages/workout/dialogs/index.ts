@@ -1,1 +1,1 @@
-export * from './add-item.dialog';
+export * from './add-exercise.dialog';

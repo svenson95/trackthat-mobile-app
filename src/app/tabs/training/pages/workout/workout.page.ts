@@ -1,6 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import {
   IonBackButton,
@@ -10,6 +17,9 @@ import {
   IonHeader,
   IonIcon,
   IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
   IonList,
   IonPopover,
   IonTitle,
@@ -19,12 +29,15 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
-import type { WorkoutDoc } from '../../../../models';
-import { UserService } from '../../../../services';
-import { SortingItemsService } from '../../services';
+import {
+  WORKOUT_LIST_ITEM_HEADER,
+  WORKOUT_LIST_ITEM_SPACER,
+  type WorkoutDoc,
+} from '../../../../models';
+import { IsEditingService, WorkoutsService } from '../../services';
 
+import { UserService } from 'src/app/services';
 import { WorkoutUnitsComponent } from './components';
-import { AddItemDialog } from './dialogs';
 
 const ANGULAR_MODULES = [FormsModule];
 
@@ -40,6 +53,9 @@ const ION_COMPONENTS = [
   IonIcon,
   IonTitle,
   IonContent,
+  IonItemGroup,
+  IonItemDivider,
+  IonLabel,
 ];
 
 @Component({
@@ -51,7 +67,6 @@ const ION_COMPONENTS = [
     TranslateModule,
     ContentContainerComponent,
     WorkoutUnitsComponent,
-    AddItemDialog,
   ],
   template: `
     <ion-header>
@@ -69,7 +84,9 @@ const ION_COMPONENTS = [
           }
         </ion-buttons>
 
-        <ion-title> {{ workout.name }} </ion-title>
+        <ion-title>
+          {{ workout().name }}
+        </ion-title>
 
         <ion-buttons slot="primary">
           <ion-button>
@@ -91,17 +108,35 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <app-content-container>
-        <app-workout-list [workout]="workout" #workoutComp />
+        <app-workout-list [workout]="workout()" #workoutComp />
       </app-content-container>
 
-      <app-add-item-dialog></app-add-item-dialog>
+      <!-- <app-add-item-dialog></app-add-item-dialog> -->
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
           <ion-list>
-            <ion-item [button]="true" [detail]="false" lines="none" (click)="startEditing()">
+            <ion-item [button]="true" [detail]="false" (click)="startEditing()">
               {{ 'general.edit' | translate }}
             </ion-item>
+
+            <ion-item-group>
+              <ion-item-divider>
+                <ion-label>Hinzufügen</ion-label>
+              </ion-item-divider>
+
+              <ion-item [button]="true" [detail]="false" (click)="addText(workout())">
+                {{ 'tabs.training.workout.more-menu.text' | translate }}
+              </ion-item>
+
+              <ion-item [button]="true" [detail]="false">
+                {{ 'tabs.training.workout.more-menu.exercise' | translate }}
+              </ion-item>
+
+              <ion-item [button]="true" [detail]="false" (click)="addSpacer(workout())">
+                {{ 'tabs.training.workout.more-menu.spacer' | translate }}
+              </ion-item>
+            </ion-item-group>
           </ion-list>
         </ng-template>
       </ion-popover>
@@ -109,27 +144,31 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutPage {
-  private route = inject(ActivatedRoute);
-
-  private sortService = inject(SortingItemsService);
-  isEditing = this.sortService.isEditing;
-
+  workoutId = input.required<string>();
   private userService = inject(UserService);
+  private editService = inject(IsEditingService);
+  isEditing = this.editService.isEditing;
+
+  private workoutsService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
 
   private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   isMoreMenuOpen = signal<boolean>(false);
 
-  workout: WorkoutDoc = this.route.snapshot.data['workout'];
+  workout = computed<WorkoutDoc>(() => {
+    const workouts = this.workoutsService.workoutsResource.value();
+    const id = this.workoutId();
+    return workouts!.find((w) => w.workoutId === Number(id))!;
+  });
 
   presentPopover(ev: Event): void {
     this.moreMenu().event = ev;
     this.isMoreMenuOpen.set(true);
   }
 
-  startEditing(): void {
+  async startEditing(): Promise<void> {
     this.isEditing.set(true);
-    void this.moreMenu().dismiss();
+    await this.moreMenu().dismiss();
   }
 
   async abortEditing(list: IonList): Promise<void> {
@@ -144,22 +183,62 @@ export class WorkoutPage {
     });
     await loading.present();
 
-    const ids = this.sortService.itemIds();
-    const userId = this.userService.user().id;
-
     this.isEditing.set(false);
     void loading.dismiss();
-    // TODO: change to updateWorkoutItemList(workoutId, ids)
-    // this.userService.updateUserWorkoutList(userId, ids).subscribe({
-    //   next: () => {
-    //     this.isEditing.set(false);
-    //     void loading.dismiss();
-    //   },
-    //   error: (err) => {
-    //     console.error('Unexpected fail during update user.workoutIds', err);
-    //     this.isEditing.set(false);
-    //     void loading.dismiss();
-    //   },
-    // });
+    this.workoutsService.updateWorkoutList(this.workout()).subscribe({
+      next: () => {
+        this.isEditing.set(false);
+        void loading.dismiss();
+      },
+      error: (err) => {
+        console.error('Unexpected fail during update user.workoutIds', err);
+        this.isEditing.set(false);
+        void loading.dismiss();
+      },
+    });
+  }
+
+  async addSpacer(workout: WorkoutDoc): Promise<void> {
+    const spacerItem = {
+      ...WORKOUT_LIST_ITEM_SPACER,
+    };
+    workout.list = [...workout.list, spacerItem].map((listItem, index) => ({
+      ...listItem,
+      itemId: index,
+    }));
+
+    await this.updateDatabase(workout);
+  }
+
+  async addText(workout: WorkoutDoc): Promise<void> {
+    const textItem = {
+      ...WORKOUT_LIST_ITEM_HEADER,
+    };
+    workout.list = [...workout.list, textItem].map((listItem, index) => ({
+      ...listItem,
+      itemId: index,
+    }));
+
+    await this.updateDatabase(workout);
+  }
+
+  private async updateDatabase(workout: WorkoutDoc): Promise<void> {
+    const loading = await this.loadingCtrl.create({
+      message: 'Sortierung wird gespeichert ...',
+      spinner: 'circles',
+    });
+    await loading.present();
+    this.workoutsService.updateWorkoutList(workout).subscribe({
+      next: () => {
+        this.isEditing.set(false);
+        void loading.dismiss();
+      },
+      error: (err) => {
+        this.isEditing.set(false);
+        void loading.dismiss();
+        console.error('Unexpected fail during update user.workoutIds', err);
+      },
+    });
+    this.isMoreMenuOpen.set(false);
   }
 }
