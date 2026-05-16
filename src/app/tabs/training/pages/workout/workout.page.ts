@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -161,6 +162,12 @@ export class WorkoutPage {
     return workout;
   });
 
+  workoutEffect = effect(() => {
+    const workout = this.workout();
+    const ids = workout.list.map((i) => i.listId);
+    this.editService.workoutListIds.set(ids);
+  });
+
   presentPopover(ev: Event): void {
     this.moreMenu().event = ev;
     this.isMoreMenuOpen.set(true);
@@ -186,7 +193,16 @@ export class WorkoutPage {
     this.isEditing.set(false);
     void loading.dismiss();
 
-    this.workoutsService.updateWorkoutList(this.workout()).subscribe({
+    const workout = this.workout();
+    const sortedList = this.editService.workoutListIds().map((item) => {
+      return workout.list.find((i) => i.listId === item)!;
+    });
+    const updatedWorkout = {
+      ...workout,
+      list: sortedList,
+    };
+
+    this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: () => {
         this.isEditing.set(false);
         void loading.dismiss();
@@ -229,7 +245,16 @@ export class WorkoutPage {
       spinner: 'circles',
     });
     await loading.present();
-    this.workoutsService.updateWorkoutList(workout).subscribe({
+
+    const updatedWorkout = {
+      ...workout,
+      list: workout.list.map((item, index) => ({
+        ...item,
+        listId: index,
+      })),
+    };
+
+    this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: () => {
         this.isEditing.set(false);
         void loading.dismiss();
