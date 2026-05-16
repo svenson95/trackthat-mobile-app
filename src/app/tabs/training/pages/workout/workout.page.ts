@@ -36,8 +36,7 @@ import {
 } from '../../../../models';
 import { IsEditingService, WorkoutsService } from '../../services';
 
-import { UserService } from 'src/app/services';
-import { WorkoutUnitsComponent } from './components';
+import { WorkoutListComponent } from './components';
 
 const ANGULAR_MODULES = [FormsModule];
 
@@ -66,7 +65,7 @@ const ION_COMPONENTS = [
     ...ION_COMPONENTS,
     TranslateModule,
     ContentContainerComponent,
-    WorkoutUnitsComponent,
+    WorkoutListComponent,
   ],
   template: `
     <ion-header>
@@ -89,19 +88,17 @@ const ION_COMPONENTS = [
         </ion-title>
 
         <ion-buttons slot="primary">
-          <ion-button>
-            @if (isEditing()) {
-              <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
-            } @else {
-              <ion-button (click)="presentPopover($event)">
-                <ion-icon
-                  slot="icon-only"
-                  ios="ellipsis-horizontal"
-                  md="ellipsis-vertical"
-                ></ion-icon>
-              </ion-button>
-            }
-          </ion-button>
+          @if (isEditing()) {
+            <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
+          } @else {
+            <ion-button (click)="presentPopover($event)">
+              <ion-icon
+                slot="icon-only"
+                ios="ellipsis-horizontal"
+                md="ellipsis-vertical"
+              ></ion-icon>
+            </ion-button>
+          }
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -145,7 +142,6 @@ const ION_COMPONENTS = [
 })
 export class WorkoutPage {
   workoutId = input.required<string>();
-  private userService = inject(UserService);
   private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
 
@@ -157,8 +153,12 @@ export class WorkoutPage {
 
   workout = computed<WorkoutDoc>(() => {
     const workouts = this.workoutsService.workoutsResource.value();
+    if (!workouts) throw new Error('workouts not loaded');
     const id = this.workoutId();
-    return workouts!.find((w) => w.workoutId === Number(id))!;
+    if (!id) throw new Error('id not found');
+    const workout = workouts.find((w) => w.workoutId === Number(id));
+    if (!workout) throw new Error('workout not found by id: ' + id);
+    return workout;
   });
 
   presentPopover(ev: Event): void {
@@ -185,6 +185,7 @@ export class WorkoutPage {
 
     this.isEditing.set(false);
     void loading.dismiss();
+
     this.workoutsService.updateWorkoutList(this.workout()).subscribe({
       next: () => {
         this.isEditing.set(false);
@@ -199,27 +200,27 @@ export class WorkoutPage {
   }
 
   async addSpacer(workout: WorkoutDoc): Promise<void> {
-    const spacerItem = {
-      ...WORKOUT_LIST_ITEM_SPACER,
+    const updatedWorkout: WorkoutDoc = {
+      ...workout,
+      list: [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }].map((listItem, index) => ({
+        ...listItem,
+        itemId: index,
+      })),
     };
-    workout.list = [...workout.list, spacerItem].map((listItem, index) => ({
-      ...listItem,
-      itemId: index,
-    }));
 
-    await this.updateDatabase(workout);
+    await this.updateDatabase(updatedWorkout);
   }
 
   async addText(workout: WorkoutDoc): Promise<void> {
-    const textItem = {
-      ...WORKOUT_LIST_ITEM_HEADER,
+    const updatedWorkout: WorkoutDoc = {
+      ...workout,
+      list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER }].map((listItem, index) => ({
+        ...listItem,
+        itemId: index,
+      })),
     };
-    workout.list = [...workout.list, textItem].map((listItem, index) => ({
-      ...listItem,
-      itemId: index,
-    }));
 
-    await this.updateDatabase(workout);
+    await this.updateDatabase(updatedWorkout);
   }
 
   private async updateDatabase(workout: WorkoutDoc): Promise<void> {

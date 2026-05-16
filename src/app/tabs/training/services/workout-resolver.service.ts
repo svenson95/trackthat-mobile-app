@@ -16,7 +16,7 @@ export class WorkoutResolver implements Resolve<WorkoutDoc> {
     const workoutId = Number(route.paramMap.get('workoutId'));
 
     const workouts = this.workoutService.workoutsResource.value();
-    const workout = workouts?.find((w) => w.workoutId === workoutId);
-    return workout ?? this.workoutService.getWorkout(workoutId);
+    const cachedWorkout = workouts?.find((w) => w.workoutId === workoutId);
+    return cachedWorkout ?? this.workoutService.getWorkout(workoutId);
   }
 }

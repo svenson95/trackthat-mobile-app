@@ -47,17 +47,15 @@ const ION_COMPONENTS = [
   `,
   template: `
     @let list = workout().list;
-    @if (list.length === 0) {
-      <ion-list [inset]="true">
-        <ion-item>
-          <ion-label>
-            <p>{{ 'tabs.training.workout.empty-list' | translate }}</p>
-          </ion-label>
-        </ion-item>
-      </ion-list>
-    } @else {
-      <ion-list [inset]="true">
-        <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
+    <ion-list [inset]="true">
+      <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
+        @if (list.length === 0) {
+          <ion-item>
+            <ion-label>
+              <p>{{ 'tabs.training.workout.empty-list' | translate }}</p>
+            </ion-label>
+          </ion-item>
+        } @else {
           @for (item of list; track item.name) {
             <ion-item-sliding [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
@@ -87,13 +85,14 @@ const ION_COMPONENTS = [
               }
             </ion-item-sliding>
           }
-        </ion-reorder-group>
-      </ion-list>
-    }
+        }
+      </ion-reorder-group>
+    </ion-list>
   `,
 })
-export class WorkoutUnitsComponent implements OnInit, OnDestroy {
+export class WorkoutListComponent implements OnInit, OnDestroy {
   workout = input.required<Workout>();
+
   private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
   workoutList = viewChild.required(IonList);
