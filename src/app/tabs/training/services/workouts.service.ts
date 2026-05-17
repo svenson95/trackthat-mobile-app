@@ -28,7 +28,7 @@ export class WorkoutsService {
   private http = inject(HttpClient);
   private userService = inject(UserService);
 
-  workoutsResource = httpResource<GetWorkoutsDTO | undefined>(() => ({
+  workoutsResource = httpResource<GetWorkoutsDTO>(() => ({
     url: `${this.apiUrl}/get/${this.userService.user().id}`,
     method: 'GET',
   }));

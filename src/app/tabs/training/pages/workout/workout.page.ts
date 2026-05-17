@@ -171,9 +171,11 @@ export class WorkoutPage {
   workout = computed<WorkoutDoc>(() => {
     const resolved = this.resolvedWorkout();
 
-    return this.workoutsService.workoutsResource
-      .value()!
-      .find((w) => w.workoutId === resolved.workoutId)!;
+    return (
+      this.workoutsService.workoutsResource
+        .value()
+        ?.find((w) => w.workoutId === resolved.workoutId) ?? resolved
+    );
   });
 
   workoutEffect = effect(() => {
