@@ -16,7 +16,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { PostWorkoutBody } from '../../../../../models';
-import { TextInputDialogComponent } from '../../../../../shared';
+import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -62,7 +62,7 @@ const ION_COMPONENTS = [
             @for (workout of workouts; track workout.name) {
               <ion-item-sliding [disabled]="!isEditing()">
                 <ion-item-options side="start">
-                  <ion-item-option color="medium" (click)="changeWorkoutName(workout)">
+                  <ion-item-option color="medium" (click)="openChangeNameModal(workout)">
                     {{ 'tabs.training.workouts.actions.change-name' | translate }}
                   </ion-item-option>
                 </ion-item-options>
@@ -117,43 +117,44 @@ export class WorkoutsComponent {
     event.detail.complete();
   }
 
-  async changeWorkoutName(workout: PostWorkoutBody): Promise<void> {
-    await this.workoutsList().closeSlidingItems();
-    const modal = await this.modalCtrl.create({
-      component: TextInputDialogComponent,
-      componentProps: {
-        title: this.translate.instant('tabs.training.workouts.actions.change-name'),
-        label: 'Name',
-        placeholder: 'Name',
-        value: workout.name,
-      },
-      breakpoints: [0, 0.35],
-      initialBreakpoint: 0.35,
-      cssClass: 'input-fullscreen-modal',
-    });
-    await modal.present();
-
-    const { data } = await modal.onDidDismiss<string>();
-    if (!data || data === workout.name) return;
-
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.actions.change-name-process'),
-      spinner: 'circles',
-    });
-    await loading.present();
-
-    this.service
-      .changeWorkoutName({
-        ...workout,
-        name: data,
-      })
-      .subscribe({
-        next: async () => await loading.dismiss(),
-        error: async (err) => {
-          await loading.dismiss();
-          console.error('Unexpected fail during change name user.workoutId', err);
+  async openChangeNameModal(workout: PostWorkoutBody): Promise<void> {
+    try {
+      await this.workoutsList().closeSlidingItems();
+      const modal = await this.modalCtrl.create({
+        component: TextInputDialog,
+        componentProps: {
+          title: this.translate.instant('tabs.training.workouts.actions.change-name'),
+          label: 'Name',
+          placeholder: 'Name',
+          value: workout.name,
         },
       });
+      await modal.present();
+
+      const { data } = await modal.onDidDismiss<string>();
+      if (!data || data === workout.name) return;
+
+      const loading = await this.loadingCtrl.create({
+        message: this.translate.instant('tabs.training.workouts.actions.change-name-process'),
+        spinner: 'circles',
+      });
+      await loading.present();
+
+      this.service
+        .changeWorkoutName({
+          ...workout,
+          name: data,
+        })
+        .subscribe({
+          next: async () => await loading.dismiss(),
+          error: async (err) => {
+            await loading.dismiss();
+            console.error('Unexpected fail during change name user.workoutId', err);
+          },
+        });
+    } catch (error) {
+      console.error('Add workout modal could not be opened:', error);
+    }
   }
 
   async deleteWorkout(id: string): Promise<void> {
