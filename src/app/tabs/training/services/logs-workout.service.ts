@@ -2,14 +2,14 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
-import { environment } from '../../../../../../environments/environment.prod';
+import { environment } from '../../../../environments/environment.prod';
 import type {
   GetLogWorkoutDTO,
   PostLogWorkoutBody,
   PostLogWorkoutResponse,
   PutLogWorkoutBody,
   PutLogWorkoutResponse,
-} from '../../../../../models';
+} from '../../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -30,12 +30,6 @@ export class LogsWorkoutService {
       method: 'GET',
     };
   });
-
-  // private logWorkout = computed<GetLogWorkoutDTO>(() => {
-  //   const workouts = this.logWorkoutResource.value();
-  //   if (!workouts) throw new Error('Unexpected workouts undefined');
-  //   return workouts;
-  // });
 
   getLogWorkout(date: string): Observable<GetLogWorkoutDTO> {
     return this.http.get<GetLogWorkoutDTO>(this.apiUrl + '/get/' + date);

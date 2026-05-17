@@ -68,6 +68,7 @@ const ION_COMPONENTS = [
         <ion-content [fullscreen]="true">
           <ion-item>
             <ion-input
+              class="custom-input"
               id="name-input"
               label="Name"
               type="text"

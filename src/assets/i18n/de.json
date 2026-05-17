@@ -100,7 +100,17 @@
         }
       },
       "log-workout": {
-        "title": "Training"
+        "title": "Training",
+        "inputs": {
+          "load": {
+            "name": "Gewicht",
+            "label": "Gewicht"
+          },
+          "reps": {
+            "name": "Wiederholungen",
+            "label": "Wdh."
+          }
+        }
       }
     },
     "eat": {

@@ -4,8 +4,7 @@ import { AuthGuard } from '../services';
 
 import { TabsPage } from './tabs.page';
 
-import { LogWorkoutResolver } from './training/pages/log-workout/services';
-import { WorkoutResolver } from './training/services';
+import { LogWorkoutResolver, WorkoutResolver } from './training/services';
 
 export const tabsRoutes: Routes = [
   {
@@ -33,7 +32,6 @@ export const tabsRoutes: Routes = [
             path: ':workoutId/log',
             loadComponent: () =>
               import('./training/pages/log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
-            providers: [LogWorkoutResolver],
             resolve: {
               log: LogWorkoutResolver,
               workout: WorkoutResolver,

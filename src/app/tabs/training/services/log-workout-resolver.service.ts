@@ -7,11 +7,13 @@ import {
 } from '@angular/router';
 import { catchError, map, of, type Observable } from 'rxjs';
 
-import type { LogWorkoutDoc } from '../../../../../models';
+import type { LogWorkoutDoc } from '../../../models';
 
 import { LogsWorkoutService } from './logs-workout.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class LogWorkoutResolver implements Resolve<LogWorkoutDoc | RedirectCommand> {
   private readonly logWorkoutService = inject(LogsWorkoutService);
   private readonly router = inject(Router);

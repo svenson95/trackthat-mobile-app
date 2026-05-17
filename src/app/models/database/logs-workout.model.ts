@@ -13,7 +13,7 @@ export interface WorkoutSet {
   reps: number;
   exercise: string;
   itemId: number;
-  note: string;
+  note: string | null;
 }
 
 export interface LogWorkout extends Log {

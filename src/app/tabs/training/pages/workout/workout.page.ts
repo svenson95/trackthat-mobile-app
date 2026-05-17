@@ -3,7 +3,6 @@ import {
   Component,
   computed,
   inject,
-  input,
   signal,
   viewChild,
 } from '@angular/core';
@@ -149,8 +148,6 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutPage {
-  workoutId = input.required<string>();
-
   private loadingCtrl = inject(LoadingController);
   private modalCtrl = inject(ModalController);
   private translate = inject(TranslateService);

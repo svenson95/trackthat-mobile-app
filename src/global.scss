@@ -91,6 +91,15 @@
   // --ion-color-dark-contrast-rgb: 255, 255, 255;
   // --ion-color-dark-shade: #1e2023;
   // --ion-color-dark-tint: #383a3e;
+  --ion-background: white;
+  --ion-background-color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background: black;
+    --ion-background-color: black;
+  }
 }
 
 .input-fullscreen-modal {
@@ -109,7 +118,8 @@
   --padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
 }
 
-ion-input.ion-valid.ng-valid,
-ion-textarea.ion-valid.ng-valid {
+ion-input.custom-input,
+ion-textarea.custom-input {
   --highlight-color: var(--ion-color-primary);
+  --background: var(--ion-background-color);
 }

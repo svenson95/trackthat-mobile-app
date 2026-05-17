@@ -48,6 +48,7 @@ const ION_COMPONENTS = [
     <ion-content class="ion-padding">
       <ion-item>
         <ion-input
+          class="custom-input"
           type="text"
           [(ngModel)]="value"
           [placeholder]="placeholder"

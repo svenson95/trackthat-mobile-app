@@ -1,5 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonBackButton,
   IonButtons,
@@ -12,10 +14,9 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
-import { WorkoutsService } from '../../services';
+import { LogsWorkoutService, WorkoutsService } from '../../services';
 
 import { LogWorkoutInputsComponent } from './components';
-import { LogsWorkoutService } from './services';
 
 const ANGULAR_MODULES = [FormsModule];
 
@@ -82,26 +83,35 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
     </ion-content>
   `,
 })
-export class LogWorkoutPage {
-  workoutId = input.required<string>();
-  logId = input.required<string>();
+export class LogWorkoutPage implements OnInit {
+  readonly workoutId = input<string | undefined>();
+  readonly logId = input<string | undefined>();
 
   logsWorkoutService = inject(LogsWorkoutService);
   workoutsService = inject(WorkoutsService);
+
+  router = inject(Router);
+
+  private readonly route = inject(ActivatedRoute);
+
+  async ngOnInit(): Promise<void> {
+    const logId =
+      this.route.snapshot.paramMap.get('logId') ??
+      this.route.parent?.snapshot.paramMap.get('logId');
+    const id = Number(logId);
+    if (!Number.isFinite(id)) return;
+
+    this.logsWorkoutService.logId.set(id);
+    await this.router.navigate(['log', id]);
+  }
 
   backButtonText = computed(() => {
     const workout = this.workoutsService
       .sortedWorkouts()
       .find((w) => w.workoutId === Number(this.workoutId()));
-    const name = workout!.name;
+    const name = workout?.name;
     return name;
 
     // return name.length > 12 ? `${name.slice(0, 10)}...` : name;
-  });
-
-  routeEffect = effect(() => {
-    const id = Number(this.logId());
-    if (!id) return;
-    this.logsWorkoutService.logId.set(id);
   });
 }

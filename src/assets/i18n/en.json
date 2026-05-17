@@ -100,7 +100,17 @@
         }
       },
       "log-workout": {
-        "title": "Training"
+        "title": "Training",
+        "inputs": {
+          "load": {
+            "name": "Load",
+            "label": "Load"
+          },
+          "reps": {
+            "name": "Reps",
+            "label": "Reps"
+          }
+        }
       }
     },
     "eat": {
