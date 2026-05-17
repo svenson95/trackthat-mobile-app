@@ -108,3 +108,8 @@
 .input-fullscreen-modal ion-content {
   --padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
 }
+
+ion-input.ion-valid.ng-valid,
+ion-textarea.ion-valid.ng-valid {
+  --highlight-color: var(--ion-color-primary);
+}
