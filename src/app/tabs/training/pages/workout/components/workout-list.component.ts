@@ -6,7 +6,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {
   AlertController,
   LoadingController,
@@ -53,7 +53,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-workout-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, RouterModule, TranslateModule, ExerciseItemComponent],
   styles: `
     .exercise-image {
       margin-right: 0.75rem;
@@ -90,7 +90,7 @@ const ION_COMPONENTS = [
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
-                <ion-item [button]="!isEditing()" (click)="startTraining()">
+                <ion-item [button]="!isEditing()" [routerLink]="!isEditing() ? ['log'] : null">
                   <app-exercise-item [exerciseName]="item.name!" />
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
@@ -220,9 +220,5 @@ export class WorkoutListComponent {
         console.error('Unexpected fail during delete workout item', err);
       },
     });
-  }
-
-  async startTraining(): Promise<void> {
-    await this.router.navigate(['tabs', 'training', this.workout().workoutId, 'log']);
   }
 }

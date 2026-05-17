@@ -32,7 +32,7 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
     LogWorkoutInputsComponent,
   ],
   template: `
-    <ion-header>
+    <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-buttons slot="start">
           <!-- @if (isEditing()) {
@@ -41,7 +41,7 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
             </ion-button>
           } @else { -->
           <ion-back-button
-            [text]="workoutName()"
+            [text]="backButtonText()"
             [defaultHref]="'/tabs/training/' + workoutId()"
           ></ion-back-button>
           <!-- } -->
@@ -70,6 +70,12 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
+      <ion-header collapse="condense">
+        <ion-toolbar color="light">
+          <ion-title size="large">{{ 'tabs.training.tab-title' | translate }}</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
       <app-content-container>
         <app-log-workout-inputs />
       </app-content-container>
@@ -81,13 +87,16 @@ export class LogWorkoutPage {
   logId = input.required<string>();
 
   logsWorkoutService = inject(LogsWorkoutService);
-
   workoutsService = inject(WorkoutsService);
-  workoutName = computed(() => {
+
+  backButtonText = computed(() => {
     const workout = this.workoutsService
       .sortedWorkouts()
       .find((w) => w.workoutId === Number(this.workoutId()));
-    return workout?.name;
+    const name = workout!.name;
+    return name;
+
+    // return name.length > 12 ? `${name.slice(0, 10)}...` : name;
   });
 
   routeEffect = effect(() => {
