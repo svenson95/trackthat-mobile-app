@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   Injector,
   signal,
@@ -144,6 +145,12 @@ export class WorkoutsPage {
 
   private addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
+  workoutsEffect = effect(() => {
+    const workouts = this.workoutsService.sortedWorkouts();
+    const ids = workouts.map((i) => i.listId);
+    this.editService.workoutIds.set(ids);
+  });
+
   handleRefresh(event: RefresherCustomEvent): void {
     const res = this.workoutsService.workoutsResource;
     const started = res.reload();
@@ -196,7 +203,7 @@ export class WorkoutsPage {
 
     const workouts = this.editService
       .workoutIds()
-      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.workoutId === id)!)
+      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.listId === id)!)
       .map((w, idx) => ({
         ...w,
         listId: idx,

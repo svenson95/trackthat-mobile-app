@@ -109,7 +109,7 @@ export class WorkoutsComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const workouts = [...this.sortedWorkouts().map((w) => w.workoutId)];
+    const workouts = [...this.editService.workoutIds()];
     const moved = workouts.splice(from, 1)[0];
     workouts.splice(to, 0, moved);
     this.editService.workoutIds.set(workouts);
