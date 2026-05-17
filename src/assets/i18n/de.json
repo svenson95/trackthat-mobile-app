@@ -4,7 +4,8 @@
     "save": "Speichern",
     "edit": "Bearbeiten",
     "loading": "Laden",
-    "error": "Fehler aufgetreten",
+    "error": "Fehler",
+    "unknown-error": "Es ist ein unbekannter Fehler aufgetreten",
     "delete": "Löschen",
     "muscles": {
       "legs": "Beine",
@@ -37,6 +38,9 @@
           "delete": "Trainingsplan wird gelöscht ...",
           "change-name": "Name ändern",
           "change-name-process": "Name wird geändert ..."
+        },
+        "errors": {
+          "already-exists": "Es existiert bereits ein Trainingsplan mit diesem Namen"
         }
       },
       "workout": {

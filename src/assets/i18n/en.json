@@ -4,7 +4,8 @@
     "save": "Save",
     "edit": "Edit",
     "loading": "Loading",
-    "error": "Error occured",
+    "error": "Error",
+    "unknown-error": "An unknown error has occurred",
     "delete": "Delete",
     "muscles": {
       "legs": "Legs",
@@ -37,6 +38,9 @@
           "delete": "Training Plan is being deleted ...",
           "change-name": "Change name",
           "change-name-process": "Name is being changed ..."
+        },
+        "errors": {
+          "already-exists": "A training plan with this name already exists"
         }
       },
       "workout": {

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, ToastController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -17,7 +17,7 @@ import {
 } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { WorkoutDoc } from '../../../../../models';
 import { WORKOUT_TEMPLATES } from '../../../../../shared';
@@ -98,10 +98,14 @@ const ION_COMPONENTS = [
   `,
 })
 export class AddWorkoutDialog {
-  private workoutService = inject(WorkoutsService);
   private loadingCtrl = inject(LoadingController);
   private router = inject(Router);
+  private toastCtrl = inject(ToastController);
+  private translate = inject(TranslateService);
   modal = viewChild.required(IonModal);
+
+  private workoutService = inject(WorkoutsService);
+
   name = '';
   templateId = -1;
   templates = WORKOUT_TEMPLATES;
@@ -134,11 +138,32 @@ export class AddWorkoutDialog {
         void loading.dismiss();
         void this.modal().dismiss(response, 'confirm');
       },
-      error: (error) => {
+      error: async (error) => {
+        console.error('Error saving workout:', error);
         this.isLoading.set(false);
         void loading.dismiss();
-        void this.modal().dismiss(null, 'cancel');
-        console.error('Error saving workout:', error);
+
+        if (error.status === 409) {
+          await this.toastCtrl
+            .create({
+              message: this.translate.instant('tabs.training.workouts.errors.already-exists'),
+              duration: 2500,
+              color: 'warning',
+              position: 'bottom',
+            })
+            .then((toast) => toast.present());
+
+          return;
+        }
+
+        await this.toastCtrl
+          .create({
+            message: this.translate.instant('general.unknown-error'),
+            duration: 2500,
+            color: 'warning',
+            position: 'bottom',
+          })
+          .then((toast) => toast.present());
       },
     });
   }
