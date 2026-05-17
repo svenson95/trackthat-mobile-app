@@ -193,25 +193,31 @@ export class WorkoutListComponent {
 
   async deleteItem(item: ListItem): Promise<void> {
     await this.workoutList().closeSlidingItems();
+
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.workout.actions.delete-item-process'),
       spinner: 'circles',
     });
+
     await loading.present();
 
     const workout = this.workout();
+    const updatedList = workout.list.filter((listItem) => listItem.listId !== item.listId);
+
     const updatedWorkout = {
       ...workout,
-      list: workout.list.filter((listItem) => listItem.listId !== item.listId),
+      list: updatedList,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: async () => {
+      next: async (res) => {
+        this.editService.editedList.set(res.list);
+
         await loading.dismiss();
       },
       error: async (err) => {
         await loading.dismiss();
-        console.error('Unexpected fail during delete user.workoutId', err);
+        console.error('Unexpected fail during delete workout item', err);
       },
     });
   }

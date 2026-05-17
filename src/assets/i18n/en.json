@@ -52,10 +52,13 @@
           "spacer": "Spacer"
         },
         "actions": {
-          "add-text": "Add Text",
+          "add-text": {
+            "title": "Add Text",
+            "placeholder": "#1 Chest Shoulder",
+            "loading": "Text is being added ..."
+          },
           "add-exercise": "Add Exercise",
           "add-spacer": "Add Spacer",
-          "add-text-process": "Text is being added ...",
           "add-exercise-process": "Exercise is being added ...",
           "add-spacer-process": "Spacer is being added ...",
           "change-text": "Change Text",

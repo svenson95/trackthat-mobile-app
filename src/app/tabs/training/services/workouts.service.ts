@@ -74,8 +74,16 @@ export class WorkoutsService {
   updateWorkoutList(workout: PutWorkoutBody): Observable<PutWorkoutResponse> {
     return this.http.post<PutWorkoutResponse>(`${this.apiUrl}/change-list`, workout).pipe(
       tap((updatedWorkout) => {
-        const updated = this.workouts().map((w) =>
-          w.workoutId === updatedWorkout.workoutId ? { ...w, ...updatedWorkout } : w,
+        const currentWorkouts = this.workoutsResource.value() ?? [];
+
+        const updated = currentWorkouts.map((w) =>
+          w.workoutId === updatedWorkout.workoutId
+            ? {
+                ...w,
+                ...updatedWorkout,
+                list: workout.list,
+              }
+            : w,
         );
 
         this.workoutsResource.set(updated);

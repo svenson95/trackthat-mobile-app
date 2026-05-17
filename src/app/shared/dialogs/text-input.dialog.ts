@@ -37,7 +37,7 @@ const ION_COMPONENTS = [
         <ion-buttons slot="start">
           <ion-button (click)="close()">{{ 'general.abort' | translate }}</ion-button>
         </ion-buttons>
-        <ion-title>Welcome</ion-title>
+        <ion-title>{{ title }}</ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="save()" [strong]="true" [disabled]="value.trim() === initialValue">
             {{ 'general.save' | translate }}

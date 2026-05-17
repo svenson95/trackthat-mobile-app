@@ -40,6 +40,7 @@ import {
 } from '../../../../models';
 import { IsEditingService, WorkoutsService } from '../../services';
 
+import { TextInputDialog } from 'src/app/shared';
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
 
@@ -171,9 +172,14 @@ export class WorkoutPage {
     const resolved = this.resolvedWorkout();
     const editedList = this.editService.editedList();
 
+    const currentWorkout =
+      this.workoutsService.workoutsResource
+        .value()
+        ?.find((w) => w.workoutId === resolved.workoutId) ?? resolved;
+
     return {
-      ...resolved,
-      list: editedList ?? resolved.list,
+      ...currentWorkout,
+      list: editedList ?? currentWorkout.list,
     };
   });
 
@@ -224,15 +230,32 @@ export class WorkoutPage {
   }
 
   async addText(workout: WorkoutDoc): Promise<void> {
-    const updatedWorkout: WorkoutDoc = {
-      ...workout,
-      list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER }],
-    };
+    try {
+      const modal = await this.modalCtrl.create({
+        component: TextInputDialog,
+        componentProps: {
+          title: this.translate.instant('tabs.training.workout.actions.add-text.title'),
+          label: 'Text',
+          placeholder: this.translate.instant('tabs.training.workout.actions.add-text.placeholder'),
+          value: '',
+        },
+      });
+      await modal.present();
 
-    await this.updateDatabase(
-      updatedWorkout,
-      this.translate.instant('tabs.training.workout.actions.add-text-process'),
-    );
+      const { data } = await modal.onDidDismiss<string>();
+      if (!data || !data.trim() || data.trim() === '') return;
+
+      const updatedWorkout: WorkoutDoc = {
+        ...workout,
+        list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name: data }],
+      };
+      await this.updateDatabase(
+        updatedWorkout,
+        this.translate.instant('tabs.training.workout.actions.add-text.loading'),
+      );
+    } catch (error) {
+      console.error('Change text modal could not be opened:', error);
+    }
   }
 
   async addExercise(workout: WorkoutDoc): Promise<void> {

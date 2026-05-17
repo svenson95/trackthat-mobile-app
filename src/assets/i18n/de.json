@@ -52,10 +52,13 @@
           "spacer": "Platzhalter"
         },
         "actions": {
-          "add-text": "Text hinzufügen",
+          "add-text": {
+            "title": "Text hinzufügen",
+            "placeholder": "#1 Brust Schulter",
+            "loading": "Text wird hinzugefügt ..."
+          },
           "add-exercise": "Übung hinzufügen",
           "add-spacer": "Platzhalter hinzufügen",
-          "add-text-process": "Text wird hinzugefügt ...",
           "add-exercise-process": "Übung wird hinzugefügt ...",
           "add-spacer-process": "Platzhalter wird hinzugefügt ...",
           "change-text": "Text ändern",
