@@ -13,6 +13,9 @@
       "chest": "Brust",
       "back": "Rücken",
       "shoulders": "Schultern"
+    },
+    "actions": {
+      "save-list": "Liste wird gespeichert ..."
     }
   },
   "tabs": {
@@ -50,7 +53,10 @@
           "add-spacer": "Platzhalter hinzufügen",
           "add-text-process": "Text wird hinzugefügt ...",
           "add-exercise-process": "Übung wird hinzugefügt ...",
-          "add-spacer-process": "Platzhalter wird hinzugefügt ..."
+          "add-spacer-process": "Platzhalter wird hinzugefügt ...",
+          "change-text": "Text ändern",
+          "change-text-process": "Text wird geändert ...",
+          "delete-item-process": "Element wird entfernt ..."
         },
         "exercise": {
           "squats_dumbbell": "Kniebeugen Kurzhantel",

@@ -13,6 +13,9 @@
       "chest": "Chest",
       "back": "Back",
       "shoulders": "Shoulders"
+    },
+    "actions": {
+      "save-list": "List is being saved ..."
     }
   },
   "tabs": {
@@ -50,7 +53,10 @@
           "add-spacer": "Add Spacer",
           "add-text-process": "Text is being added ...",
           "add-exercise-process": "Exercise is being added ...",
-          "add-spacer-process": "Spacer is being added ..."
+          "add-spacer-process": "Spacer is being added ...",
+          "change-text": "Change Text",
+          "change-text-process": "Text is being changed ...",
+          "delete-item-process": "Item is being removed ..."
         },
         "exercise": {
           "squats_dumbbell": "Squats Dumbbell",

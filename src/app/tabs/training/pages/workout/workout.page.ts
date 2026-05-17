@@ -95,7 +95,9 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
+            <ion-button (click)="saveEdit('general.actions.save-list')">
+              {{ 'general.save' | translate }}
+            </ion-button>
           } @else {
             <ion-button (click)="presentPopover($event)">
               <ion-icon
@@ -111,7 +113,7 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <app-content-container>
-        <app-workout-list [workout]="workout()" #workoutComp />
+        <app-workout-list [workout]="workout()" (save)="saveEdit($event)" #workoutComp />
       </app-content-container>
 
       <!-- <app-add-item-dialog></app-add-item-dialog> -->
@@ -195,9 +197,9 @@ export class WorkoutPage {
     this.isEditing.set(false);
   }
 
-  async saveEdit(): Promise<void> {
+  async saveEdit(message: string): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: 'Sortierung wird gespeichert ...',
+      message: message,
       spinner: 'circles',
     });
     await loading.present();
