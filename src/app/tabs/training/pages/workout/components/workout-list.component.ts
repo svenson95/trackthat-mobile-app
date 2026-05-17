@@ -1,12 +1,4 @@
-import type { OnDestroy, OnInit } from '@angular/core';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, viewChild } from '@angular/core';
 import { type ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
@@ -23,6 +15,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { Workout } from '../../../../../models';
 import { IsEditingService } from '../../../services';
 
+import { ExerciseItemComponent } from './exercise-item.component';
+
 const ION_COMPONENTS = [
   IonList,
   IonItem,
@@ -36,7 +30,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-workout-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, TranslateModule],
+  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
     .exercise-image {
       margin-right: 0.75rem;
@@ -65,15 +59,7 @@ const ION_COMPONENTS = [
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
                 <ion-item [button]="!isEditing()">
-                  <img
-                    class="exercise-image"
-                    [src]="'assets/images/exercises' + darkPath() + '/' + item.name + '.png'"
-                    width="24"
-                    height="24"
-                  />
-                  <ion-label>
-                    {{ 'tabs.training.workout.exercise.' + item.name | translate }}
-                  </ion-label>
+                  <app-exercise-item [exerciseName]="item.name!" />
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'SPACER') {
@@ -90,28 +76,12 @@ const ION_COMPONENTS = [
     </ion-list>
   `,
 })
-export class WorkoutListComponent implements OnInit, OnDestroy {
+export class WorkoutListComponent {
   workout = input.required<Workout>();
 
   private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
   workoutList = viewChild.required(IonList);
-
-  private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-  darkPath = signal(this.mediaQuery.matches ? '-white' : '');
-
-  ngOnInit(): void {
-    this.mediaQuery.addEventListener('change', this.darkPathListener);
-  }
-
-  ngOnDestroy(): void {
-    this.mediaQuery.removeEventListener('change', this.darkPathListener);
-  }
-
-  private darkPathListener = (event: MediaQueryListEvent): void => {
-    this.darkPath.set(event.matches ? '-white' : '');
-  };
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;

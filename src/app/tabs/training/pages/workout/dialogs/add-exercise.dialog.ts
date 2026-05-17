@@ -1,26 +1,27 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
   IonContent,
   IonHeader,
-  IonInput,
   IonItem,
-  IonModal,
-  IonSelect,
-  IonSelectOption,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+  IonList,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import type { OverlayEventDetail } from '@ionic/core';
 
-import type { WorkoutDoc } from '../../../../../models';
-import { WORKOUT_TEMPLATES } from '../../../../../shared';
+import { TranslateModule } from '@ngx-translate/core';
 
-import { WorkoutsService } from '../../../services';
+import type { ListItemExercise, WorkoutList } from '../../../../../models';
+import type { ExerciseMetadata } from '../../../../../shared';
+import { EXERCISES_METADATA } from '../../../../../shared';
+
+import { ExerciseItemComponent } from '../components';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -30,114 +31,80 @@ const ION_COMPONENTS = [
   IonContent,
   IonTitle,
   IonItem,
-  IonInput,
-  IonSelect,
-  IonSelectOption,
-  IonModal,
+  IonList,
+  IonItemGroup,
+  IonLabel,
+  IonItemDivider,
 ];
 
 @Component({
   selector: 'app-add-item-dialog',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, FormsModule],
+  imports: [...ION_COMPONENTS, FormsModule, TranslateModule, ExerciseItemComponent],
   styles: `
     h4 {
       margin-left: 1rem;
     }
   `,
   template: `
-    <ion-modal (willDismiss)="onAddWorkoutSubmit($event)" #newWorkoutModal>
-      <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <ion-button (click)="cancel()">Abbrechen</ion-button>
-            </ion-buttons>
-            <ion-title>Element hinzufügen</ion-title>
-            <ion-buttons slot="end">
-              <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
-                Speichern
-              </ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
+    <ion-header>
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-button (click)="cancel()">Abbrechen</ion-button>
+        </ion-buttons>
+        <ion-title>{{ 'tabs.training.workout.actions.add-exercise' | translate }}</ion-title>
+      </ion-toolbar>
+    </ion-header>
 
-        <ion-content [fullscreen]="true">
-          <ion-item>
-            <ion-input
-              id="name-input"
-              label="Name"
-              type="text"
-              placeholder="Bankdrücken"
-              [(ngModel)]="name"
-            ></ion-input>
-          </ion-item>
+    <ion-content [fullscreen]="true">
+      <ion-list>
+        @for (group of exercises; track group.name) {
+          <ion-item-group>
+            <ion-item-divider>
+              <ion-label>{{ 'general.muscles.' + group.name | translate }}</ion-label>
+            </ion-item-divider>
 
-          <ion-item>
-            <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
-              <ion-select-option [value]="-1">Keine</ion-select-option>
-              @for (template of templates; track template.workoutId) {
-                <ion-select-option [value]="template.workoutId">{{
-                  template.name
-                }}</ion-select-option>
-              }
-            </ion-select>
-          </ion-item>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
+            @for (exercise of group.exercises; track exercise.name) {
+              <ion-item button="true" (click)="confirm(exercise)">
+                <app-exercise-item [exerciseName]="exercise.name" />
+              </ion-item>
+            }
+          </ion-item-group>
+        }
+      </ion-list>
+    </ion-content>
   `,
 })
 export class AddExerciseDialog {
-  private workoutService = inject(WorkoutsService);
-  private loadingCtrl = inject(LoadingController);
-  private router = inject(Router);
-  modal = viewChild.required(IonModal);
-  name = '';
-  templateId = -1;
-  templates = WORKOUT_TEMPLATES;
+  @Input() currentList!: WorkoutList;
 
-  // TODO: add validation: not same name as other workouts, only specific letters and numbers
-  isLoading = signal(false);
+  private modalCtrl = inject(ModalController);
+
+  readonly exercises = EXERCISES_METADATA;
 
   cancel(): void {
-    void this.modal().dismiss(null, 'cancel');
+    void this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  async confirm(): Promise<void> {
-    if (this.name === '' || !this.name) return;
+  async confirm(exercise: ExerciseMetadata): Promise<void> {
+    const getNextId = (key: 'itemId' | 'listId'): number =>
+      this.currentList.length === 0
+        ? 0
+        : Math.max(...this.currentList.map((item) => item[key])) + 1;
 
-    const template = this.templates.find((t) => t.workoutId === this.templateId);
-    const list = template ? template.list : [];
-    const workoutData = this.workoutService.initWorkout(this.name, list);
+    // TODO: add missing options like 'variant', 'sets', ...
+    const addExercise: ListItemExercise = {
+      name: exercise.name,
+      type: 'EXERCISE',
+      itemId: getNextId('itemId'),
+      listId: getNextId('listId'),
+      equipment: exercise.equipmentTypes[0], // TODO: change equipmetTypes type array -> single-item
+      variant: exercise.variants ? exercise.variants[0] : null,
+      sets: '0',
+      reps: '0',
+      rest: '0',
+    };
 
-    const loading = await this.loadingCtrl.create({
-      message: 'Trainingsplan wird erstellt ...',
-      spinner: 'circles',
-    });
-    this.isLoading.set(true);
-    void loading.present();
-
-    this.workoutService.addWorkout(workoutData).subscribe({
-      next: (response) => {
-        this.isLoading.set(false);
-        void loading.dismiss();
-        void this.modal().dismiss(response, 'confirm');
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        void loading.dismiss();
-        void this.modal().dismiss(null, 'cancel');
-        console.error('Error saving workout:', error);
-      },
-    });
-  }
-
-  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
-    const { data } = event.detail;
-    if (!data) return;
-
-    const workoutId = data.workoutId;
-    void this.router.navigate(['tabs', 'training', workoutId]);
+    await this.modalCtrl.dismiss(addExercise);
   }
 }

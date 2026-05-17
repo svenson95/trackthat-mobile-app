@@ -5,7 +5,15 @@
     "edit": "Bearbeiten",
     "loading": "Laden",
     "error": "Fehler aufgetreten",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "muscles": {
+      "legs": "Beine",
+      "arms": "Arme",
+      "core_and_abs": "Rumpf und Bauch",
+      "chest": "Brust",
+      "back": "Rücken",
+      "shoulders": "Schultern"
+    }
   },
   "tabs": {
     "training": {
@@ -35,6 +43,14 @@
           "text": "Text",
           "exercise": "Übung",
           "spacer": "Platzhalter"
+        },
+        "actions": {
+          "add-text": "Text hinzufügen",
+          "add-exercise": "Übung hinzufügen",
+          "add-spacer": "Platzhalter hinzufügen",
+          "add-text-process": "Text wird hinzugefügt ...",
+          "add-exercise-process": "Übung wird hinzugefügt ...",
+          "add-spacer-process": "Platzhalter wird hinzugefügt ..."
         },
         "exercise": {
           "squats_dumbbell": "Kniebeugen Kurzhantel",

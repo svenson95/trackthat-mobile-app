@@ -5,7 +5,15 @@
     "edit": "Edit",
     "loading": "Loading",
     "error": "Error occured",
-    "delete": "Delete"
+    "delete": "Delete",
+    "muscles": {
+      "legs": "Legs",
+      "arms": "Arms",
+      "core_and_abs": "Core and Abs",
+      "chest": "Chest",
+      "back": "Back",
+      "shoulders": "Shoulders"
+    }
   },
   "tabs": {
     "training": {
@@ -35,6 +43,14 @@
           "text": "Text",
           "exercise": "Exercise",
           "spacer": "Spacer"
+        },
+        "actions": {
+          "add-text": "Add Text",
+          "add-exercise": "Add Exercise",
+          "add-spacer": "Add Spacer",
+          "add-text-process": "Text is being added ...",
+          "add-exercise-process": "Exercise is being added ...",
+          "add-spacer-process": "Spacer is being added ..."
         },
         "exercise": {
           "squats_dumbbell": "Squats Dumbbell",

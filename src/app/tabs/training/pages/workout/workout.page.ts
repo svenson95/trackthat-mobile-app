@@ -1,15 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   effect,
   inject,
   input,
   signal,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { LoadingController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
+import { LoadingController, ModalController } from '@ionic/angular';
 import {
   IonBackButton,
   IonButton,
@@ -26,10 +27,12 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { map } from 'rxjs';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
+import type { ListItemExercise } from '../../../../models';
 import {
   WORKOUT_LIST_ITEM_HEADER,
   WORKOUT_LIST_ITEM_SPACER,
@@ -38,6 +41,7 @@ import {
 import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutListComponent } from './components';
+import { AddExerciseDialog } from './dialogs';
 
 const ANGULAR_MODULES = [FormsModule];
 
@@ -127,7 +131,7 @@ const ION_COMPONENTS = [
                 {{ 'tabs.training.workout.more-menu.text' | translate }}
               </ion-item>
 
-              <ion-item [button]="true" [detail]="false">
+              <ion-item [button]="true" [detail]="false" (click)="addExercise(workout())">
                 {{ 'tabs.training.workout.more-menu.exercise' | translate }}
               </ion-item>
 
@@ -143,23 +147,21 @@ const ION_COMPONENTS = [
 })
 export class WorkoutPage {
   workoutId = input.required<string>();
+
+  private loadingCtrl = inject(LoadingController);
+  private modalCtrl = inject(ModalController);
+  private translate = inject(TranslateService);
+
   private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
 
   private workoutsService = inject(WorkoutsService);
-  private loadingCtrl = inject(LoadingController);
-
   private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   isMoreMenuOpen = signal<boolean>(false);
 
-  workout = computed<WorkoutDoc>(() => {
-    const workouts = this.workoutsService.workoutsResource.value();
-    if (!workouts) throw new Error('workouts not loaded');
-    const id = this.workoutId();
-    if (!id) throw new Error('id not found');
-    const workout = workouts.find((w) => w.workoutId === Number(id));
-    if (!workout) throw new Error('workout not found by id: ' + id);
-    return workout;
+  private route = inject(ActivatedRoute);
+  workout = toSignal(this.route.data.pipe(map((data) => data['workout'] as WorkoutDoc)), {
+    initialValue: {} as WorkoutDoc,
   });
 
   workoutEffect = effect(() => {
@@ -215,33 +217,58 @@ export class WorkoutPage {
     });
   }
 
-  async addSpacer(workout: WorkoutDoc): Promise<void> {
-    const updatedWorkout: WorkoutDoc = {
-      ...workout,
-      list: [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }].map((listItem, index) => ({
-        ...listItem,
-        itemId: index,
-      })),
-    };
-
-    await this.updateDatabase(updatedWorkout);
-  }
-
   async addText(workout: WorkoutDoc): Promise<void> {
     const updatedWorkout: WorkoutDoc = {
       ...workout,
-      list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER }].map((listItem, index) => ({
-        ...listItem,
-        itemId: index,
-      })),
+      list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER }],
     };
 
-    await this.updateDatabase(updatedWorkout);
+    await this.updateDatabase(
+      updatedWorkout,
+      this.translate.instant('tabs.training.workout.actions.add-text-process'),
+    );
   }
 
-  private async updateDatabase(workout: WorkoutDoc): Promise<void> {
+  async addExercise(workout: WorkoutDoc): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: AddExerciseDialog,
+      componentProps: {
+        title: this.translate.instant('tabs.training.workout.actions.add-exercise'),
+        value: workout.name,
+        currentList: this.workout().list,
+      },
+    });
+    await modal.present();
+    this.isMoreMenuOpen.set(false);
+
+    const { data } = await modal.onDidDismiss<ListItemExercise>();
+    if (!data) return;
+
+    const updatedWorkout: WorkoutDoc = {
+      ...workout,
+      list: [...workout.list, { ...data }],
+    };
+    await this.updateDatabase(
+      updatedWorkout,
+      this.translate.instant('tabs.training.workout.actions.add-exercise-process'),
+    );
+  }
+
+  async addSpacer(workout: WorkoutDoc): Promise<void> {
+    const updatedWorkout: WorkoutDoc = {
+      ...workout,
+      list: [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }],
+    };
+
+    await this.updateDatabase(
+      updatedWorkout,
+      this.translate.instant('tabs.training.workout.actions.add-spacer-process'),
+    );
+  }
+
+  private async updateDatabase(workout: WorkoutDoc, loadMessage: string): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: 'Sortierung wird gespeichert ...',
+      message: loadMessage,
       spinner: 'circles',
     });
     await loading.present();
