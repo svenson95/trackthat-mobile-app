@@ -129,6 +129,7 @@ export class WorkoutsComponent {
       },
       breakpoints: [0, 0.35],
       initialBreakpoint: 0.35,
+      cssClass: 'input-fullscreen-modal',
     });
     await modal.present();
 

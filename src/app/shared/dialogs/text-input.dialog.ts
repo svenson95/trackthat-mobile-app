@@ -38,6 +38,7 @@ const ION_COMPONENTS = [IonButton, IonContent, IonHeader, IonInput, IonItem, Ion
           label-placement="floating"
           [(ngModel)]="value"
           [placeholder]="placeholder"
+          (ionFocus)="scrollInputIntoView($event)"
         />
       </ion-item>
 
@@ -102,5 +103,15 @@ export class TextInputDialogComponent implements OnInit {
 
   async save(): Promise<void> {
     await this.modalCtrl.dismiss(this.value.trim());
+  }
+
+  scrollInputIntoView(event: Event): void {
+    setTimeout(() => {
+      const el = event.target as HTMLElement;
+      el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }, 300);
   }
 }

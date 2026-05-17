@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli';
+import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
@@ -6,7 +7,7 @@ const config: CapacitorConfig = {
   webDir: 'www',
   plugins: {
     Keyboard: {
-      resize: 'body',
+      resize: KeyboardResize.Ionic,
       resizeOnFullScreen: true,
     },
   },
