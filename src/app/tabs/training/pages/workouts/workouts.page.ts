@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   inject,
   Injector,
   signal,
@@ -145,12 +144,6 @@ export class WorkoutsPage {
 
   private addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
-  workoutsEffect = effect(() => {
-    const workouts = this.workoutsService.sortedWorkouts();
-    const ids = workouts.map((i) => i.listId);
-    this.editService.workoutIds.set(ids);
-  });
-
   handleRefresh(event: RefresherCustomEvent): void {
     const res = this.workoutsService.workoutsResource;
     const started = res.reload();
@@ -185,12 +178,14 @@ export class WorkoutsPage {
   }
 
   async startEditing(): Promise<void> {
+    this.editService.editedWorkouts.set(structuredClone(this.workoutsService.sortedWorkouts()));
     this.isEditing.set(true);
     await this.moreMenu().dismiss();
   }
 
   abortEditing(list: IonList): void {
     void list.closeSlidingItems();
+    this.editService.editedWorkouts.set(null);
     this.isEditing.set(false);
   }
 
@@ -201,13 +196,7 @@ export class WorkoutsPage {
     });
     await loading.present();
 
-    const workouts = this.editService
-      .workoutIds()
-      .map((id) => this.workoutsService.workoutsResource.value()!.find((w) => w.listId === id)!)
-      .map((w, idx) => ({
-        ...w,
-        listId: idx,
-      }));
+    const workouts = this.editService.editedWorkouts()!;
     const userId = this.userService.user().id;
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({

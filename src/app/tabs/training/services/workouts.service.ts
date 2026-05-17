@@ -18,6 +18,7 @@ import type {
   WorkoutList,
 } from '../../../models';
 import { UserService } from '../../../services';
+import { IsEditingService } from './is-editing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,7 @@ export class WorkoutsService {
 
   private http = inject(HttpClient);
   private userService = inject(UserService);
+  private editService = inject(IsEditingService);
 
   workoutsResource = httpResource<GetWorkoutsDTO>(() => ({
     url: `${this.apiUrl}/get/${this.userService.user().id}`,
@@ -34,15 +36,12 @@ export class WorkoutsService {
   }));
 
   private workouts = computed<GetWorkoutsDTO>(() => {
-    const workouts = this.workoutsResource.value();
-    if (!workouts) throw new Error('Unexpected workouts undefined');
+    const workouts = this.editService.editedWorkouts() ?? this.workoutsResource.value() ?? [];
     return workouts;
   });
 
   sortedWorkouts = computed(() => {
-    const workouts = this.workoutsResource.value();
-    if (!workouts) return [];
-    return [...workouts].sort((a, b) => a.listId - b.listId);
+    return [...this.workouts()].sort((a, b) => a.listId - b.listId);
   });
 
   getWorkout(id: number): Observable<WorkoutDoc> {

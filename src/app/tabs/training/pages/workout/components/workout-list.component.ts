@@ -119,10 +119,11 @@ export class WorkoutListComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const items = [...this.editService.workoutListIds()];
+    const ids = this.editService.editedList() ?? [];
+    const items = [...ids];
     const moved = items.splice(from, 1)[0];
     items.splice(to, 0, moved);
-    this.editService.workoutListIds.set(items);
+    this.editService.editedList.set(items);
 
     event.detail.complete();
   }

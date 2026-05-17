@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
   signal,
@@ -170,18 +169,12 @@ export class WorkoutPage {
 
   workout = computed<WorkoutDoc>(() => {
     const resolved = this.resolvedWorkout();
+    const editedList = this.editService.editedList();
 
-    return (
-      this.workoutsService.workoutsResource
-        .value()
-        ?.find((w) => w.workoutId === resolved.workoutId) ?? resolved
-    );
-  });
-
-  workoutEffect = effect(() => {
-    const workout = this.workout();
-    const ids = workout.list.map((i) => i.listId);
-    this.editService.workoutListIds.set(ids);
+    return {
+      ...resolved,
+      list: editedList ?? resolved.list,
+    };
   });
 
   presentPopover(ev: Event): void {
@@ -190,12 +183,14 @@ export class WorkoutPage {
   }
 
   async startEditing(): Promise<void> {
+    this.editService.editedList.set(structuredClone(this.workout().list));
     this.isEditing.set(true);
     await this.moreMenu().dismiss();
   }
 
   async abortEditing(list: IonList): Promise<void> {
     await list.closeSlidingItems();
+    this.editService.editedList.set(null);
     this.isEditing.set(false);
   }
 
@@ -210,12 +205,9 @@ export class WorkoutPage {
     void loading.dismiss();
 
     const workout = this.workout();
-    const sortedList = this.editService.workoutListIds().map((item) => {
-      return workout.list.find((i) => i.listId === item)!;
-    });
     const updatedWorkout = {
       ...workout,
-      list: sortedList,
+      list: this.editService.editedList()!,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({

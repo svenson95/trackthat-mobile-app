@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-import type { ItemListId, WorkoutListId } from '../../../models';
+import type { ListItem, WorkoutDoc } from '../../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,6 @@ import type { ItemListId, WorkoutListId } from '../../../models';
 export class IsEditingService {
   readonly isEditing = signal<boolean>(false);
 
-  readonly workoutIds = signal<WorkoutListId[]>([]);
-
-  readonly workoutListIds = signal<ItemListId[]>([]);
+  readonly editedWorkouts = signal<WorkoutDoc[] | null>(null);
+  readonly editedList = signal<ListItem[] | null>(null);
 }

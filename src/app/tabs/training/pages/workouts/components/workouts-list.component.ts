@@ -109,10 +109,15 @@ export class WorkoutsComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const workouts = [...this.editService.workoutIds()];
+    const workouts = [...this.editService.editedWorkouts()!];
     const moved = workouts.splice(from, 1)[0];
     workouts.splice(to, 0, moved);
-    this.editService.workoutIds.set(workouts);
+    this.editService.editedWorkouts.set(
+      workouts.map((workout, index) => ({
+        ...workout,
+        listId: index,
+      })),
+    );
 
     event.detail.complete();
   }
