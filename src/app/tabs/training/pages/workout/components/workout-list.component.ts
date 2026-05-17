@@ -6,7 +6,13 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import { LoadingController, ModalController, type ItemReorderEventDetail } from '@ionic/angular';
+import { Router } from '@angular/router';
+import {
+  AlertController,
+  LoadingController,
+  ModalController,
+  type ItemReorderEventDetail,
+} from '@ionic/angular';
 import {
   IonIcon,
   IonItem,
@@ -21,7 +27,12 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { GetWorkoutsDTO, ListItem, Workout, WorkoutListId } from '../../../../../models';
+import {
+  type GetWorkoutsDTO,
+  type ListItem,
+  type Workout,
+  type WorkoutListId,
+} from '../../../../../models';
 import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
@@ -79,7 +90,7 @@ const ION_COMPONENTS = [
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
-                <ion-item [button]="!isEditing()">
+                <ion-item [button]="!isEditing()" (click)="startTraining()">
                   <app-exercise-item [exerciseName]="item.name!" />
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
@@ -113,7 +124,9 @@ export class WorkoutListComponent {
   workoutList = viewChild.required(IonList);
   modalCtrl = inject(ModalController);
   loadingCtrl = inject(LoadingController);
+  alertCtrl = inject(AlertController);
   translate = inject(TranslateService);
+  router = inject(Router);
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;
@@ -201,5 +214,9 @@ export class WorkoutListComponent {
         console.error('Unexpected fail during delete user.workoutId', err);
       },
     });
+  }
+
+  async startTraining(): Promise<void> {
+    await this.router.navigate(['tabs', 'training', this.workout().workoutId, 'log']);
   }
 }

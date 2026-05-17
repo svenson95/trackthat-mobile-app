@@ -95,6 +95,9 @@
           "shrugs_dumbbell": "Shrugs Dumbbell",
           "shrugs_dumbbell_sitting": "Shrugs Dumbbell Sitting"
         }
+      },
+      "log-workout": {
+        "title": "Training"
       }
     },
     "eat": {

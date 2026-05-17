@@ -95,6 +95,9 @@
           "shrugs_dumbbell": "Nackenheben Kurzhantel",
           "shrugs_dumbbell_sitting": "Nackenheben Kurzhantel sitzend"
         }
+      },
+      "log-workout": {
+        "title": "Training"
       }
     },
     "eat": {
