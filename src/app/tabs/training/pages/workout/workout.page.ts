@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -160,8 +161,17 @@ export class WorkoutPage {
   isMoreMenuOpen = signal<boolean>(false);
 
   private route = inject(ActivatedRoute);
-  workout = toSignal(this.route.data.pipe(map((data) => data['workout'] as WorkoutDoc)), {
+
+  resolvedWorkout = toSignal(this.route.data.pipe(map((data) => data['workout'] as WorkoutDoc)), {
     initialValue: {} as WorkoutDoc,
+  });
+
+  workout = computed<WorkoutDoc>(() => {
+    const resolved = this.resolvedWorkout();
+
+    return this.workoutsService.workoutsResource
+      .value()!
+      .find((w) => w.workoutId === resolved.workoutId)!;
   });
 
   workoutEffect = effect(() => {
