@@ -12,6 +12,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
+import type { WorkoutSet } from '../../../../../models';
 import { ExerciseItemComponent } from '../../workout/components';
 
 const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, IonItemDivider];
@@ -230,7 +231,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
           </ion-item-divider>
           <div class="item-container">
             @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
-              <ion-item class="log-set" lines="none">
+              <ion-item class="log-set" lines="none" (click)="setData(set)">
                 <ion-label>
                   <h3>#{{ idx + 1 }}</h3>
                   <h3>{{ set.reps }}x {{ set.load }} kg</h3>
@@ -264,7 +265,7 @@ export class LogWorkoutInputsComponent {
     note: this.fb.control<string | null>(null),
   });
 
-  EXERCISES = [
+  EXERCISES: { name: string; sets: WorkoutSet[] }[] = [
     {
       name: 'benchpress_dumbbell',
       sets: [
@@ -336,6 +337,10 @@ export class LogWorkoutInputsComponent {
     //     itemId: Date.now(),
     //   },
     // ];
+  }
+
+  setData(set: WorkoutSet): void {
+    this.form.patchValue({ load: set.load, reps: set.reps, note: set.note });
   }
 
   private isNumberValidator(type: 'number' | 'integer' = 'number'): ValidatorFn {
