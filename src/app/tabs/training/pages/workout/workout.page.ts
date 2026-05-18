@@ -168,15 +168,16 @@ export class WorkoutPage {
   workout = computed<WorkoutDoc>(() => {
     const resolved = this.resolvedWorkout();
     const editedList = this.editService.editedList();
+    const isEditing = this.editService.isEditing();
 
     const currentWorkout =
       this.workoutsService.workoutsResource
         .value()
-        ?.find((w) => w.workoutId === resolved.workoutId) ?? resolved;
+        ?.find((w) => Number(w.workoutId) === Number(resolved.workoutId)) ?? resolved;
 
     return {
       ...currentWorkout,
-      list: editedList ?? currentWorkout.list,
+      list: isEditing && editedList ? editedList : currentWorkout.list,
     };
   });
 

@@ -42,12 +42,8 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
       gap: 1rem;
 
       &:nth-child(1) {
-        > *:not(:last-child) {
-          flex: 3;
-        }
-
-        > *:last-child {
-          flex: 2;
+        > * {
+          flex: 1;
         }
       }
 
@@ -60,6 +56,16 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
 
         > *:last-child {
           flex: 3;
+        }
+      }
+
+      &:nth-child(3) {
+        > *:not(:last-child) {
+          flex: 3;
+        }
+
+        > *:last-child {
+          flex: 2;
         }
       }
     }
@@ -162,8 +168,6 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
         >
           <span slot="end">x</span>
         </ion-input>
-
-        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid"> + </ion-button>
       </div>
 
       <div class="row">
@@ -174,6 +178,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
 
       <div class="row">
         <ion-input class="custom-input" name="note" placeholder="Notizen" formControlName="note" />
+        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid"> + </ion-button>
       </div>
     </form>
 

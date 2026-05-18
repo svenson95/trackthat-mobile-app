@@ -75,23 +75,12 @@ export class WorkoutsService {
   updateWorkoutList(workout: PutWorkoutBody): Observable<PutWorkoutResponse> {
     return this.http.post<PutWorkoutResponse>(`${this.apiUrl}/change-list`, workout).pipe(
       tap((updatedWorkout) => {
-        const currentWorkouts = this.workoutsResource.value() ?? [];
-        const updated = currentWorkouts.map((w) => {
-          if (w.workoutId !== updatedWorkout.workoutId) {
-            return w;
-          }
-
-          return {
-            ...w,
-            ...updatedWorkout,
-            list: w.list.map((listItem) => {
-              const updatedListItem = workout.list.find((item) => item.listId === listItem.listId);
-              return updatedListItem ? { ...listItem, ...updatedListItem } : listItem;
-            }),
-          };
-        });
+        const updated = this.workouts().map((w) =>
+          w.workoutId === updatedWorkout.workoutId ? { ...w, ...updatedWorkout } : w,
+        );
 
         this.workoutsResource.set(updated);
+        this.editService.editedWorkouts.set(updated);
       }),
     );
   }

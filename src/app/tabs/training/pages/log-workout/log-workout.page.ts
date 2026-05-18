@@ -73,7 +73,9 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
     <ion-content [fullscreen]="true" color="light">
       <ion-header collapse="condense">
         <ion-toolbar color="light">
-          <ion-title size="large">{{ 'tabs.training.tab-title' | translate }}</ion-title>
+          <ion-title size="large">
+            {{ 'tabs.training.log-workout.title' | translate }}
+          </ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -109,9 +111,7 @@ export class LogWorkoutPage implements OnInit {
     const workout = this.workoutsService
       .sortedWorkouts()
       .find((w) => w.workoutId === Number(this.workoutId()));
-    const name = workout?.name;
-    return name;
-
-    // return name.length > 12 ? `${name.slice(0, 10)}...` : name;
+    const name = workout?.name ?? '';
+    return name.length > 12 ? `${name.slice(0, 10)}...` : name;
   });
 }
