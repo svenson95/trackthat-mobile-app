@@ -34,13 +34,9 @@ export class LogsWorkoutService {
     return this.http.get<GetLogWorkoutDTO>(this.apiUrl + '/get/' + date);
   }
 
-  addLogWorkout(
-    set: WorkoutSet,
-    logId: number,
-    userId: string,
-  ): Observable<PostLogWorkoutResponse> {
+  addLogWorkout(date: string, set: WorkoutSet, userId: string): Observable<PostLogWorkoutResponse> {
     return this.http
-      .post<PostLogWorkoutResponse>(this.apiUrl + `/add/set/${logId}/${userId}`, set)
+      .post<PostLogWorkoutResponse>(this.apiUrl + `/add/set/${date}/${userId}`, set)
       .pipe(
         tap((createdLogWorkout) => {
           this.logWorkoutResource.set(createdLogWorkout);

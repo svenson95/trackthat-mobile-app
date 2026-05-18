@@ -262,7 +262,7 @@ const ION_COMPONENTS = [
 
         <ion-input
           class="custom-input"
-          formControlName="date"
+          [value]="displayDate()"
           readonly
           inputmode="text"
           autocomplete="off"
@@ -359,7 +359,7 @@ export class LogWorkoutInputsComponent {
         Validators.max(500),
       ],
     ],
-    date: this.fb.nonNullable.control<string>(this.getCurrentDate()),
+    date: this.fb.nonNullable.control<string>(Date.now().toString()),
     time: this.fb.nonNullable.control<string>(this.getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
@@ -405,7 +405,8 @@ export class LogWorkoutInputsComponent {
       time,
     };
 
-    this.logsWorkoutService.addLogWorkout(set, logId, userId).subscribe({
+    const date = Date.now().toString();
+    this.logsWorkoutService.addLogWorkout(date, set, userId).subscribe({
       next: () => {
         this.logsWorkoutService.logWorkoutResource.reload();
       },
@@ -432,14 +433,6 @@ export class LogWorkoutInputsComponent {
     };
   }
 
-  private getCurrentDate(): string {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    return `${day}.${month}.${year}`;
-  }
-
   private getCurrentTime(): string {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
@@ -454,6 +447,18 @@ export class LogWorkoutInputsComponent {
 
   private formatTime(value: string): string {
     return value.substring(0, value.length - 3);
+  }
+
+  readonly displayDate = computed(() => {
+    return this.formatDate(this.form.controls.date.value);
+  });
+
+  private formatDate(value: string): string {
+    const date = new Date(Number(value));
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
   }
 
   private getNextItemId(): number {
