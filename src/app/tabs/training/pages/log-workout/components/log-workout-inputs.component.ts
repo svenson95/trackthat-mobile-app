@@ -29,6 +29,7 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
       align-items: center;
       padding-inline: 1rem;
       margin-top: 1rem;
+      margin-bottom: 2rem;
     }
   `,
   template: `
@@ -40,6 +41,7 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
       [exercises]="exercises()"
       [selectedExercise]="exercise()!"
       (setSelected)="setData($event)"
+      [isEditing]="isEditing()!"
     />
   `,
 })
@@ -53,6 +55,7 @@ export class LogWorkoutInputsComponent {
   readonly itemId = input<string>();
   readonly exercise = input<string>();
   readonly logId = input<string>();
+  readonly isEditing = input<boolean>();
 
   readonly skeletonSets = [1, 2, 3];
   readonly currentTime = signal<string>(this.getCurrentTime());

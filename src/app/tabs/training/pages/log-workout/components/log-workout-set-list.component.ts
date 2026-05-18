@@ -1,13 +1,27 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
+import { IonList, LoadingController } from '@ionic/angular';
 import {
   IonItem,
   IonItemDivider,
   IonItemGroup,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
   IonLabel,
   IonSkeletonText,
 } from '@ionic/angular/standalone';
 
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import type { WorkoutSet } from '../../../../../models';
+import { LogsWorkoutService } from '../../../services';
 import { ExerciseItemComponent } from '../../workout/components';
 
 export type ExerciseSetView =
@@ -27,12 +41,21 @@ export type ExerciseView = {
   sets: ExerciseSetView[];
 };
 
-const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkeletonText];
+const ION_COMPONENTS = [
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonItemOption,
+  IonItemOptions,
+  IonItemSliding,
+  IonLabel,
+  IonSkeletonText,
+];
 
 @Component({
   selector: 'app-log-workout-set-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
     :host {
       display: flex;
@@ -113,7 +136,7 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
     }
 
     .set-index-skeleton {
-      width: 6%;
+      width: 8%;
       height: 0.875rem;
       border-radius: 999px;
     }
@@ -183,17 +206,25 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
                   </ion-label>
                 </ion-item>
               } @else {
-                <ion-item
-                  class="log-set ion-activatable"
-                  lines="none"
-                  (click)="setSelected.emit(item.set)"
-                >
-                  <ion-label>
-                    <h3>#{{ idx + 1 }}</h3>
-                    <h3>{{ item.set.reps }}x {{ item.set.load }} kg</h3>
-                    <h3>{{ item.set.time }}</h3>
-                  </ion-label>
-                </ion-item>
+                <ion-item-sliding [disabled]="!isEditing()">
+                  <ion-item
+                    class="log-set ion-activatable"
+                    lines="none"
+                    (click)="setSelected.emit(item.set)"
+                  >
+                    <ion-label>
+                      <h3>#{{ idx + 1 }}</h3>
+                      <h3>{{ item.set.reps }}x {{ item.set.load }} kg</h3>
+                      <h3>{{ item.set.time }}</h3>
+                    </ion-label>
+                  </ion-item>
+
+                  <ion-item-options side="end">
+                    <ion-item-option color="danger" (click)="deleteItem(item, item.set.itemId)">
+                      {{ 'general.delete' | translate }}
+                    </ion-item-option>
+                  </ion-item-options>
+                </ion-item-sliding>
               }
             }
           </div>
@@ -207,6 +238,36 @@ export class LogWorkoutSetListComponent {
   readonly skeletonSets = input<number[]>([]);
   readonly exercises = input.required<ExerciseView[]>();
   readonly selectedExercise = input.required<string>();
+  readonly isEditing = input.required<boolean>();
+  readonly setItemId = input<number>();
 
   readonly setSelected = output<WorkoutSet>();
+
+  setList = viewChild(IonList);
+
+  readonly loadingCtrl = inject(LoadingController);
+  readonly translate = inject(TranslateService);
+  readonly logsWorkoutService = inject(LogsWorkoutService);
+
+  async deleteItem(item: ExerciseSetView, itemId: number): Promise<void> {
+    if (item.type !== 'set') return;
+    await this.setList()?.closeSlidingItems();
+
+    const loading = await this.loadingCtrl.create({
+      message: this.translate.instant('tabs.training.workouts.actions.delete'),
+      spinner: 'circles',
+    });
+    await loading.present();
+
+    const logId = String(this.logsWorkoutService.logId()!);
+    this.logsWorkoutService.deleteSet(logId, itemId, item.set).subscribe({
+      next: async () => {
+        await loading.dismiss();
+      },
+      error: async (err) => {
+        await loading.dismiss();
+        console.error('Unexpected fail during delete log-workout.set', err);
+      },
+    });
+  }
 }

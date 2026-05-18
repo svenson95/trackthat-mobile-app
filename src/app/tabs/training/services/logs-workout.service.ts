@@ -52,6 +52,18 @@ export class LogsWorkoutService {
     );
   }
 
+  deleteSet(logId: string, itemId: number, set: WorkoutSet): Observable<PutLogWorkoutResponse> {
+    return this.http
+      .delete<PutLogWorkoutResponse>(`${this.apiUrl}/delete/${logId}/${itemId}`, {
+        body: set,
+      })
+      .pipe(
+        tap((updatedLog) => {
+          this.logWorkoutResource.set(updatedLog);
+        }),
+      );
+  }
+
   private getTodayStartTimestamp(): string {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
