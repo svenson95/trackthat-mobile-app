@@ -1,12 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  linkedSignal,
-  viewChild,
-} from '@angular/core';
-import { IonTabBar, IonicModule } from '@ionic/angular';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -17,7 +10,7 @@ import { AuthService } from '../services';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonicModule, TranslateModule],
   template: `
-    <ion-tabs #tabs (ionTabsDidChange)="setCurrentTab(tabs.getSelected()!)">
+    <ion-tabs (ionTabsDidChange)="setCurrentTab($event.tab)">
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="training" href="/tabs/training" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="trainingIcon()"></ion-icon>
@@ -49,10 +42,9 @@ import { AuthService } from '../services';
 })
 export class TabsPage {
   private authService = inject(AuthService);
-  private tabBar = viewChild.required(IonTabBar);
-  private selected = linkedSignal(() => this.tabBar()?.selectedTab ?? 'home');
-
   isLoggedIn = this.authService.isLoggedIn;
+
+  private selected = signal('overview');
 
   trainingIcon = computed(() => (this.selected() === 'training' ? 'bicycle' : 'bicycle-outline'));
   eatIcon = computed(() => (this.selected() === 'eat' ? 'restaurant' : 'restaurant-outline'));
