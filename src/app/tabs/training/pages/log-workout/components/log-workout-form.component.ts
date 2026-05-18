@@ -28,6 +28,104 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
   selector: 'app-log-workout-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, TranslateModule, ReactiveFormsModule],
+  styles: `
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      &:nth-child(1) {
+        > * {
+          flex: 1;
+        }
+      }
+
+      &:nth-child(2) {
+        text-align: center;
+
+        > *:not(:last-child) {
+          flex: 2;
+        }
+
+        > *:last-child {
+          flex: 3;
+        }
+      }
+
+      &:nth-child(3) {
+        > *:not(:last-child) {
+          flex: 3;
+        }
+
+        > *:last-child {
+          flex: 2;
+        }
+      }
+    }
+
+    ion-input {
+      --ion-background: white;
+      --ion-background-color: white;
+
+      @media (prefers-color-scheme: dark) {
+        --ion-background: black;
+        --ion-background-color: black;
+      }
+    }
+
+    ion-input.ng-invalid.ng-touched {
+      --border-color: var(--ion-color-danger);
+    }
+
+    ion-input ::ng-deep input.native-input,
+    ion-label.break-timer {
+      padding-inline: 0.75rem;
+    }
+
+    ion-input[type='number'] {
+      text-align: right;
+
+      ::ng-deep label.input-wrapper {
+        padding-inline: 0.75rem;
+      }
+
+      [slot='end']:first-of-type {
+        -webkit-margin-start: 5px;
+        margin-inline-start: 5px;
+      }
+
+      ::ng-deep .label-text-wrapper {
+        font-size: 10px;
+      }
+    }
+
+    ion-button {
+      margin: 0;
+      min-height: 44px;
+      --border-radius: 0;
+
+      height: 18px;
+      width: 18px;
+      font-size: 18px;
+
+      transition:
+        transform 120ms ease,
+        filter 120ms ease,
+        opacity 120ms ease;
+
+      &:active:not(.button-disabled) {
+        transform: translateY(1px) scale(0.97);
+        filter: brightness(0.95);
+      }
+    }
+  `,
   template: `
     <form [formGroup]="form">
       <div class="row">

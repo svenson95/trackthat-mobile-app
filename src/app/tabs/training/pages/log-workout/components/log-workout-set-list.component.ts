@@ -43,7 +43,7 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
     }
 
     ion-item-divider {
-      min-height: 40px;
+      min-height: 50px;
       background-color: transparent;
       margin-top: 1rem;
       --padding-start: 12px;
