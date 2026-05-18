@@ -16,7 +16,7 @@ const ION_COMPONENTS = [IonLabel];
       align-items: center;
     }
     .exercise-image {
-      margin-right: 0.75rem;
+      margin-right: 1rem;
     }
   `,
   template: `
