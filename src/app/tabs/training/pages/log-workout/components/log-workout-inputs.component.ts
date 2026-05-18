@@ -366,7 +366,13 @@ export class LogWorkoutInputsComponent {
   readonly form = this.fb.group({
     load: [
       null as number | null,
-      [Validators.required, this.isNumberValidator(), Validators.min(0), Validators.max(300)],
+      [
+        Validators.required,
+        this.isNumberValidator(),
+        this.maxDecimalPlacesValidator(2),
+        Validators.min(0),
+        Validators.max(300),
+      ],
     ],
     reps: [
       null as number | null,
@@ -381,6 +387,26 @@ export class LogWorkoutInputsComponent {
     time: this.fb.nonNullable.control<string>(this.getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
+
+  private maxDecimalPlacesValidator(maxPlaces: number): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const value = control.value;
+
+      if (value === null || value === undefined || value === '') {
+        return null;
+      }
+
+      const normalizedValue = String(value).replace(',', '.');
+      if (!/^\d+(\.\d+)?$/.test(normalizedValue)) {
+        return null;
+      }
+
+      const decimalPlaces = normalizedValue.split('.')[1]?.length ?? 0;
+      return decimalPlaces > maxPlaces
+        ? { maxDecimalPlaces: { max: maxPlaces, actual: decimalPlaces } }
+        : null;
+    };
+  }
 
   readonly exercises = computed(() => {
     const logWorkout = this.logsWorkoutService.logWorkoutResource.value();
