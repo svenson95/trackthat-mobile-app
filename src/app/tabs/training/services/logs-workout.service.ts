@@ -19,14 +19,13 @@ export class LogsWorkoutService {
 
   private http = inject(HttpClient);
 
-  logId = signal<number | null>(null);
+  readonly logId = signal<number | undefined>(undefined);
 
-  logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
-    const logId = this.logId();
-    if (!logId) return undefined;
+  readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
+    const date = this.getTodayStartTimestamp();
 
     return {
-      url: `${this.apiUrl}/get/${logId}`,
+      url: `${this.apiUrl}/get/${date}`,
       method: 'GET',
     };
   });
@@ -49,5 +48,12 @@ export class LogsWorkoutService {
         this.logWorkoutResource.set(updatedLog);
       }),
     );
+  }
+
+  private getTodayStartTimestamp(): string {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return today.getTime().toString();
   }
 }

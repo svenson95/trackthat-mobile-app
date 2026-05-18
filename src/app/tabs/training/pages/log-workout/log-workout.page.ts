@@ -1,7 +1,5 @@
-import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   IonBackButton,
   IonButtons,
@@ -20,7 +18,7 @@ import { LogWorkoutInputsComponent } from './components';
 
 const ANGULAR_MODULES = [FormsModule];
 
-const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent];
+const ION_COMPONENTS = [IonBackButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar];
 
 @Component({
   selector: 'app-log-workout-page',
@@ -80,34 +78,31 @@ const ION_COMPONENTS = [IonHeader, IonToolbar, IonButtons, IonBackButton, IonTit
       </ion-header>
 
       <app-content-container>
-        <app-log-workout-inputs />
+        <app-log-workout-inputs [isLoading]="isLoading()" />
       </app-content-container>
     </ion-content>
   `,
 })
-export class LogWorkoutPage implements OnInit {
+export class LogWorkoutPage {
   readonly workoutId = input<string | undefined>();
   readonly logId = input<string | undefined>();
 
-  logsWorkoutService = inject(LogsWorkoutService);
-  workoutsService = inject(WorkoutsService);
+  readonly logsWorkoutService = inject(LogsWorkoutService);
+  readonly workoutsService = inject(WorkoutsService);
 
-  router = inject(Router);
-
-  private readonly route = inject(ActivatedRoute);
-
-  async ngOnInit(): Promise<void> {
-    const logId =
-      this.route.snapshot.paramMap.get('logId') ??
-      this.route.parent?.snapshot.paramMap.get('logId');
-    const id = Number(logId);
-    if (!Number.isFinite(id)) return;
-
-    this.logsWorkoutService.logId.set(id);
-    await this.router.navigate(['log', id]);
+  constructor() {
+    effect(() => {
+      const id = Number(this.logId());
+      if (!Number.isFinite(id)) return;
+      this.logsWorkoutService.logId.set(id);
+    });
   }
 
-  backButtonText = computed(() => {
+  readonly isLoading = computed(() => {
+    return this.logsWorkoutService.logWorkoutResource.isLoading();
+  });
+
+  readonly backButtonText = computed(() => {
     const workout = this.workoutsService
       .sortedWorkouts()
       .find((w) => w.workoutId === Number(this.workoutId()));

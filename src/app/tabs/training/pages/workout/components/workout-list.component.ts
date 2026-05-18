@@ -87,10 +87,10 @@ const ION_COMPONENTS = [
               } @else if (item.type === 'EXERCISE') {
                 <ion-item
                   [button]="!isEditing()"
-                  [routerLink]="!isEditing() ? ['log'] : null"
+                  [routerLink]="!isEditing() ? [item.itemId, item.name, 'log'] : null"
                   [detail]="!isEditing()"
                 >
-                  <app-exercise-item [exerciseName]="item.name!" />
+                  <app-exercise-item [exercise]="item.name!" />
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'SPACER') {

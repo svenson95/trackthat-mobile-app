@@ -70,7 +70,7 @@ const ION_COMPONENTS = [
 
             @for (exercise of group.exercises; track exercise.name) {
               <ion-item button="true" (click)="confirm(exercise)">
-                <app-exercise-item [exerciseName]="exercise.name" />
+                <app-exercise-item [exercise]="exercise.name" />
               </ion-item>
             }
           </ion-item-group>

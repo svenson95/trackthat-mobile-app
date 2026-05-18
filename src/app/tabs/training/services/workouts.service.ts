@@ -19,7 +19,6 @@ import type {
   WorkoutList,
 } from '../../../models';
 import { UserService } from '../../../services';
-
 import { IsEditingService } from './is-editing.service';
 
 @Injectable({
@@ -121,7 +120,7 @@ export class WorkoutsService {
   }
 
   normalizeWorkoutList(items: ListItem[]): WorkoutList {
-    let exerciseIndex = 0;
+    let exerciseIndex = 1;
 
     return items.map((item, index) => {
       const isExercise = item.type === 'EXERCISE';

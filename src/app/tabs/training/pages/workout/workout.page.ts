@@ -3,12 +3,11 @@ import {
   Component,
   computed,
   inject,
+  input,
   signal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingController, ModalController } from '@ionic/angular';
 import {
   IonBackButton,
@@ -23,10 +22,10 @@ import {
   IonLabel,
   IonList,
   IonPopover,
+  IonSkeletonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
-import { map } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -46,20 +45,21 @@ import { AddExerciseDialog } from './dialogs';
 const ANGULAR_MODULES = [FormsModule];
 
 const ION_COMPONENTS = [
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonButton,
   IonBackButton,
-  IonPopover,
-  IonList,
-  IonItem,
-  IonIcon,
-  IonTitle,
+  IonButton,
+  IonButtons,
   IonContent,
-  IonItemGroup,
+  IonHeader,
+  IonIcon,
+  IonItem,
   IonItemDivider,
+  IonItemGroup,
   IonLabel,
+  IonList,
+  IonPopover,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
 ];
 
 @Component({
@@ -72,12 +72,34 @@ const ION_COMPONENTS = [
     ContentContainerComponent,
     WorkoutListComponent,
   ],
+  styles: `
+    .workout-skeleton-list {
+      margin-top: 1rem;
+    }
+
+    .rounded-skeleton {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      margin-inline-end: 1rem;
+    }
+
+    .label-skeleton {
+      height: 1rem;
+      border-radius: 999px;
+    }
+
+    .state-text {
+      padding: 1rem;
+      text-align: center;
+    }
+  `,
   template: `
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="abortEditing(workoutComp.workoutList())">
+            <ion-button (click)="abortEditing()">
               {{ 'general.abort' | translate }}
             </ion-button>
           } @else {
@@ -112,7 +134,31 @@ const ION_COMPONENTS = [
 
     <ion-content [fullscreen]="true" color="light">
       <app-content-container>
-        <app-workout-list [workout]="workout()" (save)="saveEdit($event)" #workoutComp />
+        @if (isLoading()) {
+          <ion-list inset="true" class="workout-skeleton-list">
+            @for (item of skeletonItems; track $index) {
+              <ion-item lines="full">
+                @if (item.type === 'EXERCISE') {
+                  <ion-skeleton-text
+                    animated
+                    slot="start"
+                    class="rounded-skeleton"
+                  ></ion-skeleton-text>
+                }
+
+                <ion-label>
+                  <ion-skeleton-text
+                    animated
+                    class="label-skeleton"
+                    [style.width]="item.width"
+                  ></ion-skeleton-text>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        } @else if (workout(); as currentWorkout) {
+          <app-workout-list [workout]="currentWorkout" (save)="saveEdit($event)" />
+        }
       </app-content-container>
 
       <!-- <app-add-item-dialog></app-add-item-dialog> -->
@@ -129,17 +175,19 @@ const ION_COMPONENTS = [
                 <ion-label>Hinzufügen</ion-label>
               </ion-item-divider>
 
-              <ion-item [button]="true" [detail]="false" (click)="addText(workout())">
-                {{ 'tabs.training.workout.more-menu.text' | translate }}
-              </ion-item>
+              @if (workout(); as currentWorkout) {
+                <ion-item [button]="true" [detail]="false" (click)="addText(currentWorkout)">
+                  {{ 'tabs.training.workout.more-menu.text' | translate }}
+                </ion-item>
 
-              <ion-item [button]="true" [detail]="false" (click)="addExercise(workout())">
-                {{ 'tabs.training.workout.more-menu.exercise' | translate }}
-              </ion-item>
+                <ion-item [button]="true" [detail]="false" (click)="addExercise(currentWorkout)">
+                  {{ 'tabs.training.workout.more-menu.exercise' | translate }}
+                </ion-item>
 
-              <ion-item [button]="true" [detail]="false" (click)="addSpacer(workout())">
-                {{ 'tabs.training.workout.more-menu.spacer' | translate }}
-              </ion-item>
+                <ion-item [button]="true" [detail]="false" (click)="addSpacer(currentWorkout)">
+                  {{ 'tabs.training.workout.more-menu.spacer' | translate }}
+                </ion-item>
+              }
             </ion-item-group>
           </ion-list>
         </ng-template>
@@ -157,23 +205,42 @@ export class WorkoutPage {
 
   private workoutsService = inject(WorkoutsService);
   private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
+  private readonly workoutListComp = viewChild.required(WorkoutListComponent);
+
   isMoreMenuOpen = signal<boolean>(false);
 
-  private route = inject(ActivatedRoute);
+  readonly skeletonItems = [
+    { type: 'HEADER', width: '65%' },
+    { type: 'EXERCISE', width: '70%' },
+    { type: 'EXERCISE', width: '62%' },
+    { type: 'SPACER', width: '0' },
+    { type: 'HEADER', width: '50%' },
+    { type: 'EXERCISE', width: '75%' },
+    { type: 'EXERCISE', width: '58%' },
+  ];
 
-  resolvedWorkout = toSignal(this.route.data.pipe(map((data) => data['workout'] as WorkoutDoc)), {
-    initialValue: {} as WorkoutDoc,
+  readonly workoutId = input<string | undefined>();
+
+  readonly isLoading = computed(() => {
+    return this.workoutsService.workoutsResource.isLoading();
   });
 
-  workout = computed<WorkoutDoc>(() => {
-    const resolved = this.resolvedWorkout();
+  readonly hasError = computed(() => {
+    return !!this.workoutsService.workoutsResource.error();
+  });
+
+  readonly workout = computed<WorkoutDoc | undefined>(() => {
+    const workoutId = Number(this.workoutId());
+    const workouts = this.workoutsService.workoutsResource.value();
+
+    if (!Number.isFinite(workoutId)) return undefined;
+    if (!workouts) return undefined;
+
+    const currentWorkout = workouts.find((w) => Number(w.workoutId) === workoutId);
+    if (!currentWorkout) return undefined;
+
     const editedList = this.editService.editedList();
     const isEditing = this.editService.isEditing();
-
-    const currentWorkout =
-      this.workoutsService.workoutsResource
-        .value()
-        ?.find((w) => Number(w.workoutId) === Number(resolved.workoutId)) ?? resolved;
 
     return {
       ...currentWorkout,
@@ -181,9 +248,11 @@ export class WorkoutPage {
     };
   });
 
-  titleTrimmed = computed(() => {
-    const name = this.workout().name ?? '';
+  titleTrimmed = computed<string>(() => {
     const MAX = 20;
+    if (this.isLoading()) return '';
+
+    const name = this.workout()?.name ?? '';
     return name.length > MAX ? `${name.slice(0, MAX - 2)}...` : name;
   });
 
@@ -193,45 +262,52 @@ export class WorkoutPage {
   }
 
   async startEditing(): Promise<void> {
-    this.editService.editedList.set(structuredClone(this.workout().list));
+    const currentWorkout = this.workout();
+    if (!currentWorkout) return;
+
+    this.editService.editedList.set(structuredClone(currentWorkout.list));
     this.isEditing.set(true);
     await this.moreMenu().dismiss();
   }
 
-  async abortEditing(list: IonList): Promise<void> {
-    await list.closeSlidingItems();
+  async abortEditing(): Promise<void> {
+    const list = this.workoutListComp()?.workoutList();
+    await list?.closeSlidingItems();
     this.editService.editedList.set(null);
     this.isEditing.set(false);
   }
 
   async saveEdit({ message, data }: { message: string; data?: ListItem }): Promise<void> {
+    const currentWorkout = this.workout();
+    if (!currentWorkout) return;
+
     const loading = await this.loadingCtrl.create({
       message,
       spinner: 'circles',
     });
     await loading.present();
 
-    const workout = this.workout();
     const editedList = this.editService.editedList();
-    const list = editedList ?? workout.list;
+    const list = editedList ?? currentWorkout.list;
     const changedName = data ? list.map((i) => (i.listId === data.listId ? data : i)) : list;
     const normalized = this.workoutsService.normalizeWorkoutList(changedName);
+
     const updatedWorkout = {
-      ...workout,
+      ...currentWorkout,
       list: normalized,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: () => {
         this.isEditing.set(false);
-        void loading.dismiss();
         this.editService.editedList.set(null);
+        void loading.dismiss();
       },
       error: (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
-        void loading.dismiss();
         this.editService.editedList.set(null);
+        void loading.dismiss();
       },
     });
   }
@@ -272,7 +348,7 @@ export class WorkoutPage {
       componentProps: {
         title: this.translate.instant('tabs.training.workout.actions.add-exercise'),
         value: workout.name,
-        currentList: this.workout().list,
+        currentList: workout.list,
       },
     });
     await modal.present();

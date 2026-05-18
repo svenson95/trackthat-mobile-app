@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -9,6 +9,7 @@ import {
   IonItemDivider,
   IonItemGroup,
   IonLabel,
+  IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,6 +25,7 @@ const ION_COMPONENTS = [
   IonItemDivider,
   IonItemGroup,
   IonLabel,
+  IonSkeletonText,
 ];
 
 @Component({
@@ -163,6 +165,49 @@ const ION_COMPONENTS = [
         }
       }
     }
+
+    // skeleton stuff
+    .exercise-skeleton-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    .rounded-skeleton {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      flex: 0 0 auto;
+    }
+
+    .title-skeleton {
+      width: 60%;
+      height: 1rem;
+      border-radius: 999px;
+    }
+
+    .skeleton-log-set {
+      pointer-events: none;
+    }
+
+    .set-index-skeleton {
+      width: 13%;
+      height: 0.875rem;
+      border-radius: 999px;
+    }
+
+    .set-value-skeleton {
+      width: 34%;
+      height: 0.875rem;
+      border-radius: 999px;
+    }
+
+    .set-time-skeleton {
+      width: 22%;
+      height: 0.875rem;
+      border-radius: 999px;
+    }
   `,
   template: `
     <form [formGroup]="form">
@@ -240,29 +285,55 @@ const ION_COMPONENTS = [
     </form>
 
     <div class="col">
-      @for (exercise of EXERCISES; track exercise.name; let last = $last) {
+      @if (isLoading()) {
         <ion-item-group>
           <ion-item-divider>
-            <app-exercise-item [exerciseName]="exercise.name" />
+            <div class="exercise-skeleton-title">
+              <ion-skeleton-text animated class="rounded-skeleton" />
+              <ion-skeleton-text animated class="title-skeleton" />
+            </div>
           </ion-item-divider>
+
           <div class="item-container">
-            @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
-              <ion-item class="log-set ion-activatable" lines="none" (click)="setData(set)">
+            @for (item of skeletonSets; track item) {
+              <ion-item class="log-set skeleton-log-set" lines="none">
                 <ion-label>
-                  <h3>#{{ idx + 1 }}</h3>
-                  <h3>{{ set.reps }}x {{ set.load }} kg</h3>
-                  <h3>{{ set.time }}</h3>
+                  <ion-skeleton-text animated class="set-index-skeleton" />
+                  <ion-skeleton-text animated class="set-value-skeleton" />
+                  <ion-skeleton-text animated class="set-time-skeleton" />
                 </ion-label>
               </ion-item>
             }
           </div>
         </ion-item-group>
+      } @else {
+        @for (exercise of EXERCISES; track exercise.name; let last = $last) {
+          <ion-item-group>
+            <ion-item-divider>
+              <app-exercise-item [exercise]="exercise.name" />
+            </ion-item-divider>
+
+            <div class="item-container">
+              @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
+                <ion-item class="log-set ion-activatable" lines="none" (click)="setData(set)">
+                  <ion-label>
+                    <h3>#{{ idx + 1 }}</h3>
+                    <h3>{{ set.reps }}x {{ set.load }} kg</h3>
+                    <h3>{{ set.time }}</h3>
+                  </ion-label>
+                </ion-item>
+              }
+            </div>
+          </ion-item-group>
+        }
       }
     </div>
   `,
 })
 export class LogWorkoutInputsComponent {
   private readonly fb = inject(FormBuilder);
+  readonly isLoading = input<boolean>(false);
+  readonly skeletonSets = [1, 2, 3];
 
   readonly form = this.fb.group({
     load: [

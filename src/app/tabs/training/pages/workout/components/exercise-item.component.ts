@@ -22,17 +22,17 @@ const ION_COMPONENTS = [IonLabel];
   template: `
     <img
       class="exercise-image"
-      [src]="'assets/images/exercises' + darkPath() + '/' + exerciseName() + '.png'"
+      [src]="'assets/images/exercises' + darkPath() + '/' + exercise() + '.png'"
       width="24"
       height="24"
     />
     <ion-label>
-      {{ 'tabs.training.workout.exercise.' + exerciseName() | translate }}
+      {{ 'tabs.training.workout.exercise.' + exercise() | translate }}
     </ion-label>
   `,
 })
 export class ExerciseItemComponent implements OnInit, OnDestroy {
-  exerciseName = input.required<string>();
+  exercise = input.required<string>();
 
   private mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
   darkPath = signal(this.mediaQuery.matches ? '-white' : '');
