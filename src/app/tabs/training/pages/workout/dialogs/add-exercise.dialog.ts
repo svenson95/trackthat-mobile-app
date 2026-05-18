@@ -45,6 +45,10 @@ const ION_COMPONENTS = [
     h4 {
       margin-left: 1rem;
     }
+
+    ion-content {
+      --padding-bottom: 10rem;
+    }
   `,
   template: `
     <ion-header>
