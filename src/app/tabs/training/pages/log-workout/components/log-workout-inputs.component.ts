@@ -229,9 +229,10 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
             <app-exercise-item [exerciseName]="exercise.name" />
           </ion-item-divider>
           <div class="item-container">
-            @for (set of exercise.sets; track set.exercise; let last = $last) {
+            @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
               <ion-item class="log-set" lines="none">
                 <ion-label>
+                  <h3>#{{ idx + 1 }}</h3>
                   <h3>{{ set.reps }}x {{ set.load }} kg</h3>
                   <h3>{{ set.time }}</h3>
                 </ion-label>
@@ -273,7 +274,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 0,
           note: null,
-          time: '19:22:30',
+          time: '19:25:35',
         },
         {
           load: 20,
@@ -281,7 +282,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 1,
           note: null,
-          time: '19:23:55',
+          time: '19:27:00',
         },
         {
           load: 20,
@@ -289,7 +290,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 2,
           note: null,
-          time: '19:25:35',
+          time: '19:28:40',
         },
       ],
     },
@@ -302,7 +303,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'biceps_curls_standing_dumbbell',
           itemId: 3,
           note: 'Hammer',
-          time: '19:27:00',
+          time: '19:22:30',
         },
         {
           load: 10,
@@ -310,7 +311,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'biceps_curls_standing_dumbbell',
           itemId: 4,
           note: 'Hammer',
-          time: '19:28:40',
+          time: '19:23:55',
         },
       ],
     },
