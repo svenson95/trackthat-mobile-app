@@ -24,7 +24,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import type { RefresherCustomEvent } from '@ionic/core';
-import { filter, first } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout } from 'rxjs';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -149,16 +149,22 @@ export class WorkoutsPage {
     const started = res.reload();
 
     if (!started && !res.isLoading()) {
-      void event.target?.complete();
+      void event.target.complete();
       return;
     }
 
     toObservable(res.isLoading, { injector: this.injector })
       .pipe(
-        filter((loading) => !loading),
+        distinctUntilChanged(),
+        pairwise(),
+        filter(([wasLoading, isLoading]) => wasLoading && !isLoading),
         first(),
+        timeout(10000),
+        catchError(() => of(null)),
       )
-      .subscribe(() => event.target.complete());
+      .subscribe(() => {
+        void event.target.complete();
+      });
   }
 
   async openAddWorkoutModal(): Promise<void> {
