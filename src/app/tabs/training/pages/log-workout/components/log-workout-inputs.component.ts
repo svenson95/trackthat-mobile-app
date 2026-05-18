@@ -38,6 +38,7 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
       [isLoading]="isLoading()"
       [skeletonSets]="skeletonSets"
       [exercises]="exercises()"
+      [selectedExercise]="exercise()!"
       (setSelected)="setData($event)"
     />
   `,

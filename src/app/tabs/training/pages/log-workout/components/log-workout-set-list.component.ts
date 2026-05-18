@@ -44,9 +44,10 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
 
     ion-item-divider {
       min-height: 50px;
-      background-color: transparent;
       margin-top: 1rem;
+      margin-bottom: 0.25rem;
       --padding-start: 12px;
+      background-color: transparent;
     }
 
     .log-set {
@@ -71,6 +72,19 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
         h3 {
           margin-bottom: 0;
         }
+      }
+    }
+
+    .is-selected-exercise {
+      --background: white;
+      background: white;
+
+      text-decoration: underline;
+      text-decoration-color: var(--ion-color-primary);
+      text-underline-offset: 0.25rem;
+
+      @media (prefers-color-scheme: dark) {
+        background: black;
       }
     }
 
@@ -147,7 +161,9 @@ const ION_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonSkel
     } @else {
       @for (exerciseGroup of exercises(); track exerciseGroup.name) {
         <ion-item-group>
-          <ion-item-divider>
+          <ion-item-divider
+            [class.is-selected-exercise]="exerciseGroup.name === selectedExercise()"
+          >
             <app-exercise-item [exercise]="exerciseGroup.name" />
           </ion-item-divider>
 
@@ -190,6 +206,7 @@ export class LogWorkoutSetListComponent {
   readonly isLoading = input<boolean>(false);
   readonly skeletonSets = input<number[]>([]);
   readonly exercises = input.required<ExerciseView[]>();
+  readonly selectedExercise = input.required<string>();
 
   readonly setSelected = output<WorkoutSet>();
 }
