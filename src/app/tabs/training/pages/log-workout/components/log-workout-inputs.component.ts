@@ -142,6 +142,17 @@ const ION_COMPONENTS = [
       height: 18px;
       width: 18px;
       font-size: 18px;
+
+      // animation
+      transition:
+        transform 120ms ease,
+        filter 120ms ease,
+        opacity 120ms ease;
+
+      &:active:not(.button-disabled) {
+        transform: translateY(1px) scale(0.97);
+        filter: brightness(0.95);
+      }
     }
 
     .col {
@@ -426,13 +437,15 @@ export class LogWorkoutInputsComponent {
     };
 
     const date = Date.now().toString();
-    this.logsWorkoutService.addLogWorkout(date, set, userId).subscribe({
-      next: () => {
-        this.logsWorkoutService.logWorkoutResource.reload();
-      },
-      error: (error) => {
-        console.error('Could not add workout set', error);
-      },
+    requestAnimationFrame(() => {
+      this.logsWorkoutService.addLogWorkout(date, set, userId).subscribe({
+        next: () => {
+          this.logsWorkoutService.logWorkoutResource.reload();
+        },
+        error: (error) => {
+          console.error('Could not add workout set', error);
+        },
+      });
     });
   }
 
