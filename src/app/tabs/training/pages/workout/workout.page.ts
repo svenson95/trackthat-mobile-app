@@ -89,7 +89,7 @@ const ION_COMPONENTS = [
         </ion-buttons>
 
         <ion-title>
-          {{ workout().name }}
+          {{ titleTrimmed() }}
         </ion-title>
 
         <ion-buttons slot="primary">
@@ -181,6 +181,12 @@ export class WorkoutPage {
     };
   });
 
+  titleTrimmed = computed(() => {
+    const name = this.workout().name ?? '';
+    const MAX = 20;
+    return name.length > MAX ? `${name.slice(0, MAX - 2)}...` : name;
+  });
+
   presentPopover(ev: Event): void {
     this.moreMenu().event = ev;
     this.isMoreMenuOpen.set(true);
@@ -200,29 +206,30 @@ export class WorkoutPage {
 
   async saveEdit({ message, data }: { message: string; data?: ListItem }): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: message,
+      message,
       spinner: 'circles',
     });
     await loading.present();
 
-    this.isEditing.set(false);
-    void loading.dismiss();
-
     const workout = this.workout();
+    const editedList = this.editService.editedList();
+    const list = editedList ?? workout.list;
     const updatedWorkout = {
       ...workout,
-      list: workout.list.map((i) => (i.listId === data?.listId ? data : i)),
+      list: data ? list.map((i) => (i.listId === data.listId ? data : i)) : list,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: () => {
         this.isEditing.set(false);
         void loading.dismiss();
+        this.editService.editedList.set(null);
       },
       error: (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
         void loading.dismiss();
+        this.editService.editedList.set(null);
       },
     });
   }

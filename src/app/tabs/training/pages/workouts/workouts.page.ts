@@ -203,11 +203,13 @@ export class WorkoutsPage {
       next: () => {
         this.isEditing.set(false);
         void loading.dismiss();
+        this.editService.editedWorkouts.set(null);
       },
       error: (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
         void loading.dismiss();
+        this.editService.editedWorkouts.set(null);
       },
     });
   }
