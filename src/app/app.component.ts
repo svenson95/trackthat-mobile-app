@@ -17,6 +17,9 @@ import { AppService } from './services';
   `,
 })
 export class AppComponent {
+  private readonly SUPPORTED_LANGUAGES = ['de', 'en'] as const;
+  private readonly DEFAULT_LANGAUGE = 'de';
+
   private appService = inject(AppService);
   private translate = inject(TranslateService);
 
@@ -29,8 +32,19 @@ export class AppComponent {
   }
 
   private configureTranslate(): void {
-    this.translate.addLangs(['de', 'en']);
-    const lang = localStorage.getItem('language') || this.translate.getBrowserLang() || 'de';
-    this.translate.use(lang);
+    this.translate.addLangs([...this.SUPPORTED_LANGUAGES]);
+    this.translate.setDefaultLang(this.DEFAULT_LANGAUGE);
+
+    this.translate.use(
+      this.getSupportedLang(localStorage.getItem('language')) ??
+        this.getSupportedLang(this.translate.getBrowserLang()) ??
+        this.DEFAULT_LANGAUGE,
+    );
+  }
+
+  private getSupportedLang(lang: string | null | undefined): 'de' | 'en' | undefined {
+    return this.SUPPORTED_LANGUAGES.includes(lang as 'de' | 'en')
+      ? (lang as 'de' | 'en')
+      : undefined;
   }
 }
