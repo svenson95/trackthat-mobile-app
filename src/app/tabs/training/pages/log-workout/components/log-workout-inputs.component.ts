@@ -152,6 +152,9 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
           formControlName="load"
           [min]="0"
           [max]="300"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
         >
           <span slot="end">kg</span>
         </ion-input>
@@ -165,6 +168,9 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
           formControlName="reps"
           [min]="1"
           [max]="500"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
         >
           <span slot="end">x</span>
         </ion-input>
@@ -172,12 +178,37 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
 
       <div class="row">
         <ion-label class="break-timer">00:00</ion-label>
-        <ion-input class="custom-input" value="19:23" readonly />
-        <ion-input class="custom-input" value="17.05.2025" readonly />
+        <ion-input
+          class="custom-input"
+          value="19:23"
+          readonly
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <ion-input
+          class="custom-input"
+          value="17.05.2025"
+          readonly
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
       </div>
 
       <div class="row">
-        <ion-input class="custom-input" name="note" placeholder="Notizen" formControlName="note" />
+        <ion-input
+          class="custom-input"
+          name="note"
+          placeholder="Notizen"
+          formControlName="note"
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
         <ion-button type="button" (click)="addSet()" [disabled]="form.invalid"> + </ion-button>
       </div>
     </form>

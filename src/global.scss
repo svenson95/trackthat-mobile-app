@@ -109,8 +109,7 @@
   --padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
 }
 
-ion-input.custom-input,
-ion-textarea.custom-input {
+ion-input.custom-input.hydrated {
   --highlight-color: var(--ion-color-primary);
   --background: var(--ion-background-color);
 }

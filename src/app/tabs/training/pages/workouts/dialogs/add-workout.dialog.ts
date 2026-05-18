@@ -76,6 +76,10 @@ const ION_COMPONENTS = [
                 'tabs.training.workouts.actions.add-workout.name-placeholder' | translate
               "
               [(ngModel)]="name"
+              inputmode="text"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
             ></ion-input>
           </ion-item>
 

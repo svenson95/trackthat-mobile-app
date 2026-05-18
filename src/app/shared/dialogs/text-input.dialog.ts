@@ -54,6 +54,10 @@ const ION_COMPONENTS = [
           [placeholder]="placeholder"
           [label]="label"
           labelPlacement="stacked"
+          inputmode="text"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
         ></ion-input>
       </ion-item>
     </ion-content>
