@@ -64,6 +64,16 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
       }
     }
 
+    ion-input {
+      --ion-background: white;
+      --ion-background-color: white;
+
+      @media (prefers-color-scheme: dark) {
+        --ion-background: black;
+        --ion-background-color: black;
+      }
+    }
+
     ion-input.ng-invalid.ng-touched {
       --border-color: var(--ion-color-danger);
     }

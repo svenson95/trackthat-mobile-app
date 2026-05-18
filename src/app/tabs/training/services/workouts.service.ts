@@ -67,6 +67,7 @@ export class WorkoutsService {
         );
 
         this.workoutsResource.set(updated);
+        this.editService.editedWorkouts.set(updated);
       }),
     );
   }
@@ -75,16 +76,20 @@ export class WorkoutsService {
     return this.http.post<PutWorkoutResponse>(`${this.apiUrl}/change-list`, workout).pipe(
       tap((updatedWorkout) => {
         const currentWorkouts = this.workoutsResource.value() ?? [];
+        const updated = currentWorkouts.map((w) => {
+          if (w.workoutId !== updatedWorkout.workoutId) {
+            return w;
+          }
 
-        const updated = currentWorkouts.map((w) =>
-          w.workoutId === updatedWorkout.workoutId
-            ? {
-                ...w,
-                ...updatedWorkout,
-                list: workout.list,
-              }
-            : w,
-        );
+          return {
+            ...w,
+            ...updatedWorkout,
+            list: w.list.map((listItem) => {
+              const updatedListItem = workout.list.find((item) => item.listId === listItem.listId);
+              return updatedListItem ? { ...listItem, ...updatedListItem } : listItem;
+            }),
+          };
+        });
 
         this.workoutsResource.set(updated);
       }),

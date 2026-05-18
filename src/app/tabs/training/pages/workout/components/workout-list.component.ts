@@ -27,12 +27,7 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import {
-  type GetWorkoutsDTO,
-  type ListItem,
-  type Workout,
-  type WorkoutListId,
-} from '../../../../../models';
+import { type ListItem, type Workout } from '../../../../../models';
 import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
@@ -73,7 +68,7 @@ const ION_COMPONENTS = [
             </ion-label>
           </ion-item>
         } @else {
-          @for (item of list; track item.name) {
+          @for (item of list; track item.listId) {
             <ion-item-sliding [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
                 <ion-item-options side="start">
@@ -90,7 +85,11 @@ const ION_COMPONENTS = [
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
-                <ion-item [button]="!isEditing()" [routerLink]="!isEditing() ? ['log'] : null">
+                <ion-item
+                  [button]="!isEditing()"
+                  [routerLink]="!isEditing() ? ['log'] : null"
+                  [detail]="!isEditing()"
+                >
                   <app-exercise-item [exerciseName]="item.name!" />
                   <ion-reorder slot="end"></ion-reorder>
                 </ion-item>
@@ -115,7 +114,7 @@ const ION_COMPONENTS = [
 })
 export class WorkoutListComponent {
   workout = input.required<Workout>();
-  save = output<string>();
+  save = output<{ message: string; data: ListItem }>();
 
   private editService = inject(IsEditingService);
   isEditing = this.editService.isEditing;
@@ -158,37 +157,13 @@ export class WorkoutListComponent {
       const { data } = await modal.onDidDismiss<string>();
       if (!data || data === item) return;
 
-      const workouts = this.workoutsService.workoutsResource.value() ?? [];
-      const updatedWorkouts = this.updatedWorkouts(workouts, listId, data);
-      this.workoutsService.workoutsResource.set(updatedWorkouts);
-      this.save.emit('tabs.training.workout.actions.change-text-process');
+      this.save.emit({
+        message: 'tabs.training.workout.actions.change-text-process',
+        data: { ...this.workout().list.find((w) => w.listId === listId)!, name: data },
+      });
     } catch (error) {
       console.error('Change text modal could not be opened:', error);
     }
-  }
-
-  private updatedWorkouts(
-    workouts: GetWorkoutsDTO,
-    listId: WorkoutListId,
-    data: string,
-  ): GetWorkoutsDTO {
-    return workouts.map((workout) => {
-      if (workout.workoutId !== this.workout().workoutId) {
-        return workout;
-      }
-
-      return {
-        ...workout,
-        list: workout.list.map((listItem) =>
-          listItem.listId === listId
-            ? {
-                ...listItem,
-                name: data,
-              }
-            : listItem,
-        ),
-      };
-    });
   }
 
   async deleteItem(item: ListItem): Promise<void> {

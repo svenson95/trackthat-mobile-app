@@ -31,15 +31,15 @@ import { map } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
-import type { ListItemExercise } from '../../../../models';
+import type { ListItem, ListItemExercise } from '../../../../models';
 import {
   WORKOUT_LIST_ITEM_HEADER,
   WORKOUT_LIST_ITEM_SPACER,
   type WorkoutDoc,
 } from '../../../../models';
+import { TextInputDialog } from '../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../services';
 
-import { TextInputDialog } from 'src/app/shared';
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
 
@@ -94,7 +94,7 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEdit('general.actions.save-list')">
+            <ion-button (click)="saveEdit({ message: 'general.actions.save-list' })">
               {{ 'general.save' | translate }}
             </ion-button>
           } @else {
@@ -197,7 +197,7 @@ export class WorkoutPage {
     this.isEditing.set(false);
   }
 
-  async saveEdit(message: string): Promise<void> {
+  async saveEdit({ message, data }: { message: string; data?: ListItem }): Promise<void> {
     const loading = await this.loadingCtrl.create({
       message: message,
       spinner: 'circles',
@@ -210,7 +210,7 @@ export class WorkoutPage {
     const workout = this.workout();
     const updatedWorkout = {
       ...workout,
-      list: this.editService.editedList()!,
+      list: workout.list.map((i) => (i.listId === data?.listId ? data : i)),
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({

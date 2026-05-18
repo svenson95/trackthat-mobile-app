@@ -91,15 +91,6 @@
   // --ion-color-dark-contrast-rgb: 255, 255, 255;
   // --ion-color-dark-shade: #1e2023;
   // --ion-color-dark-tint: #383a3e;
-  --ion-background: white;
-  --ion-background-color: white;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ion-background: black;
-    --ion-background-color: black;
-  }
 }
 
 .input-fullscreen-modal {
