@@ -78,21 +78,26 @@ const ION_COMPONENTS = [IonBackButton, IonButtons, IonContent, IonHeader, IonTit
       </ion-header>
 
       <app-content-container>
-        <app-log-workout-inputs [isLoading]="isLoading()" />
+        <app-log-workout-inputs
+          [isLoading]="isLoading()"
+          [exercise]="exercise()"
+          [itemId]="itemId()"
+        />
       </app-content-container>
     </ion-content>
   `,
 })
 export class LogWorkoutPage {
   readonly workoutId = input<string | undefined>();
-  readonly logId = input<string | undefined>();
+  readonly itemId = input<string | undefined>();
+  readonly exercise = input<string | undefined>();
 
   readonly logsWorkoutService = inject(LogsWorkoutService);
   readonly workoutsService = inject(WorkoutsService);
 
   constructor() {
     effect(() => {
-      const id = Number(this.logId());
+      const id = Number(this.itemId());
       if (!Number.isFinite(id)) return;
       this.logsWorkoutService.logId.set(id);
     });

@@ -18,7 +18,7 @@ export interface WorkoutSet {
 }
 
 export interface LogWorkout extends Log {
-  sets: WorkoutSet;
+  sets: Array<WorkoutSet>;
 }
 
 export interface LogFood extends Log {
@@ -26,7 +26,7 @@ export interface LogFood extends Log {
   // kcal etc.
 }
 
-export interface LogWorkoutDoc extends Log {
+export interface LogWorkoutDoc extends LogWorkout {
   readonly id: LogWorkoutId;
 }
 

@@ -5,10 +5,10 @@ import { tap, type Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.prod';
 import type {
   GetLogWorkoutDTO,
-  PostLogWorkoutBody,
   PostLogWorkoutResponse,
   PutLogWorkoutBody,
   PutLogWorkoutResponse,
+  WorkoutSet,
 } from '../../../models';
 
 @Injectable({
@@ -34,12 +34,18 @@ export class LogsWorkoutService {
     return this.http.get<GetLogWorkoutDTO>(this.apiUrl + '/get/' + date);
   }
 
-  addLogWorkout(logWorkout: PostLogWorkoutBody): Observable<PostLogWorkoutResponse> {
-    return this.http.post<PostLogWorkoutResponse>(this.apiUrl + '/add', logWorkout).pipe(
-      tap((createdLogWorkout) => {
-        this.logWorkoutResource.set(createdLogWorkout);
-      }),
-    );
+  addLogWorkout(
+    set: WorkoutSet,
+    logId: number,
+    userId: string,
+  ): Observable<PostLogWorkoutResponse> {
+    return this.http
+      .post<PostLogWorkoutResponse>(this.apiUrl + `/add/set/${logId}/${userId}`, set)
+      .pipe(
+        tap((createdLogWorkout) => {
+          this.logWorkoutResource.set(createdLogWorkout);
+        }),
+      );
   }
 
   updateLogWorkout(log: PutLogWorkoutBody): Observable<PutLogWorkoutResponse> {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -15,6 +15,8 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { WorkoutSet } from '../../../../../models';
+import { UserService } from '../../../../../services';
+import { LogsWorkoutService } from '../../../services';
 import { ExerciseItemComponent } from '../../workout/components';
 
 const ION_COMPONENTS = [
@@ -247,18 +249,20 @@ const ION_COMPONENTS = [
 
       <div class="row">
         <ion-label class="break-timer">00:00</ion-label>
+
         <ion-input
           class="custom-input"
-          value="19:23"
+          [value]="displayTime()"
           readonly
           inputmode="text"
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
         />
+
         <ion-input
           class="custom-input"
-          value="17.05.2025"
+          formControlName="date"
           readonly
           inputmode="text"
           autocomplete="off"
@@ -307,7 +311,7 @@ const ION_COMPONENTS = [
           </div>
         </ion-item-group>
       } @else {
-        @for (exercise of EXERCISES; track exercise.name; let last = $last) {
+        @for (exercise of exercises(); track exercise.name) {
           <ion-item-group>
             <ion-item-divider>
               <app-exercise-item [exercise]="exercise.name" />
@@ -334,6 +338,12 @@ export class LogWorkoutInputsComponent {
   private readonly fb = inject(FormBuilder);
   readonly isLoading = input<boolean>(false);
   readonly skeletonSets = [1, 2, 3];
+  readonly logsWorkoutService = inject(LogsWorkoutService);
+  readonly userService = inject(UserService);
+
+  readonly itemId = input<string>();
+  readonly exercise = input<string>();
+  readonly logId = input<string>();
 
   readonly form = this.fb.group({
     load: [
@@ -349,61 +359,17 @@ export class LogWorkoutInputsComponent {
         Validators.max(500),
       ],
     ],
+    date: this.fb.nonNullable.control<string>(this.getCurrentDate()),
+    time: this.fb.nonNullable.control<string>(this.getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
 
-  EXERCISES: { name: string; sets: WorkoutSet[] }[] = [
-    {
-      name: 'benchpress_dumbbell',
-      sets: [
-        {
-          load: 20,
-          reps: 10,
-          exercise: 'benchpress_dumbbell',
-          itemId: 0,
-          note: null,
-          time: '19:25:35',
-        },
-        {
-          load: 20,
-          reps: 9,
-          exercise: 'benchpress_dumbbell',
-          itemId: 1,
-          note: null,
-          time: '19:27:00',
-        },
-        {
-          load: 20,
-          reps: 8,
-          exercise: 'benchpress_dumbbell',
-          itemId: 2,
-          note: null,
-          time: '19:28:40',
-        },
-      ],
-    },
-    {
-      name: 'biceps_curls_standing_dumbbell',
-      sets: [
-        {
-          load: 12.5,
-          reps: 12,
-          exercise: 'biceps_curls_standing_dumbbell',
-          itemId: 3,
-          note: 'Hammer',
-          time: '19:22:30',
-        },
-        {
-          load: 10,
-          reps: 15,
-          exercise: 'biceps_curls_standing_dumbbell',
-          itemId: 4,
-          note: 'Hammer',
-          time: '19:23:55',
-        },
-      ],
-    },
-  ];
+  readonly exercises = computed(() => {
+    const logWorkout = this.logsWorkoutService.logWorkoutResource.value();
+    if (!logWorkout) return [];
+    if (!logWorkout.sets) return [];
+    return this.groupSetsByExercise(logWorkout.sets);
+  });
 
   addSet(): void {
     if (this.form.invalid) {
@@ -411,19 +377,42 @@ export class LogWorkoutInputsComponent {
       return;
     }
 
-    const { load, reps, note } = this.form.getRawValue();
-    if (!load || !reps) return;
+    const logId = this.logsWorkoutService.logId();
+    const userId = this.userService.user().id;
+    const exercise = this.exercise();
 
-    // this.sets = [
-    //   ...this.sets,
-    //   {
-    //     load: Number(load),
-    //     reps,
-    //     note: note?.trim() || null,
-    //     exercise: 'benchpress_dumbbell',
-    //     itemId: Date.now(),
-    //   },
-    // ];
+    if (!logId || !userId || !exercise) {
+      console.error('Missing required data for addSet', {
+        logId,
+        userId,
+        exercise,
+      });
+      return;
+    }
+
+    const { load, reps, note, time } = this.form.getRawValue();
+
+    if (load === null || load === undefined || reps === null || reps === undefined) {
+      return;
+    }
+
+    const set: WorkoutSet = {
+      load: Number(load),
+      reps: Number(reps),
+      exercise,
+      itemId: this.getNextItemId(),
+      note: note?.trim() || null,
+      time,
+    };
+
+    this.logsWorkoutService.addLogWorkout(set, logId, userId).subscribe({
+      next: () => {
+        this.logsWorkoutService.logWorkoutResource.reload();
+      },
+      error: (error) => {
+        console.error('Could not add workout set', error);
+      },
+    });
   }
 
   setData(set: WorkoutSet): void {
@@ -441,5 +430,52 @@ export class LogWorkoutInputsComponent {
 
       return null;
     };
+  }
+
+  private getCurrentDate(): string {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}.${month}.${year}`;
+  }
+
+  private getCurrentTime(): string {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
+  readonly displayTime = computed(() => {
+    return this.formatTime(this.form.controls.time.value);
+  });
+
+  private formatTime(value: string): string {
+    return value.substring(0, value.length - 3);
+  }
+
+  private getNextItemId(): number {
+    const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
+    const maxItemId = sets.reduce((max, set) => {
+      return Math.max(max, set.itemId);
+    }, -1);
+    return maxItemId + 1;
+  }
+
+  private groupSetsByExercise(sets: WorkoutSet[]): { name: string; sets: WorkoutSet[] }[] {
+    const grouped = sets.reduce<Record<string, WorkoutSet[]>>((acc, set) => {
+      const exercise = set.exercise;
+
+      if (!acc[exercise]) acc[exercise] = [];
+      acc[exercise].push(set);
+      return acc;
+    }, {});
+
+    return Object.keys(grouped).map((name) => ({
+      name,
+      sets: grouped[name].sort((a, b) => a.itemId - b.itemId),
+    }));
   }
 }
