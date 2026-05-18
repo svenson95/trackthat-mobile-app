@@ -390,7 +390,7 @@ export class LogWorkoutInputsComponent {
       return;
     }
 
-    const { load, reps, note, time } = this.form.getRawValue();
+    const { load, reps, note } = this.form.getRawValue();
 
     if (load === null || load === undefined || reps === null || reps === undefined) {
       return;
@@ -402,7 +402,7 @@ export class LogWorkoutInputsComponent {
       exercise,
       itemId: this.getNextItemId(),
       note: note?.trim() || null,
-      time,
+      time: this.getCurrentTime(),
     };
 
     const date = Date.now().toString();
