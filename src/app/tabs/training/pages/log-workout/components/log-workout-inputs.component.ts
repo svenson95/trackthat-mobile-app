@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  input,
+} from '@angular/core';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
@@ -370,6 +377,19 @@ export class LogWorkoutInputsComponent {
     if (!logWorkout.sets) return [];
     return this.groupSetsByExercise(logWorkout.sets);
   });
+
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    const REFRESH_INTERVAL = 30_000;
+    const intervalId = window.setInterval(() => {
+      this.form.controls.time.setValue(this.getCurrentTime());
+    }, REFRESH_INTERVAL);
+
+    this.destroyRef.onDestroy(() => {
+      window.clearInterval(intervalId);
+    });
+  }
 
   addSet(): void {
     if (this.form.invalid) {
