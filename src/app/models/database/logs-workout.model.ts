@@ -14,6 +14,7 @@ export interface WorkoutSet {
   exercise: string;
   itemId: number;
   note: string | null;
+  time: string; // format: '19:23:45'
 }
 
 export interface LogWorkout extends Log {

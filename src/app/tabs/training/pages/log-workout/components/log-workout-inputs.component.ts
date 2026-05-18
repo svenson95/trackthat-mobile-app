@@ -130,6 +130,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
         ion-label {
           margin-top: 2px;
           margin-bottom: 2px;
+          margin-inline-end: 0;
         }
       }
     }
@@ -138,6 +139,14 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+
+      ion-label {
+        display: flex;
+        justify-content: space-between;
+        h3 {
+          margin-bottom: 0;
+        }
+      }
     }
   `,
   template: `
@@ -224,6 +233,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
               <ion-item class="log-set" lines="none">
                 <ion-label>
                   <h3>{{ set.reps }}x {{ set.load }} kg</h3>
+                  <h3>{{ set.time }}</h3>
                 </ion-label>
               </ion-item>
             }
@@ -263,6 +273,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 0,
           note: null,
+          time: '19:22:30',
         },
         {
           load: 20,
@@ -270,6 +281,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 1,
           note: null,
+          time: '19:23:55',
         },
         {
           load: 20,
@@ -277,6 +289,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'benchpress_dumbbell',
           itemId: 2,
           note: null,
+          time: '19:25:35',
         },
       ],
     },
@@ -289,6 +302,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'biceps_curls_standing_dumbbell',
           itemId: 3,
           note: 'Hammer',
+          time: '19:27:00',
         },
         {
           load: 10,
@@ -296,6 +310,7 @@ export class LogWorkoutInputsComponent {
           exercise: 'biceps_curls_standing_dumbbell',
           itemId: 4,
           note: 'Hammer',
+          time: '19:28:40',
         },
       ],
     },
