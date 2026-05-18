@@ -478,9 +478,30 @@ export class LogWorkoutInputsComponent {
       return acc;
     }, {});
 
-    return Object.keys(grouped).map((name) => ({
-      name,
-      sets: grouped[name].sort((a, b) => a.itemId - b.itemId),
-    }));
+    return Object.keys(grouped)
+      .map((name) => {
+        const exerciseSets = grouped[name].sort((a, b) => {
+          return this.timeToSeconds(b.time) - this.timeToSeconds(a.time);
+        });
+
+        return {
+          name,
+          sets: exerciseSets,
+        };
+      })
+      .sort((a, b) => {
+        const newestA = this.timeToSeconds(a.sets[0]?.time);
+        const newestB = this.timeToSeconds(b.sets[0]?.time);
+
+        return newestB - newestA;
+      });
+  }
+
+  private timeToSeconds(time: string | null | undefined): number {
+    if (!time) return 0;
+
+    const [hours = '0', minutes = '0', seconds = '0'] = time.split(':');
+
+    return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
   }
 }
