@@ -111,6 +111,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
       min-height: 40px;
       background-color: transparent;
       margin-top: 1rem;
+      --padding-start: 12px;
     }
 
     ion-button {
@@ -231,7 +232,7 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
           </ion-item-divider>
           <div class="item-container">
             @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
-              <ion-item class="log-set" lines="none" (click)="setData(set)">
+              <ion-item class="log-set ion-activatable" lines="none" (click)="setData(set)">
                 <ion-label>
                   <h3>#{{ idx + 1 }}</h3>
                   <h3>{{ set.reps }}x {{ set.load }} kg</h3>
