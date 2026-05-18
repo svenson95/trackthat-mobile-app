@@ -5,6 +5,7 @@ import {
   DestroyRef,
   inject,
   input,
+  signal,
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -36,6 +37,23 @@ const ION_COMPONENTS = [
   IonLabel,
   IonSkeletonText,
 ];
+
+type ExerciseSetView =
+  | {
+      type: 'set';
+      set: WorkoutSet;
+    }
+  | {
+      type: 'skeleton';
+      id: string;
+      exercise: string;
+      time: string;
+    };
+
+type ExerciseView = {
+  name: string;
+  sets: ExerciseSetView[];
+};
 
 @Component({
   selector: 'app-log-workout-inputs',
@@ -212,19 +230,25 @@ const ION_COMPONENTS = [
     }
 
     .set-index-skeleton {
-      width: 13%;
+      width: 6%;
       height: 0.875rem;
       border-radius: 999px;
     }
 
     .set-value-skeleton {
-      width: 34%;
+      width: 25%;
       height: 0.875rem;
       border-radius: 999px;
     }
 
     .set-time-skeleton {
       width: 22%;
+      height: 0.875rem;
+      border-radius: 999px;
+    }
+
+    .set-break-skeleton {
+      width: 14%;
       height: 0.875rem;
       border-radius: 999px;
     }
@@ -300,7 +324,7 @@ const ION_COMPONENTS = [
           autocorrect="off"
           spellcheck="false"
         />
-        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid">
+        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid || isAddingSet()">
           <ion-icon name="add"></ion-icon>
         </ion-button>
       </div>
@@ -329,21 +353,40 @@ const ION_COMPONENTS = [
           </div>
         </ion-item-group>
       } @else {
-        @for (exercise of exercises(); track exercise.name) {
+        @for (exerciseGroup of exercises(); track exerciseGroup.name) {
           <ion-item-group>
             <ion-item-divider>
-              <app-exercise-item [exercise]="exercise.name" />
+              <app-exercise-item [exercise]="exerciseGroup.name" />
             </ion-item-divider>
 
             <div class="item-container">
-              @for (set of exercise.sets; track set.exercise; let last = $last; let idx = $index) {
-                <ion-item class="log-set ion-activatable" lines="none" (click)="setData(set)">
-                  <ion-label>
-                    <h3>#{{ idx + 1 }}</h3>
-                    <h3>{{ set.reps }}x {{ set.load }} kg</h3>
-                    <h3>{{ set.time }}</h3>
-                  </ion-label>
-                </ion-item>
+              @for (
+                item of exerciseGroup.sets;
+                track item.type === 'set' ? item.set.itemId : item.id;
+                let idx = $index
+              ) {
+                @if (item.type === 'skeleton') {
+                  <ion-item class="log-set skeleton-log-set" lines="none">
+                    <ion-label>
+                      <ion-skeleton-text animated class="set-index-skeleton" />
+                      <ion-skeleton-text animated class="set-value-skeleton" />
+                      <ion-skeleton-text animated class="set-time-skeleton" />
+                      <ion-skeleton-text animated class="set-break-skeleton" />
+                    </ion-label>
+                  </ion-item>
+                } @else {
+                  <ion-item
+                    class="log-set ion-activatable"
+                    lines="none"
+                    (click)="setData(item.set)"
+                  >
+                    <ion-label>
+                      <h3>#{{ idx + 1 }}</h3>
+                      <h3>{{ item.set.reps }}x {{ item.set.load }} kg</h3>
+                      <h3>{{ item.set.time }}</h3>
+                    </ion-label>
+                  </ion-item>
+                }
               }
             </div>
           </ion-item-group>
@@ -408,12 +451,51 @@ export class LogWorkoutInputsComponent {
     };
   }
 
-  readonly exercises = computed(() => {
-    const logWorkout = this.logsWorkoutService.logWorkoutResource.value();
-    if (!logWorkout) return [];
-    if (!logWorkout.sets) return [];
-    return this.groupSetsByExercise(logWorkout.sets);
+  readonly pendingSet = signal<{
+    id: string;
+    exercise: string;
+    time: string;
+  } | null>(null);
+
+  readonly isAddingSet = computed(() => this.pendingSet() !== null);
+
+  readonly exercises = computed<ExerciseView[]>(() => {
+    const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
+    const exercises = this.groupSetsByExercise(sets).map<ExerciseView>(({ name, sets }) => ({
+      name,
+      sets: sets.map((set) => ({ type: 'set', set })),
+    }));
+
+    const pendingSet = this.pendingSet();
+    if (!pendingSet) return exercises;
+
+    const skeletonSet: ExerciseSetView = {
+      type: 'skeleton',
+      id: pendingSet.id,
+      exercise: pendingSet.exercise,
+      time: pendingSet.time,
+    };
+
+    const targetExercise = exercises.find(({ name }) => name === pendingSet.exercise);
+
+    if (!targetExercise) {
+      return [{ name: pendingSet.exercise, sets: [skeletonSet] }, ...exercises];
+    }
+
+    targetExercise.sets.push(skeletonSet);
+
+    return exercises.sort((a, b) => this.getNewestExerciseTime(b) - this.getNewestExerciseTime(a));
   });
+
+  private getNewestExerciseTime(exercise: ExerciseView): number {
+    const newestSet = exercise.sets[exercise.sets.length - 1];
+
+    if (!newestSet) return 0;
+
+    return newestSet.type === 'set'
+      ? this.timeToSeconds(newestSet.set.time)
+      : this.timeToSeconds(newestSet.time);
+  }
 
   private readonly destroyRef = inject(DestroyRef);
 
@@ -429,7 +511,7 @@ export class LogWorkoutInputsComponent {
   }
 
   addSet(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isAddingSet()) {
       this.form.markAllAsTouched();
       return;
     }
@@ -453,22 +535,34 @@ export class LogWorkoutInputsComponent {
       return;
     }
 
+    const time = this.getCurrentTime();
+
     const set: WorkoutSet = {
       load: Number(load),
       reps: Number(reps),
       exercise,
       itemId: this.getNextItemId(),
       note: note?.trim() || null,
-      time: this.getCurrentTime(),
+      time,
     };
+
+    const pendingSetId = crypto.randomUUID();
+
+    this.pendingSet.set({
+      id: pendingSetId,
+      exercise,
+      time,
+    });
 
     const date = Date.now().toString();
     requestAnimationFrame(() => {
       this.logsWorkoutService.addLogWorkout(date, set, userId).subscribe({
-        next: () => {
-          this.logsWorkoutService.logWorkoutResource.reload();
+        next: (workout) => {
+          this.pendingSet.set(null);
+          this.logsWorkoutService.logWorkoutResource.set(workout);
         },
         error: (error) => {
+          this.pendingSet.set(null);
           console.error('Could not add workout set', error);
         },
       });
