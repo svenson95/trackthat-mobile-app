@@ -501,7 +501,7 @@ export class LogWorkoutInputsComponent {
     return Object.keys(grouped)
       .map((name) => {
         const exerciseSets = grouped[name].sort((a, b) => {
-          return this.timeToSeconds(b.time) - this.timeToSeconds(a.time);
+          return this.timeToSeconds(a.time) - this.timeToSeconds(b.time);
         });
 
         return {
@@ -510,8 +510,11 @@ export class LogWorkoutInputsComponent {
         };
       })
       .sort((a, b) => {
-        const newestA = this.timeToSeconds(a.sets[0]?.time);
-        const newestB = this.timeToSeconds(b.sets[0]?.time);
+        const newestASet = a.sets[a.sets.length - 1];
+        const newestBSet = b.sets[b.sets.length - 1];
+
+        const newestA = this.timeToSeconds(newestASet?.time);
+        const newestB = this.timeToSeconds(newestBSet?.time);
 
         return newestB - newestA;
       });
