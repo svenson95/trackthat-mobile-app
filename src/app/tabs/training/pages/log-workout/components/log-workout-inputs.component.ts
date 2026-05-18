@@ -3,6 +3,7 @@ import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/fo
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   IonButton,
+  IonIcon,
   IonInput,
   IonItem,
   IonItemDivider,
@@ -15,7 +16,15 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { WorkoutSet } from '../../../../../models';
 import { ExerciseItemComponent } from '../../workout/components';
 
-const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, IonItemDivider];
+const ION_COMPONENTS = [
+  IonButton,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+];
 
 @Component({
   selector: 'app-log-workout-inputs',
@@ -116,8 +125,12 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
 
     ion-button {
       margin: 0;
-      min-height: 40px;
+      min-height: 44px;
       --border-radius: 0;
+
+      height: 18px;
+      width: 18px;
+      font-size: 18px;
     }
 
     .col {
@@ -220,7 +233,9 @@ const ION_COMPONENTS = [IonButton, IonInput, IonLabel, IonItem, IonItemGroup, Io
           autocorrect="off"
           spellcheck="false"
         />
-        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid"> + </ion-button>
+        <ion-button type="button" (click)="addSet()" [disabled]="form.invalid">
+          <ion-icon name="add"></ion-icon>
+        </ion-button>
       </div>
     </form>
 
