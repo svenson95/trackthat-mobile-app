@@ -6,7 +6,6 @@ import {
   provideRouter,
   RouteReuseStrategy,
   withComponentInputBinding,
-  withInMemoryScrolling,
   withPreloading,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -17,41 +16,43 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { appRoutes } from './app.routes';
 
-const BASE_PROVIDERS = [
-  // provideZonelessChangeDetection(), // TODO: run migration
-  provideRouter(
-    appRoutes,
-    withPreloading(PreloadAllModules),
-    withComponentInputBinding(),
-    withInMemoryScrolling({
-      scrollPositionRestoration: 'enabled',
-    }),
-  ),
-  provideHttpClient(withInterceptorsFromDi()),
+const ROUTER_PROVIDERS = [
+  provideRouter(appRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
 ];
 
-const IONIC_ROUTE_REUSE_STRATEGY_PROVIDER = {
-  provide: RouteReuseStrategy,
-  useClass: IonicRouteStrategy,
-};
+const HTTP_PROVIDERS = [provideHttpClient(withInterceptorsFromDi())];
 
-const PWA_PROVIDER = provideServiceWorker('ngsw-worker.js', {
-  enabled: !isDevMode(),
-  registrationStrategy: 'registerImmediately',
-});
+const IONIC_PROVIDERS = [
+  importProvidersFrom(IonicModule.forRoot()),
+  {
+    provide: RouteReuseStrategy,
+    useClass: IonicRouteStrategy,
+  },
+];
+
+const PWA_PROVIDERS = [
+  provideServiceWorker('ngsw-worker.js', {
+    enabled: !isDevMode(),
+    registrationStrategy: 'registerImmediately',
+  }),
+];
+
+const I18N_PROVIDERS = [
+  provideTranslateService({
+    fallbackLang: 'de',
+    loader: provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: '.json',
+    }),
+  }),
+];
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    ...BASE_PROVIDERS,
-    PWA_PROVIDER,
-    importProvidersFrom(IonicModule.forRoot()),
-    IONIC_ROUTE_REUSE_STRATEGY_PROVIDER,
-    provideTranslateService({
-      fallbackLang: 'de',
-      loader: provideTranslateHttpLoader({
-        prefix: './assets/i18n/',
-        suffix: '.json',
-      }),
-    }),
+    ...ROUTER_PROVIDERS,
+    ...HTTP_PROVIDERS,
+    ...IONIC_PROVIDERS,
+    ...PWA_PROVIDERS,
+    ...I18N_PROVIDERS,
   ],
 };
