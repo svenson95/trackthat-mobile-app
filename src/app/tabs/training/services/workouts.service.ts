@@ -5,6 +5,7 @@ import { map, tap, type Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment.prod';
 import type {
   GetWorkoutsDTO,
+  ListItem,
   PostWorkoutBody,
   PostWorkoutResponse,
   PutWorkoutBody,
@@ -18,6 +19,7 @@ import type {
   WorkoutList,
 } from '../../../models';
 import { UserService } from '../../../services';
+
 import { IsEditingService } from './is-editing.service';
 
 @Injectable({
@@ -116,5 +118,19 @@ export class WorkoutsService {
       name,
       list,
     };
+  }
+
+  normalizeWorkoutList(items: ListItem[]): WorkoutList {
+    let exerciseIndex = 0;
+
+    return items.map((item, index) => {
+      const isExercise = item.type === 'EXERCISE';
+
+      return {
+        ...item,
+        listId: index,
+        itemId: isExercise ? exerciseIndex++ : null,
+      };
+    }) as WorkoutList;
   }
 }

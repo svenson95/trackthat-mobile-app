@@ -214,9 +214,11 @@ export class WorkoutPage {
     const workout = this.workout();
     const editedList = this.editService.editedList();
     const list = editedList ?? workout.list;
+    const changedName = data ? list.map((i) => (i.listId === data.listId ? data : i)) : list;
+    const normalized = this.workoutsService.normalizeWorkoutList(changedName);
     const updatedWorkout = {
       ...workout,
-      list: data ? list.map((i) => (i.listId === data.listId ? data : i)) : list,
+      list: normalized,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
@@ -250,9 +252,10 @@ export class WorkoutPage {
       const { data } = await modal.onDidDismiss<string>();
       if (!data || !data.trim() || data.trim() === '') return;
 
+      const added = [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name: data }];
       const updatedWorkout: WorkoutDoc = {
         ...workout,
-        list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name: data }],
+        list: added,
       };
       await this.updateDatabase(
         updatedWorkout,
@@ -278,9 +281,10 @@ export class WorkoutPage {
     const { data } = await modal.onDidDismiss<ListItemExercise>();
     if (!data) return;
 
+    const added = [...workout.list, { ...data }];
     const updatedWorkout: WorkoutDoc = {
       ...workout,
-      list: [...workout.list, { ...data }],
+      list: added,
     };
     await this.updateDatabase(
       updatedWorkout,
@@ -289,9 +293,10 @@ export class WorkoutPage {
   }
 
   async addSpacer(workout: WorkoutDoc): Promise<void> {
+    const added = [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }];
     const updatedWorkout: WorkoutDoc = {
       ...workout,
-      list: [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }],
+      list: added,
     };
 
     await this.updateDatabase(
@@ -307,12 +312,10 @@ export class WorkoutPage {
     });
     await loading.present();
 
+    const normalized = this.workoutsService.normalizeWorkoutList(workout.list);
     const updatedWorkout = {
       ...workout,
-      list: workout.list.map((item, index) => ({
-        ...item,
-        listId: index,
-      })),
+      list: normalized,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({

@@ -177,11 +177,12 @@ export class WorkoutListComponent {
     await loading.present();
 
     const workout = this.workout();
-    const updatedList = workout.list.filter((listItem) => listItem.listId !== item.listId);
+    const filtered = workout.list.filter((listItem) => listItem.listId !== item.listId);
+    const normalized = this.workoutsService.normalizeWorkoutList(filtered);
 
     const updatedWorkout = {
       ...workout,
-      list: updatedList,
+      list: normalized,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
