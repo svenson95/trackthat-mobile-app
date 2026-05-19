@@ -35,5 +35,5 @@ export type GetLogWorkoutDTO = LogWorkoutDoc;
 export type PostLogWorkoutBody = LogWorkout;
 export type PostLogWorkoutResponse = LogWorkoutDoc;
 
-export type PutLogWorkoutBody = LogWorkout;
-export type PutLogWorkoutResponse = LogWorkoutDoc;
+export type DeleteLogWorkoutBody = WorkoutSet;
+export type DeleteLogWorkoutResponse = LogWorkoutDoc | undefined;

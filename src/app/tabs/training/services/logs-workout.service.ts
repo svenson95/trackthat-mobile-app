@@ -4,10 +4,10 @@ import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import type {
+  DeleteLogWorkoutBody,
+  DeleteLogWorkoutResponse,
   GetLogWorkoutDTO,
   PostLogWorkoutResponse,
-  PutLogWorkoutBody,
-  PutLogWorkoutResponse,
   WorkoutSet,
 } from '../../../models';
 
@@ -50,17 +50,13 @@ export class LogsWorkoutService {
       );
   }
 
-  updateLogWorkout(log: PutLogWorkoutBody): Observable<PutLogWorkoutResponse> {
-    return this.http.post<PutLogWorkoutResponse>(`${this.apiUrl}/update`, log).pipe(
-      tap((updatedLog) => {
-        this.logWorkoutResource.set(updatedLog);
-      }),
-    );
-  }
-
-  deleteSet(logId: string, itemId: number, set: WorkoutSet): Observable<PutLogWorkoutResponse> {
+  deleteSet(
+    logId: string,
+    itemId: number,
+    set: DeleteLogWorkoutBody,
+  ): Observable<DeleteLogWorkoutResponse> {
     return this.http
-      .delete<PutLogWorkoutResponse>(`${this.apiUrl}/delete/${logId}/${itemId}`, {
+      .delete<DeleteLogWorkoutResponse>(`${this.apiUrl}/delete/${logId}/${itemId}`, {
         body: set,
       })
       .pipe(
