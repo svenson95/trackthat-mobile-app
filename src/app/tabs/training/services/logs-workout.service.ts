@@ -33,7 +33,7 @@ export class LogsWorkoutService {
     return logWorkout?.logId;
   });
 
-  addLogWorkout(date: string, set: WorkoutSet, userId: string): Observable<PostLogWorkoutResponse> {
+  addLogWorkout(date: number, set: WorkoutSet, userId: string): Observable<PostLogWorkoutResponse> {
     return this.http
       .post<PostLogWorkoutResponse>(this.apiUrl + `/add/set/${date}/${userId}`, set)
       .pipe(

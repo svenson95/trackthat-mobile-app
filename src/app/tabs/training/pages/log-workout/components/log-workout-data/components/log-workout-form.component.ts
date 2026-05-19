@@ -8,17 +8,21 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ModalController } from '@ionic/angular';
 import { IonButton, IonIcon, IonInput, IonLabel } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
+
+import { DatetimePickerModalComponent } from '../../../dialogs';
 
 export type LogWorkoutFormValue = {
   load: number;
   reps: number;
   note: string | null;
-  date: string;
+  date: number;
   time: string;
 };
 
@@ -50,21 +54,21 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
       &:nth-child(2) {
         text-align: center;
 
-        > *:not(:last-child) {
+        > *:not(:nth-child(3)) {
           flex: 2;
         }
 
-        > *:last-child {
+        > *:nth-child(3) {
           flex: 3;
         }
       }
 
       &:nth-child(3) {
-        > *:not(:last-child) {
+        > *:not(:nth-child(2)) {
           flex: 3;
         }
 
-        > *:last-child {
+        > *:nth-child(2) {
           flex: 2;
         }
       }
@@ -125,6 +129,22 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
         filter: brightness(0.95);
       }
     }
+
+    ion-modal.datetime-modal {
+      --width: fit-content;
+      --min-width: 280px;
+      --height: auto;
+      --border-radius: 16px;
+      --box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    ion-modal.datetime-modal::part(content) {
+      overflow: hidden;
+    }
+
+    ion-datetime {
+      --background: var(--ion-background-color);
+    }
   `,
   template: `
     <form [formGroup]="form">
@@ -177,6 +197,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
+          (click)="openTimePicker()"
         />
 
         <ion-input
@@ -187,6 +208,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
+          (click)="openDatePicker()"
         />
       </div>
 
@@ -215,7 +237,6 @@ export class LogWorkoutFormComponent {
 
   readonly isAddingSet = input<boolean>(false);
   readonly addSet = output<LogWorkoutFormValue>();
-  private readonly currentTime = signal(this.getCurrentTime());
 
   readonly form = this.fb.group({
     load: [
@@ -237,27 +258,30 @@ export class LogWorkoutFormComponent {
         Validators.max(500),
       ],
     ],
-    date: this.fb.nonNullable.control<string>(Date.now().toString()),
-    time: this.fb.nonNullable.control<string>(this.currentTime()),
+    date: this.fb.nonNullable.control<number>(this.getCurrentUnixTimestamp()),
+    time: this.fb.nonNullable.control<string>(this.getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
 
+  readonly formValueTime = toSignal(this.form.controls.time.valueChanges, {
+    initialValue: this.form.controls.time.value,
+  });
+
   readonly displayTime = computed(() => {
-    return this.formatTime(this.currentTime());
+    return this.formatTime(this.formValueTime());
   });
 
   readonly displayDate = computed(() => {
-    return this.formatDate(this.form.controls.date.value);
+    return this.formatDate(this.form.value.date ?? 0);
   });
+
+  private readonly timeManuallyChanged = signal(false);
 
   constructor() {
     const REFRESH_INTERVAL = 30_000;
-
     const intervalId = window.setInterval(() => {
-      const time = this.getCurrentTime();
-
-      this.currentTime.set(time);
-      this.form.controls.time.setValue(time);
+      if (this.timeManuallyChanged()) return;
+      this.form.controls.time.setValue(this.getCurrentTime());
     }, REFRESH_INTERVAL);
 
     this.destroyRef.onDestroy(() => {
@@ -303,11 +327,7 @@ export class LogWorkoutFormComponent {
       }
 
       const normalizedValue = String(value).replace(',', '.');
-
-      if (!/^\d+(\.\d+)?$/.test(normalizedValue)) {
-        return null;
-      }
-
+      if (!/^\d+(\.\d+)?$/.test(normalizedValue)) return null;
       const decimalPlaces = normalizedValue.split('.')[1]?.length ?? 0;
 
       return decimalPlaces > maxPlaces
@@ -340,11 +360,9 @@ export class LogWorkoutFormComponent {
 
   private getCurrentTime(): string {
     const now = new Date();
-
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-
     return `${hours}:${minutes}:${seconds}`;
   }
 
@@ -352,13 +370,11 @@ export class LogWorkoutFormComponent {
     return value.substring(0, value.length - 3);
   }
 
-  private formatDate(value: string): string {
-    const date = new Date(Number(value));
-
+  private formatDate(value: number): string {
+    const date = new Date(value * 1000);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-
     return `${day}.${month}.${year}`;
   }
 
@@ -383,5 +399,84 @@ export class LogWorkoutFormComponent {
     const nativeInput = await ionInput.getInputElement();
 
     this.selectedDuringFocus.delete(nativeInput);
+  }
+
+  private readonly modalController = inject(ModalController);
+
+  readonly datetimeDateValue = computed(() => {
+    return this.unixTimestampToDateValue(this.form.controls.date.value);
+  });
+
+  async openTimePicker(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: DatetimePickerModalComponent,
+      cssClass: 'datetime-modal',
+      componentProps: {
+        kind: 'time',
+        value: this.form.controls.time.value.substring(0, 5),
+        resetValue: this.getCurrentTimeForDatetime(),
+      },
+    });
+    await modal.present();
+
+    const result = await modal.onDidDismiss<string>();
+    if (result.role !== 'confirm' || typeof result.data !== 'string') return;
+
+    const normalizedTime = this.normalizeTimeForBackend(result.data);
+    this.timeManuallyChanged.set(true);
+    this.form.controls.time.setValue(normalizedTime);
+  }
+
+  async openDatePicker(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: DatetimePickerModalComponent,
+      cssClass: 'datetime-modal',
+      componentProps: {
+        kind: 'date',
+        value: this.datetimeDateValue(),
+        resetValue: this.getCurrentDateForDatetime(),
+      },
+    });
+    await modal.present();
+
+    const result = await modal.onDidDismiss<string>();
+    if (result.role !== 'confirm' || typeof result.data !== 'string') return;
+
+    this.form.patchValue({
+      date: this.normalizeDateForBackend(result.data),
+    });
+  }
+
+  getCurrentTimeForDatetime(): string {
+    return this.getCurrentTime().substring(0, 5);
+  }
+
+  getCurrentDateForDatetime(): string {
+    return this.unixTimestampToDateValue(this.getCurrentUnixTimestamp());
+  }
+
+  private getCurrentUnixTimestamp(): number {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  private normalizeTimeForBackend(value: string): string {
+    const time = value.includes('T') ? value.split('T')[1] : value;
+    const cleanTime = time.replace('Z', '').split('.')[0];
+    const [hours = '00', minutes = '00', seconds] = cleanTime.split(':');
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds?.padStart(2, '0') ?? '00'}`;
+  }
+
+  private unixTimestampToDateValue(timestamp: number): string {
+    const date = new Date(timestamp * 1000);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private normalizeDateForBackend(value: string): number {
+    const dateValue = value.split('T')[0];
+    const [year, month, day] = dateValue.split('-').map(Number);
+    return Math.floor(new Date(year, month - 1, day, 0, 0, 0, 0).getTime() / 1000);
   }
 }

@@ -141,6 +141,10 @@ const ION_COMPONENTS = [
       height: 0.875rem;
       border-radius: 999px;
     }
+
+    ion-item-option.delete-set {
+      font-size: 12px;
+    }
   `,
   template: `
     @if (isLoading()) {
@@ -204,7 +208,11 @@ const ION_COMPONENTS = [
                   </ion-item>
 
                   <ion-item-options side="end">
-                    <ion-item-option color="danger" (click)="deleteItem(item, item.set.itemId)">
+                    <ion-item-option
+                      class="delete-set"
+                      color="danger"
+                      (click)="deleteItem(item, item.set.itemId)"
+                    >
                       {{ 'general.delete' | translate }}
                     </ion-item-option>
                   </ion-item-options>
