@@ -5,28 +5,46 @@ import { catchError, EMPTY, interval, startWith, switchMap } from 'rxjs';
 
 import { environment } from '../../../../../../environments/environment.prod';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class HealthService {
   private readonly http = inject(HttpClient);
-  private readonly HEALTH_REFRESH_INTERVAL = 15_000;
-  private pollingSub?: Subscription;
+  private readonly HEALTH_REFRESH_INTERVAL = 10_000;
 
-  pingApi = (): Observable<void> => this.http.get<void>(`${environment.api}/health`);
+  private pollingSub?: Subscription;
+  private stopTimeout?: ReturnType<typeof setTimeout>;
+
+  private lastPingAt = 0;
+
+  pingApi = (): Observable<void> => this.http.get<void>(environment.api + 'health');
 
   startPolling(): void {
+    if (this.stopTimeout) {
+      clearTimeout(this.stopTimeout);
+      this.stopTimeout = undefined;
+    }
+
     if (this.pollingSub) return;
+
     this.pollingSub = interval(this.HEALTH_REFRESH_INTERVAL)
       .pipe(
         startWith(0),
-        switchMap(() => this.pingApi().pipe(catchError(() => EMPTY))),
+        switchMap(() => this.pingIfAllowed()),
       )
       .subscribe();
   }
 
   stopPolling(): void {
-    this.pollingSub?.unsubscribe();
-    this.pollingSub = undefined;
+    this.stopTimeout = setTimeout(() => {
+      this.pollingSub?.unsubscribe();
+      this.pollingSub = undefined;
+      this.stopTimeout = undefined;
+    }, 300);
+  }
+
+  private pingIfAllowed(): Observable<void> {
+    const now = Date.now();
+    if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) return EMPTY;
+    this.lastPingAt = now;
+    return this.pingApi().pipe(catchError(() => EMPTY));
   }
 }

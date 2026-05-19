@@ -33,6 +33,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
   selector: 'app-log-workout-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, TranslateModule, ReactiveFormsModule],
+  providers: [HealthService],
   styles: `
     form {
       display: flex;
@@ -242,8 +243,8 @@ export class LogWorkoutFormComponent {
   readonly addSet = output<LogWorkoutFormValue>();
 
   private readonly healthService = inject(HealthService);
-  readonly startPolling = this.healthService.startPolling;
-  readonly stopPolling = this.healthService.stopPolling;
+  readonly startPolling = (): void => this.healthService.startPolling();
+  readonly stopPolling = (): void => this.healthService.stopPolling();
 
   readonly form = this.fb.group({
     load: [
