@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment.prod';
 })
 export class HealthService {
   private readonly http = inject(HttpClient);
-  private readonly HEALTH_REFRESH_INTERVAL = 10_000;
+  private readonly HEALTH_REFRESH_INTERVAL = 15_000;
 
   private pollingSub?: Subscription;
   private stopTimeout?: ReturnType<typeof setTimeout>;
@@ -19,10 +19,7 @@ export class HealthService {
   private pingInProgress = false;
 
   pingApi = (): Observable<void> => this.http.get<void>(environment.api + 'health');
-
-  pingApiIfNeeded(): Observable<void> {
-    return this.pingIfAllowed();
-  }
+  pingApiIfNeeded = (): Observable<void> => this.pingIfAllowed();
 
   startPolling(): void {
     if (this.stopTimeout) {
@@ -50,12 +47,8 @@ export class HealthService {
 
   private pingIfAllowed(): Observable<void> {
     const now = Date.now();
-
     if (this.pingInProgress) return EMPTY;
-
-    if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) {
-      return EMPTY;
-    }
+    if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) return EMPTY;
 
     this.lastPingAt = now;
     this.pingInProgress = true;
