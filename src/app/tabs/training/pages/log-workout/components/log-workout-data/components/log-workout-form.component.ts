@@ -1,8 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
   computed,
+  DestroyRef,
   inject,
   input,
   output,
@@ -17,6 +17,7 @@ import { IonButton, IonIcon, IonInput, IonLabel } from '@ionic/angular/standalon
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DatetimePickerModalComponent } from '../../../dialogs';
+import { HealthService } from '../../../services';
 
 export type LogWorkoutFormValue = {
   load: number;
@@ -161,8 +162,9 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="selectAllOnFreshFocus($event)"
-          (ionBlur)="resetSelectAllOnFocus($event)"
+          (ionFocus)="startPolling(); selectAllOnFreshFocus($event)"
+          (ionInput)="startPolling()"
+          (ionBlur)="stopPolling(); resetSelectAllOnFocus($event)"
         >
           <span slot="end">kg</span>
         </ion-input>
@@ -179,8 +181,9 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="selectAllOnFreshFocus($event)"
-          (ionBlur)="resetSelectAllOnFocus($event)"
+          (ionFocus)="startPolling(); selectAllOnFreshFocus($event)"
+          (ionInput)="startPolling()"
+          (ionBlur)="stopPolling(); resetSelectAllOnFocus($event)"
         >
           <span slot="end">x</span>
         </ion-input>
@@ -238,6 +241,10 @@ export class LogWorkoutFormComponent {
   readonly isAddingSet = input<boolean>(false);
   readonly addSet = output<LogWorkoutFormValue>();
 
+  private readonly healthService = inject(HealthService);
+  readonly startPolling = this.healthService.startPolling;
+  readonly stopPolling = this.healthService.stopPolling;
+
   readonly form = this.fb.group({
     load: [
       null as number | null,
@@ -286,6 +293,7 @@ export class LogWorkoutFormComponent {
 
     this.destroyRef.onDestroy(() => {
       window.clearInterval(intervalId);
+      this.healthService.stopPolling();
     });
   }
 
