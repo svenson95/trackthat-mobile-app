@@ -104,7 +104,7 @@ export class LogWorkoutInputsComponent {
     const userId = this.userService.user().id;
     const exercise = this.exercise();
 
-    if (!logId || !userId || !exercise) {
+    if (!userId || !exercise) {
       console.error('Missing required data for addSet', {
         logId,
         userId,
