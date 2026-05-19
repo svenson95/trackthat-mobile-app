@@ -141,6 +141,8 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
+          (ionFocus)="selectAllOnFreshFocus($event)"
+          (ionBlur)="resetSelectAllOnFocus($event)"
         >
           <span slot="end">kg</span>
         </ion-input>
@@ -157,6 +159,8 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
+          (ionFocus)="selectAllOnFreshFocus($event)"
+          (ionBlur)="resetSelectAllOnFocus($event)"
         >
           <span slot="end">x</span>
         </ion-input>
@@ -356,5 +360,28 @@ export class LogWorkoutFormComponent {
     const year = date.getFullYear();
 
     return `${day}.${month}.${year}`;
+  }
+
+  private selectedDuringFocus = new WeakSet<HTMLInputElement>();
+
+  async selectAllOnFreshFocus(event: Event): Promise<void> {
+    const ionInput = event.target as HTMLIonInputElement;
+    const nativeInput = await ionInput.getInputElement();
+
+    if (this.selectedDuringFocus.has(nativeInput)) {
+      return;
+    }
+
+    this.selectedDuringFocus.add(nativeInput);
+    setTimeout(() => {
+      nativeInput.select();
+    }, 50);
+  }
+
+  async resetSelectAllOnFocus(event: Event): Promise<void> {
+    const ionInput = event.target as HTMLIonInputElement;
+    const nativeInput = await ionInput.getInputElement();
+
+    this.selectedDuringFocus.delete(nativeInput);
   }
 }
