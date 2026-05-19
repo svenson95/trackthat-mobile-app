@@ -1,3 +1,4 @@
+import { Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,6 +7,8 @@ import {
   output,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { IonList, LoadingController } from '@ionic/angular';
 import {
   IonItem,
@@ -247,7 +250,13 @@ export class LogWorkoutSetListComponent {
 
   readonly loadingCtrl = inject(LoadingController);
   readonly translate = inject(TranslateService);
+  readonly route = inject(ActivatedRoute);
   readonly logsWorkoutService = inject(LogsWorkoutService);
+  readonly location = inject(Location);
+
+  readonly routeParams = toSignal(this.route.params, {
+    initialValue: this.route.snapshot.params,
+  });
 
   async deleteItem(item: ExerciseSetView, itemId: number): Promise<void> {
     if (item.type !== 'set') return;
@@ -261,8 +270,15 @@ export class LogWorkoutSetListComponent {
 
     const logId = String(this.logsWorkoutService.logId()!);
     this.logsWorkoutService.deleteSet(logId, itemId, item.set).subscribe({
-      next: async () => {
+      next: async (response) => {
         await loading.dismiss();
+
+        if (response === null) {
+          const { itemId, exercise, workoutId } = this.routeParams();
+          const target = `/tabs/training/${workoutId}/${itemId}/${exercise}/log`;
+          if (this.location.path() === target) return;
+          this.location.replaceState(target);
+        }
       },
       error: async (err) => {
         await loading.dismiss();

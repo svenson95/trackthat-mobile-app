@@ -9,6 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -142,14 +143,18 @@ export class LogWorkoutPage {
 
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
+  readonly routeParams = toSignal(this.route.params, {
+    initialValue: this.route.snapshot.params,
+  });
 
   constructor() {
     effect(() => {
       const logId = this.logsWorkoutService.logId();
       const workoutId = this.workoutId();
+      const { itemId, exercise } = this.routeParams();
+
       if (!logId || !workoutId) return;
 
-      const { itemId, exercise } = this.route.snapshot.params;
       const target = `/tabs/training/${workoutId}/${itemId}/${exercise}/log/${logId}`;
       if (this.location.path() === target) return;
       this.location.go(target);
