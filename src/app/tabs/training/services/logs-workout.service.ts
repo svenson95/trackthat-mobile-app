@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
@@ -28,6 +28,12 @@ export class LogsWorkoutService {
       url: `${this.apiUrl}/get/${date}`,
       method: 'GET',
     };
+  });
+
+  resourceEffect = effect(() => {
+    const resource = this.logWorkoutResource.value();
+    if (!resource) return;
+    this.logId.set(resource.logId);
   });
 
   getLogWorkout(date: string): Observable<GetLogWorkoutDTO> {

@@ -145,12 +145,6 @@ export class LogWorkoutPage {
 
   constructor() {
     effect(() => {
-      const id = Number(this.itemId());
-      if (!Number.isFinite(id)) return;
-      this.logsWorkoutService.logId.set(id);
-    });
-
-    effect(() => {
       const logId = this.logsWorkoutService.logId();
       const workoutId = this.workoutId();
       if (!logId || !workoutId) return;
