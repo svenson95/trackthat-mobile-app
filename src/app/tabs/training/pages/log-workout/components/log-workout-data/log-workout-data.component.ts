@@ -146,7 +146,7 @@ export class LogWorkoutDataComponent {
       exercise,
       itemId: this.getNextItemId(),
       note: formValue.note,
-      time: formValue.time,
+      time: this.getCurrentTime(),
     };
 
     const pendingSetId = crypto.randomUUID();
@@ -154,7 +154,7 @@ export class LogWorkoutDataComponent {
     this.pendingSet.set({
       id: pendingSetId,
       exercise,
-      time: formValue.time,
+      time: this.getCurrentTime(),
     });
 
     requestAnimationFrame(() => {
