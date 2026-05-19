@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
@@ -19,8 +19,6 @@ export class LogsWorkoutService {
 
   private http = inject(HttpClient);
 
-  readonly logId = signal<number | undefined>(undefined);
-
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
     const date = this.getTodayStartTimestamp();
 
@@ -30,15 +28,10 @@ export class LogsWorkoutService {
     };
   });
 
-  resourceEffect = effect(() => {
-    const resource = this.logWorkoutResource.value();
-    const id = resource ? resource.logId : undefined;
-    this.logId.set(id);
+  readonly logId = computed<number | undefined>(() => {
+    const logWorkout = this.logWorkoutResource.value();
+    return logWorkout?.logId;
   });
-
-  getLogWorkout(date: string): Observable<GetLogWorkoutDTO> {
-    return this.http.get<GetLogWorkoutDTO>(this.apiUrl + '/get/' + date);
-  }
 
   addLogWorkout(date: string, set: WorkoutSet, userId: string): Observable<PostLogWorkoutResponse> {
     return this.http

@@ -2,6 +2,7 @@ import { Location } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   output,
@@ -24,7 +25,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { WorkoutSet } from '../../../../../models';
-import { LogsWorkoutService } from '../../../services';
+import { IsEditingService, LogsWorkoutService } from '../../../services';
 import { ExerciseItemComponent } from '../../workout/components';
 
 export type ExerciseSetView =
@@ -237,11 +238,9 @@ const ION_COMPONENTS = [
   `,
 })
 export class LogWorkoutSetListComponent {
-  readonly isLoading = input<boolean>(false);
   readonly skeletonSets = input<number[]>([]);
   readonly exercises = input.required<ExerciseView[]>();
   readonly selectedExercise = input.required<string>();
-  readonly isEditing = input.required<boolean>();
   readonly setItemId = input<number>();
 
   readonly setSelected = output<WorkoutSet>();
@@ -253,6 +252,13 @@ export class LogWorkoutSetListComponent {
   readonly route = inject(ActivatedRoute);
   readonly logsWorkoutService = inject(LogsWorkoutService);
   readonly location = inject(Location);
+
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
+
+  readonly isLoading = computed(() => {
+    return this.logsWorkoutService.logWorkoutResource.isLoading();
+  });
 
   readonly routeParams = toSignal(this.route.params, {
     initialValue: this.route.snapshot.params,
@@ -274,10 +280,7 @@ export class LogWorkoutSetListComponent {
         await loading.dismiss();
 
         if (response === null) {
-          const { itemId, exercise, workoutId } = this.routeParams();
-          const target = `/tabs/training/${workoutId}/${itemId}/${exercise}/log`;
-          if (this.location.path() === target) return;
-          this.location.replaceState(target);
+          this.isEditing.set(false);
         }
       },
       error: async (err) => {

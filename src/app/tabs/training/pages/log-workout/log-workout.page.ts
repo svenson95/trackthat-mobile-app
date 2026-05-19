@@ -33,8 +33,6 @@ import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../ser
 
 import { LogWorkoutInputsComponent } from './components';
 
-const ANGULAR_MODULES = [FormsModule];
-
 const ION_COMPONENTS = [
   IonBackButton,
   IonButtons,
@@ -53,8 +51,8 @@ const ION_COMPONENTS = [
   selector: 'app-log-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ...ANGULAR_MODULES,
     ...ION_COMPONENTS,
+    FormsModule,
     TranslateModule,
     ContentContainerComponent,
     LogWorkoutInputsComponent,
@@ -107,12 +105,7 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <app-content-container>
-        <app-log-workout-inputs
-          [isLoading]="isLoading()"
-          [exercise]="exercise()"
-          [itemId]="itemId()"
-          [isEditing]="isEditing()"
-        />
+        <app-log-workout-inputs [exercise]="exercise()" [itemId]="itemId()" />
       </app-content-container>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
@@ -147,30 +140,25 @@ export class LogWorkoutPage {
     initialValue: this.route.snapshot.params,
   });
 
-  constructor() {
-    effect(() => {
-      const logId = this.logsWorkoutService.logId();
-      const workoutId = this.workoutId();
-      const { itemId, exercise } = this.routeParams();
-
-      if (!logId || !workoutId) return;
-
-      const target = `/tabs/training/${workoutId}/${itemId}/${exercise}/log/${logId}`;
-      if (this.location.path() === target) return;
-      this.location.go(target);
-    });
-  }
-
-  readonly isLoading = computed(() => {
-    return this.logsWorkoutService.logWorkoutResource.isLoading();
-  });
-
   readonly backButtonText = computed(() => {
     const workout = this.workoutsService
       .sortedWorkouts()
       .find((w) => w.workoutId === Number(this.workoutId()));
     const name = workout?.name ?? '';
     return name.length > 12 ? `${name.slice(0, 10)}...` : name;
+  });
+
+  readonly syncRouteWithLogData = effect(() => {
+    const logId = this.logsWorkoutService.logId();
+    const workoutId = this.workoutId();
+    const { itemId, exercise } = this.routeParams();
+
+    if (!workoutId || !itemId || !exercise) return;
+
+    const baseTarget = `/tabs/training/${workoutId}/${itemId}/${exercise}/log`;
+    const target = logId !== undefined ? `${baseTarget}/${logId}` : baseTarget;
+    if (this.location.path() === target) return;
+    this.location.replaceState(target);
   });
 
   async startEditing(): Promise<void> {

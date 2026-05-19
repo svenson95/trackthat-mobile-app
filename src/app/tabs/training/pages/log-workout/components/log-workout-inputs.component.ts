@@ -36,12 +36,10 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
 
     <app-log-workout-set-list
-      [isLoading]="isLoading()"
       [skeletonSets]="skeletonSets"
       [exercises]="exercises()"
       [selectedExercise]="exercise()!"
       (setSelected)="setData($event)"
-      [isEditing]="isEditing()!"
     />
   `,
 })
@@ -51,11 +49,9 @@ export class LogWorkoutInputsComponent {
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
-  readonly isLoading = input<boolean>(false);
   readonly itemId = input<string>();
   readonly exercise = input<string>();
   readonly logId = input<string>();
-  readonly isEditing = input<boolean>();
 
   readonly skeletonSets = [1, 2, 3];
   readonly currentTime = signal<string>(this.getCurrentTime());
