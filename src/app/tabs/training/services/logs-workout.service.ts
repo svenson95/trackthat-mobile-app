@@ -32,8 +32,8 @@ export class LogsWorkoutService {
 
   resourceEffect = effect(() => {
     const resource = this.logWorkoutResource.value();
-    if (!resource) return;
-    this.logId.set(resource.logId);
+    const id = resource ? resource.logId : undefined;
+    this.logId.set(id);
   });
 
   getLogWorkout(date: string): Observable<GetLogWorkoutDTO> {
