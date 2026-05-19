@@ -7,7 +7,6 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../models';
@@ -178,50 +177,6 @@ export class LogWorkoutDataComponent {
       reps: set.reps,
       note: set.note,
     });
-  }
-
-  private maxDecimalPlacesValidator(maxPlaces: number): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-
-      if (value === null || value === undefined || value === '') {
-        return null;
-      }
-
-      const normalizedValue = String(value).replace(',', '.');
-
-      if (!/^\d+(\.\d+)?$/.test(normalizedValue)) {
-        return null;
-      }
-
-      const decimalPlaces = normalizedValue.split('.')[1]?.length ?? 0;
-
-      return decimalPlaces > maxPlaces
-        ? { maxDecimalPlaces: { max: maxPlaces, actual: decimalPlaces } }
-        : null;
-    };
-  }
-
-  private isNumberValidator(type: 'number' | 'integer' = 'number'): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-
-      if (value === null || value === undefined || value === '') {
-        return null;
-      }
-
-      const parsed = Number(value);
-
-      if (!Number.isFinite(parsed)) {
-        return { number: true };
-      }
-
-      if (type === 'integer' && !Number.isInteger(parsed)) {
-        return { integer: true };
-      }
-
-      return null;
-    };
   }
 
   private getNewestExerciseTime(exercise: ExerciseView): number {
