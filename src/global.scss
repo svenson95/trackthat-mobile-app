@@ -113,3 +113,28 @@ ion-input.custom-input.hydrated {
   --highlight-color: var(--ion-color-primary);
   --background: var(--ion-background-color);
 }
+
+ion-item-group.exercise-item {
+  width: 100%;
+
+  ion-item-divider.exercise-item {
+    min-height: 50px;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+    --padding-start: 12px;
+    background-color: transparent;
+
+    &.is-selected-exercise {
+      --background: white;
+      background: white;
+
+      text-decoration: underline;
+      text-decoration-color: var(--ion-color-primary);
+      text-underline-offset: 0.25rem;
+
+      @media (prefers-color-scheme: dark) {
+        background: black;
+      }
+    }
+  }
+}

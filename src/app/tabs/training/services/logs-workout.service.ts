@@ -19,7 +19,7 @@ export class LogsWorkoutService {
 
   private http = inject(HttpClient);
 
-  readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
+  readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | null>(() => {
     const date = this.getTodayStartTimestamp();
 
     return {

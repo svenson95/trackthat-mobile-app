@@ -24,9 +24,9 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { WorkoutSet } from '../../../../../models';
-import { IsEditingService, LogsWorkoutService } from '../../../services';
-import { ExerciseItemComponent } from '../../workout/components';
+import type { WorkoutSet } from '../../../../../../../models';
+import { IsEditingService, LogsWorkoutService } from '../../../../../services';
+import { ExerciseItemComponent } from '../../../../workout/components';
 
 export type ExerciseSetView =
   | {
@@ -69,14 +69,6 @@ const ION_COMPONENTS = [
       gap: 0.5rem;
     }
 
-    ion-item-divider {
-      min-height: 50px;
-      margin-top: 1rem;
-      margin-bottom: 0.25rem;
-      --padding-start: 12px;
-      background-color: transparent;
-    }
-
     .log-set {
       --min-height: 32px;
 
@@ -99,19 +91,6 @@ const ION_COMPONENTS = [
         h3 {
           margin-bottom: 0;
         }
-      }
-    }
-
-    .is-selected-exercise {
-      --background: white;
-      background: white;
-
-      text-decoration: underline;
-      text-decoration-color: var(--ion-color-primary);
-      text-underline-offset: 0.25rem;
-
-      @media (prefers-color-scheme: dark) {
-        background: black;
       }
     }
 
@@ -165,8 +144,8 @@ const ION_COMPONENTS = [
   `,
   template: `
     @if (isLoading()) {
-      <ion-item-group>
-        <ion-item-divider>
+      <ion-item-group class="exercise-item">
+        <ion-item-divider class="exercise-item">
           <div class="exercise-skeleton-title">
             <ion-skeleton-text animated class="rounded-skeleton" />
             <ion-skeleton-text animated class="title-skeleton" />
@@ -187,8 +166,9 @@ const ION_COMPONENTS = [
       </ion-item-group>
     } @else {
       @for (exerciseGroup of exercises(); track exerciseGroup.name) {
-        <ion-item-group>
+        <ion-item-group class="exercise-item">
           <ion-item-divider
+            class="exercise-item"
             [class.is-selected-exercise]="exerciseGroup.name === selectedExercise()"
           >
             <app-exercise-item [exercise]="exerciseGroup.name" />

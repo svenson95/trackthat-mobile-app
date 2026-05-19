@@ -31,7 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ContentContainerComponent } from '../../../../components';
 import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
 
-import { LogWorkoutInputsComponent } from './components';
+import { LogWorkoutDataComponent } from './components';
 
 const ION_COMPONENTS = [
   IonBackButton,
@@ -55,7 +55,7 @@ const ION_COMPONENTS = [
     FormsModule,
     TranslateModule,
     ContentContainerComponent,
-    LogWorkoutInputsComponent,
+    LogWorkoutDataComponent,
   ],
   template: `
     <ion-header [translucent]="true">
@@ -105,7 +105,7 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <app-content-container>
-        <app-log-workout-inputs [exercise]="exercise()" [itemId]="itemId()" />
+        <app-log-workout-data [exercise]="exercise()" [itemId]="itemId()" />
       </app-content-container>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">

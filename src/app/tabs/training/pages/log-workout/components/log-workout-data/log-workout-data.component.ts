@@ -8,20 +8,32 @@ import {
   viewChild,
 } from '@angular/core';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
 
-import type { WorkoutSet } from '../../../../../models';
-import { UserService } from '../../../../../services';
-import { LogsWorkoutService } from '../../../services';
+import type { WorkoutSet } from '../../../../../../models';
+import { UserService } from '../../../../../../services';
+import { LogsWorkoutService } from '../../../../services';
 
-import type { LogWorkoutFormValue } from './log-workout-form.component';
-import { LogWorkoutFormComponent } from './log-workout-form.component';
-import type { ExerciseSetView, ExerciseView } from './log-workout-set-list.component';
-import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
+import { ExerciseItemComponent } from '../../../workout/components';
+import {
+  LogWorkoutFormComponent,
+  LogWorkoutSetListComponent,
+  type ExerciseSetView,
+  type ExerciseView,
+  type LogWorkoutFormValue,
+} from '../../components';
+
+const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
 
 @Component({
-  selector: 'app-log-workout-inputs',
+  selector: 'app-log-workout-data',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [LogWorkoutFormComponent, LogWorkoutSetListComponent],
+  imports: [
+    ...ION_COMPONENTS,
+    LogWorkoutFormComponent,
+    LogWorkoutSetListComponent,
+    ExerciseItemComponent,
+  ],
   styles: `
     :host {
       display: flex;
@@ -31,9 +43,21 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
       margin-top: 1rem;
       margin-bottom: 2rem;
     }
+
+    .exercise-item {
+      margin-top: 1rem;
+    }
   `,
   template: `
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
+
+    @if (noSetsForThisExercise()) {
+      <ion-item-group class="exercise-item">
+        <ion-item-divider class="exercise-item is-selected-exercise">
+          <app-exercise-item [exercise]="exercise()!" />
+        </ion-item-divider>
+      </ion-item-group>
+    }
 
     <app-log-workout-set-list
       [skeletonSets]="skeletonSets"
@@ -43,7 +67,7 @@ import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
     />
   `,
 })
-export class LogWorkoutInputsComponent {
+export class LogWorkoutDataComponent {
   readonly logsWorkoutService = inject(LogsWorkoutService);
   readonly userService = inject(UserService);
 
@@ -52,6 +76,14 @@ export class LogWorkoutInputsComponent {
   readonly itemId = input<string>();
   readonly exercise = input<string>();
   readonly logId = input<string>();
+
+  readonly noSetsForThisExercise = computed<boolean>(() => {
+    const log = this.logsWorkoutService.logWorkoutResource.value();
+    if (!log) return false;
+    const noSetForExerciseFound = !log.sets.some((l) => l.exercise === this.exercise());
+    const notAdding = !this.isAddingSet();
+    return noSetForExerciseFound && notAdding;
+  });
 
   readonly skeletonSets = [1, 2, 3];
   readonly currentTime = signal<string>(this.getCurrentTime());
