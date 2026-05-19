@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { AppService } from './services';
+import { AppService, HealthService } from './services';
 
 @Component({
   selector: 'app-root',
@@ -22,6 +22,22 @@ export class AppComponent {
 
   private appService = inject(AppService);
   private translate = inject(TranslateService);
+
+  private readonly healthService = inject(HealthService);
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible') {
+      this.healthService.pingApiIfNeeded().subscribe();
+    }
+  }
+
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    if (event.persisted) {
+      this.healthService.pingApiIfNeeded().subscribe();
+    }
+  }
 
   constructor() {
     this.appService.getVersionUpdates();

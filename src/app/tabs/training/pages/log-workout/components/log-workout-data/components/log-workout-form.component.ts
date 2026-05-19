@@ -16,8 +16,8 @@ import { IonButton, IonIcon, IonInput, IonLabel } from '@ionic/angular/standalon
 
 import { TranslateModule } from '@ngx-translate/core';
 
+import { HealthService } from '../../../../../../../services';
 import { DatetimePickerModalComponent } from '../../../dialogs';
-import { HealthService } from '../../../services';
 
 export type LogWorkoutFormValue = {
   load: number;
@@ -33,7 +33,6 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
   selector: 'app-log-workout-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, TranslateModule, ReactiveFormsModule],
-  providers: [HealthService],
   styles: `
     form {
       display: flex;

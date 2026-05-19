@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import type { Observable, Subscription } from 'rxjs';
-import { catchError, EMPTY, interval, startWith, switchMap } from 'rxjs';
+import { catchError, EMPTY, finalize, interval, startWith, switchMap } from 'rxjs';
 
-import { environment } from '../../../../../../environments/environment.prod';
+import { environment } from '../../environments/environment.prod';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class HealthService {
   private readonly http = inject(HttpClient);
   private readonly HEALTH_REFRESH_INTERVAL = 10_000;
@@ -14,8 +16,13 @@ export class HealthService {
   private stopTimeout?: ReturnType<typeof setTimeout>;
 
   private lastPingAt = 0;
+  private pingInProgress = false;
 
   pingApi = (): Observable<void> => this.http.get<void>(environment.api + 'health');
+
+  pingApiIfNeeded(): Observable<void> {
+    return this.pingIfAllowed();
+  }
 
   startPolling(): void {
     if (this.stopTimeout) {
@@ -43,8 +50,21 @@ export class HealthService {
 
   private pingIfAllowed(): Observable<void> {
     const now = Date.now();
-    if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) return EMPTY;
+
+    if (this.pingInProgress) return EMPTY;
+
+    if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) {
+      return EMPTY;
+    }
+
     this.lastPingAt = now;
-    return this.pingApi().pipe(catchError(() => EMPTY));
+    this.pingInProgress = true;
+
+    return this.pingApi().pipe(
+      catchError(() => EMPTY),
+      finalize(() => {
+        this.pingInProgress = false;
+      }),
+    );
   }
 }
