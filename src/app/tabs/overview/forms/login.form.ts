@@ -1,28 +1,19 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 
-import type { GoogleResponse } from '../../../models';
 import { AuthService } from '../../../services';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare const google: any;
+import { GoogleAuthService } from '../services';
 
 @Component({
   selector: 'app-login-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, IonicModule],
+  imports: [IonButton, IonSpinner, IonIcon],
   styles: `
     :host {
       display: flex;
       flex-direction: column;
       gap: 10px;
-    }
-
-    .login-inputs {
-      min-width: 300px;
-      margin-bottom: 20px;
     }
   `,
   template: `
@@ -34,29 +25,25 @@ declare const google: any;
       [disabled]="isLoading()"
     >
       @if (isLoading()) {
-        <ion-spinner name="dots"></ion-spinner>
+        <ion-spinner name="dots" />
       } @else {
-        <ion-icon name="logo-google" slot="start"></ion-icon>
+        <ion-icon name="logo-google" slot="start" />
         <span>Mit Google anmelden</span>
       }
     </ion-button>
   `,
 })
 export class LoginForm implements OnInit {
-  private authService = inject(AuthService);
-  isLoading = this.authService.isLoading;
+  private readonly authService = inject(AuthService);
+  private readonly googleAuthService = inject(GoogleAuthService);
+
+  readonly isLoading = this.authService.isLoading;
 
   ngOnInit(): void {
-    google.accounts.id.initialize({
-      client_id: '81384485805-o4b55e424moljjf98egavlhol819l18a.apps.googleusercontent.com',
-      callback: (res: GoogleResponse) =>
-        this.authService.putAuthWithGoogle(res.credential).subscribe({
-          error: (err) => console.error('Google login failed', err),
-        }),
-    });
+    this.googleAuthService.initialize();
   }
 
   loginWithGoogle(): void {
-    google.accounts.id.prompt();
+    this.googleAuthService.prompt();
   }
 }

@@ -16,7 +16,9 @@
       "shoulders": "Shoulders"
     },
     "actions": {
-      "save-list": "List is being saved ..."
+      "verify": {
+        "error": "Authentication failed, try to log in again"
+      }
     }
   },
   "tabs": {
@@ -32,15 +34,23 @@
             "template-label": "Template",
             "template-dropdown": {
               "empty": "Empty"
-            }
+            },
+            "process": "Training plan is being created ...",
+            "already-exists": "A training plan with this name already exists"
           },
           "edit": "Edit",
-          "delete": "Training Plan is being deleted ...",
-          "change-name": "Change name",
-          "change-name-process": "Name is being changed ..."
-        },
-        "errors": {
-          "already-exists": "A training plan with this name already exists"
+          "delete": {
+            "process": "Training Plan is being deleted ...",
+            "error": "Training Plan could not be removed"
+          },
+          "change-name": {
+            "title": "Change name",
+            "process": "Name is being changed ..."
+          },
+          "update-list": {
+            "process": "List is being saved ...",
+            "error": "List could not be saved"
+          }
         }
       },
       "workout": {
@@ -61,9 +71,19 @@
           "add-spacer": "Add Spacer",
           "add-exercise-process": "Exercise is being added ...",
           "add-spacer-process": "Spacer is being added ...",
-          "change-text": "Change Text",
-          "change-text-process": "Text is being changed ...",
-          "delete-item-process": "Item is being removed ..."
+          "change-text": {
+            "title": "Change Text",
+            "process": "Text is being changed ...",
+            "error": "Text could not be changed"
+          },
+          "update-list": {
+            "process": "List is being saved ...",
+            "error": "List could not be saved"
+          },
+          "delete-item": {
+            "process": "Item is being removed ...",
+            "error": "Item could not be removed"
+          }
         },
         "exercise": {
           "squats_dumbbell": "Squats Dumbbell",
@@ -110,6 +130,15 @@
             "name": "Reps",
             "label": "Repetitions"
           }
+        },
+        "actions": {
+          "delete-set": {
+            "process": "Set is being removed ...",
+            "error": "Set could not be removed"
+          },
+          "add-set": {
+            "error": "Set could not be added"
+          }
         }
       }
     },
@@ -120,7 +149,12 @@
     "overview": {
       "tab-label": "Overview",
       "tab-title": "Overview",
-      "hello": "Hello"
+      "hello": "Hello",
+      "actions": {
+        "google-auth": {
+          "error": "Google login failed. Please try again"
+        }
+      }
     },
     "logs": {
       "tab-label": "Logs",

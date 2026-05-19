@@ -28,6 +28,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { type ListItem, type Workout } from '../../../../../models';
+import { ToastService } from '../../../../../services';
 import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
@@ -76,7 +77,7 @@ const ION_COMPONENTS = [
                     color="medium"
                     (click)="openChangeNameModal(item.name!, item.listId)"
                   >
-                    {{ 'tabs.training.workout.actions.change-text' | translate }}
+                    {{ 'tabs.training.workout.actions.change-text.title' | translate }}
                   </ion-item-option>
                 </ion-item-options>
 
@@ -113,19 +114,20 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutListComponent {
-  workout = input.required<Workout>();
-  save = output<{ message: string; data: ListItem }>();
+  readonly workout = input.required<Workout>();
+  readonly save = output<{ message: string; data: ListItem }>();
+  readonly workoutList = viewChild.required(IonList);
 
-  private editService = inject(IsEditingService);
-  isEditing = this.editService.isEditing;
-  private workoutsService = inject(WorkoutsService);
+  private readonly modalCtrl = inject(ModalController);
+  private readonly translate = inject(TranslateService);
+  private readonly loadingCtrl = inject(LoadingController);
+  readonly alertCtrl = inject(AlertController);
+  readonly router = inject(Router);
 
-  workoutList = viewChild.required(IonList);
-  modalCtrl = inject(ModalController);
-  loadingCtrl = inject(LoadingController);
-  alertCtrl = inject(AlertController);
-  translate = inject(TranslateService);
-  router = inject(Router);
+  private readonly workoutsService = inject(WorkoutsService);
+  private readonly toastService = inject(ToastService);
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;
@@ -146,7 +148,7 @@ export class WorkoutListComponent {
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
-          title: this.translate.instant('tabs.training.workout.actions.change-text'),
+          title: this.translate.instant('tabs.training.workout.actions.change-text.title'),
           label: 'Text',
           placeholder: 'Text',
           value: item,
@@ -158,7 +160,7 @@ export class WorkoutListComponent {
       if (!data || data === item) return;
 
       this.save.emit({
-        message: 'tabs.training.workout.actions.change-text-process',
+        message: 'tabs.training.workout.actions.change-text.process',
         data: { ...this.workout().list.find((w) => w.listId === listId)!, name: data },
       });
     } catch (error) {
@@ -170,10 +172,9 @@ export class WorkoutListComponent {
     await this.workoutList().closeSlidingItems();
 
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workout.actions.delete-item-process'),
+      message: this.translate.instant('tabs.training.workout.actions.delete-item.process'),
       spinner: 'circles',
     });
-
     await loading.present();
 
     const workout = this.workout();
@@ -188,12 +189,12 @@ export class WorkoutListComponent {
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: async (res) => {
         this.editService.editedList.set(res.list);
-
         await loading.dismiss();
       },
       error: async (err) => {
-        await loading.dismiss();
         console.error('Unexpected fail during delete workout item', err);
+        await loading.dismiss();
+        await this.toastService.show('tabs.training.workout.actions.delete-item.error');
       },
     });
   }

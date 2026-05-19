@@ -26,13 +26,12 @@ import {
 import type { RefresherCustomEvent } from '@ionic/core';
 import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout } from 'rxjs';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
-import { UserService } from '../../../../services';
+import { ToastService, UserService } from '../../../../services';
 
 import { IsEditingService, WorkoutsService } from '../../services';
-
 import { WorkoutsComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
 
@@ -130,19 +129,21 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutsPage {
-  private injector = inject(Injector);
-  private loadingCtrl = inject(LoadingController);
+  private readonly injector = inject(Injector);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly toastService = inject(ToastService);
+  private readonly translate = inject(TranslateService);
 
-  private userService = inject(UserService);
-  private workoutsService = inject(WorkoutsService);
+  private readonly userService = inject(UserService);
+  private readonly workoutsService = inject(WorkoutsService);
 
-  private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
-  isMoreMenuOpen = signal<boolean>(false);
+  private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
+  readonly isMoreMenuOpen = signal<boolean>(false);
 
-  private editService = inject(IsEditingService);
-  isEditing = this.editService.isEditing;
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
 
-  private addWorkoutDialog = viewChild.required(AddWorkoutDialog);
+  private readonly addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
   handleRefresh(event: RefresherCustomEvent): void {
     const res = this.workoutsService.workoutsResource;
@@ -197,7 +198,7 @@ export class WorkoutsPage {
 
   async saveEdit(): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: 'Sortierung wird gespeichert ...',
+      message: this.translate.instant('tabs.training.workouts.actions.update-list.process'),
       spinner: 'circles',
     });
     await loading.present();
@@ -208,14 +209,15 @@ export class WorkoutsPage {
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
       next: () => {
         this.isEditing.set(false);
-        void loading.dismiss();
         this.editService.editedWorkouts.set(null);
+        void loading.dismiss();
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
-        void loading.dismiss();
         this.editService.editedWorkouts.set(null);
+        void loading.dismiss();
+        await this.toastService.show('tabs.training.workouts.actions.update-list.error');
       },
     });
   }

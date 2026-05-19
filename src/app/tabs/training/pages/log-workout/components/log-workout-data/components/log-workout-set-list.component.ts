@@ -25,6 +25,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { WorkoutSet } from '../../../../../../../models';
+import { ToastService } from '../../../../../../../services';
 import { IsEditingService, LogsWorkoutService } from '../../../../../services';
 import { ExerciseItemComponent } from '../../../../workout/components';
 
@@ -238,11 +239,12 @@ export class LogWorkoutSetListComponent {
   readonly loadingCtrl = inject(LoadingController);
   readonly translate = inject(TranslateService);
   readonly route = inject(ActivatedRoute);
-  readonly logsWorkoutService = inject(LogsWorkoutService);
   readonly location = inject(Location);
 
+  private readonly toastService = inject(ToastService);
   private readonly editService = inject(IsEditingService);
   readonly isEditing = this.editService.isEditing;
+  readonly logsWorkoutService = inject(LogsWorkoutService);
 
   readonly isLoading = computed(() => {
     return this.logsWorkoutService.logWorkoutResource.isLoading();
@@ -257,7 +259,7 @@ export class LogWorkoutSetListComponent {
     await this.setList()?.closeSlidingItems();
 
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.actions.delete'),
+      message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),
       spinner: 'circles',
     });
     await loading.present();
@@ -266,14 +268,14 @@ export class LogWorkoutSetListComponent {
     this.logsWorkoutService.deleteSet(logId, itemId, item.set).subscribe({
       next: async (response) => {
         await loading.dismiss();
-
         if (response === null) {
           this.isEditing.set(false);
         }
       },
       error: async (err) => {
-        await loading.dismiss();
         console.error('Unexpected fail during delete log-workout.set', err);
+        await loading.dismiss();
+        await this.toastService.show('tabs.training.log-workout.actions.delete-set.error');
       },
     });
   }

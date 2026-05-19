@@ -16,7 +16,9 @@
       "shoulders": "Schultern"
     },
     "actions": {
-      "save-list": "Liste wird gespeichert ..."
+      "verify": {
+        "error": "Authentifizierung fehlgeschlagen, versuche dich wieder anzumelden"
+      }
     }
   },
   "tabs": {
@@ -32,15 +34,23 @@
             "template-label": "Vorlage",
             "template-dropdown": {
               "empty": "Leer"
-            }
+            },
+            "process": "Trainingsplan wird erstellt ...",
+            "already-exists": "Es existiert bereits ein Trainingsplan mit diesem Namen"
           },
           "edit": "Bearbeiten",
-          "delete": "Trainingsplan wird gelöscht ...",
-          "change-name": "Name ändern",
-          "change-name-process": "Name wird geändert ..."
-        },
-        "errors": {
-          "already-exists": "Es existiert bereits ein Trainingsplan mit diesem Namen"
+          "delete": {
+            "process": "Trainingsplan wird entfernt ...",
+            "error": "Trainingsplan konnte nicht entfernt werden"
+          },
+          "change-name": {
+            "title": "Name ändern",
+            "process": "Name wird geändert ..."
+          },
+          "update-list": {
+            "process": "Liste wird gespeichert ...",
+            "error": "Liste konnte nicht gespeichert werden"
+          }
         }
       },
       "workout": {
@@ -61,9 +71,19 @@
           "add-spacer": "Platzhalter hinzufügen",
           "add-exercise-process": "Übung wird hinzugefügt ...",
           "add-spacer-process": "Platzhalter wird hinzugefügt ...",
-          "change-text": "Text ändern",
-          "change-text-process": "Text wird geändert ...",
-          "delete-item-process": "Element wird entfernt ..."
+          "change-text": {
+            "title": "Text ändern",
+            "process": "Text wird geändert ...",
+            "error": "Text konnte nicht geändert werden"
+          },
+          "update-list": {
+            "process": "Liste wird gespeichert ...",
+            "error": "Liste konnte nicht gespeichert werden"
+          },
+          "delete-item": {
+            "process": "Element wird entfernt ...",
+            "error": "Element konnte nicht entfernt werden"
+          }
         },
         "exercise": {
           "squats_dumbbell": "Kniebeugen Kurzhantel",
@@ -110,6 +130,15 @@
             "name": "Wiederholungen",
             "label": "Wdh."
           }
+        },
+        "actions": {
+          "delete-set": {
+            "process": "Satz wird entfernt ...",
+            "error": "Satz konnte nicht entfernt werden"
+          },
+          "add-set": {
+            "error": "Satz konnte nicht hinzugefügt werden"
+          }
         }
       }
     },
@@ -120,7 +149,12 @@
     "overview": {
       "tab-label": "Überblick",
       "tab-title": "Überblick",
-      "hello": "Hallo"
+      "hello": "Hallo",
+      "actions": {
+        "google-auth": {
+          "error": "Google Login fehlgeschlagen, versuche es erneut"
+        }
+      }
     },
     "logs": {
       "tab-label": "Logs",

@@ -36,13 +36,12 @@ import {
   WORKOUT_LIST_ITEM_SPACER,
   type WorkoutDoc,
 } from '../../../../models';
+import { ToastService } from '../../../../services';
 import { TextInputDialog } from '../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
-
-const ANGULAR_MODULES = [FormsModule];
 
 const ION_COMPONENTS = [
   IonBackButton,
@@ -66,8 +65,8 @@ const ION_COMPONENTS = [
   selector: 'app-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ...ANGULAR_MODULES,
     ...ION_COMPONENTS,
+    FormsModule,
     TranslateModule,
     ContentContainerComponent,
     WorkoutListComponent,
@@ -116,7 +115,9 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEdit({ message: 'general.actions.save-list' })">
+            <ion-button
+              (click)="saveEdit({ message: 'tabs.training.workout.actions.update-list' })"
+            >
               {{ 'general.save' | translate }}
             </ion-button>
           } @else {
@@ -196,18 +197,19 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutPage {
-  private loadingCtrl = inject(LoadingController);
-  private modalCtrl = inject(ModalController);
-  private translate = inject(TranslateService);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly modalCtrl = inject(ModalController);
+  private readonly translate = inject(TranslateService);
 
-  private editService = inject(IsEditingService);
-  isEditing = this.editService.isEditing;
-
-  private workoutsService = inject(WorkoutsService);
-  private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
+  private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   private readonly workoutListComp = viewChild.required(WorkoutListComponent);
 
-  isMoreMenuOpen = signal<boolean>(false);
+  private readonly workoutsService = inject(WorkoutsService);
+  private readonly toastService = inject(ToastService);
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
+
+  readonly isMoreMenuOpen = signal<boolean>(false);
 
   readonly skeletonItems = [
     { type: 'HEADER', width: '65%' },
@@ -248,7 +250,7 @@ export class WorkoutPage {
     };
   });
 
-  titleTrimmed = computed<string>(() => {
+  readonly titleTrimmed = computed<string>(() => {
     const MAX = 20;
     if (this.isLoading()) return '';
 
@@ -303,11 +305,15 @@ export class WorkoutPage {
         this.editService.editedList.set(null);
         void loading.dismiss();
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
         this.editService.editedList.set(null);
         void loading.dismiss();
+        const message = data
+          ? 'tabs.training.workout.actions.update-text.error'
+          : 'tabs.training.workout.actions.update-list.error';
+        await this.toastService.show(message);
       },
     });
   }
@@ -399,10 +405,11 @@ export class WorkoutPage {
         this.isEditing.set(false);
         void loading.dismiss();
       },
-      error: (err) => {
+      error: async (err) => {
+        console.error('Unexpected fail during update user.workoutIds', err);
         this.isEditing.set(false);
         void loading.dismiss();
-        console.error('Unexpected fail during update user.workoutIds', err);
+        await this.toastService.show('tabs.training.workout.actions.update-list.error');
       },
     });
     this.isMoreMenuOpen.set(false);

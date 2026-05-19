@@ -4,32 +4,35 @@ import { SwUpdate } from '@angular/service-worker';
 import { AlertController } from '@ionic/angular';
 
 import { AuthService } from './auth/auth.service';
+import { ToastService } from './toast.service';
+
+const ALERT_OPTIONS = {
+  header: 'Update verfügbar',
+  message: 'Eine neue Version der App ist verfügbar',
+  buttons: [
+    {
+      text: 'Später',
+      role: 'cancel',
+    },
+    {
+      text: 'Neu laden',
+      handler: (): void => document.location.reload(),
+    },
+  ],
+};
 
 @Injectable()
 export class AppService {
-  private swUpdate = inject(SwUpdate);
-  private alertCtrl = inject(AlertController);
-  private authService = inject(AuthService);
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly alertCtrl = inject(AlertController);
 
-  private ALERT_OPTIONS = {
-    header: 'Update verfügbar',
-    message: 'Eine neue Version der App ist verfügbar',
-    buttons: [
-      {
-        text: 'Später',
-        role: 'cancel',
-      },
-      {
-        text: 'Neu laden',
-        handler: (): void => document.location.reload(),
-      },
-    ],
-  };
+  private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   getVersionUpdates(): void {
     this.swUpdate.versionUpdates.subscribe(async (event: VersionEvent) => {
       if (event.type === 'VERSION_READY') {
-        const alert = await this.alertCtrl.create(this.ALERT_OPTIONS);
+        const alert = await this.alertCtrl.create(ALERT_OPTIONS);
         await alert.present();
       }
     });
@@ -40,7 +43,10 @@ export class AppService {
     if (!token) return;
 
     this.authService.getVerify(token).subscribe({
-      error: () => console.error('Verify authToken failed'),
+      error: async (error) => {
+        console.error('Verify authToken failed', error);
+        await this.toastService.show('general.actions.verify.error');
+      },
     });
   }
 

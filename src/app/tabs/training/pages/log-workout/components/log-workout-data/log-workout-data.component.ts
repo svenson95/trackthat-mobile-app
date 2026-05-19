@@ -10,7 +10,7 @@ import {
 import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../models';
-import { UserService } from '../../../../../../services';
+import { ToastService, UserService } from '../../../../../../services';
 import { LogsWorkoutService } from '../../../../services';
 
 import { ExerciseItemComponent } from '../../../workout/components';
@@ -67,8 +67,9 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
   `,
 })
 export class LogWorkoutDataComponent {
-  readonly logsWorkoutService = inject(LogsWorkoutService);
-  readonly userService = inject(UserService);
+  private readonly logsWorkoutService = inject(LogsWorkoutService);
+  private readonly userService = inject(UserService);
+  private readonly toastService = inject(ToastService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
@@ -85,7 +86,6 @@ export class LogWorkoutDataComponent {
   });
 
   readonly skeletonSets = [1, 2, 3];
-  readonly currentTime = signal<string>(this.getCurrentTime());
   readonly pendingSet = signal<{
     id: string;
     exercise: string;
@@ -95,7 +95,6 @@ export class LogWorkoutDataComponent {
 
   readonly exercises = computed<ExerciseView[]>(() => {
     const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
-
     const exercises = this.groupSetsByExercise(sets).map<ExerciseView>(({ name, sets }) => ({
       name,
       sets: sets.map((set) => ({ type: 'set', set })),
@@ -112,13 +111,11 @@ export class LogWorkoutDataComponent {
     };
 
     const targetExercise = exercises.find(({ name }) => name === pendingSet.exercise);
-
     if (!targetExercise) {
       return [{ name: pendingSet.exercise, sets: [skeletonSet] }, ...exercises];
     }
 
     targetExercise.sets.push(skeletonSet);
-
     return exercises.sort((a, b) => this.getNewestExerciseTime(b) - this.getNewestExerciseTime(a));
   });
 
@@ -159,13 +156,13 @@ export class LogWorkoutDataComponent {
 
     requestAnimationFrame(() => {
       this.logsWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
-        next: (workout) => {
+        next: () => {
           this.pendingSet.set(null);
-          this.logsWorkoutService.logWorkoutResource.set(workout);
         },
-        error: (error) => {
+        error: async (error) => {
           this.pendingSet.set(null);
           console.error('Could not add workout set', error);
+          await this.toastService.show('tabs.training.log-workout.actions.add-set.error');
         },
       });
     });

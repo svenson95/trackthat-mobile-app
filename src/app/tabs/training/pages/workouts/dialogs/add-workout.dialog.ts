@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -19,7 +19,8 @@ import type { OverlayEventDetail } from '@ionic/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { WorkoutDoc } from '../../../../../models';
+import type { Workout, WorkoutDoc } from '../../../../../models';
+import { ToastService } from '../../../../../services';
 import { WORKOUT_TEMPLATES } from '../../../../../shared';
 import { WorkoutsService } from '../../../services';
 
@@ -47,18 +48,26 @@ const ION_COMPONENTS = [
     }
   `,
   template: `
-    <ion-modal (willDismiss)="onAddWorkoutSubmit($event)" #newWorkoutModal>
+    <ion-modal (willDismiss)="onModalDismiss($event)" #newWorkoutModal>
       <ng-template>
         <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <ion-button (click)="cancel()">{{ 'general.abort' | translate }}</ion-button>
+              <ion-button (click)="cancel()">
+                {{ 'general.abort' | translate }}
+              </ion-button>
             </ion-buttons>
+
             <ion-title>
               {{ 'tabs.training.workouts.actions.add-workout.title' | translate }}
             </ion-title>
+
             <ion-buttons slot="end">
-              <ion-button (click)="confirm()" [strong]="true" [disabled]="isLoading()">
+              <ion-button
+                (click)="confirm()"
+                [strong]="true"
+                [disabled]="isLoading() || !hasValidName()"
+              >
                 {{ 'general.save' | translate }}
               </ion-button>
             </ion-buttons>
@@ -80,20 +89,21 @@ const ION_COMPONENTS = [
               autocomplete="off"
               autocorrect="off"
               spellcheck="false"
-            ></ion-input>
+            />
           </ion-item>
 
           <ion-item>
             <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
-              <ion-select-option [value]="-1">
+              <ion-select-option [value]="EMPTY_TEMPLATE_ID">
                 {{
                   'tabs.training.workouts.actions.add-workout.template-dropdown.empty' | translate
                 }}
               </ion-select-option>
+
               @for (template of templates; track template.workoutId) {
-                <ion-select-option [value]="template.workoutId">{{
-                  template.name
-                }}</ion-select-option>
+                <ion-select-option [value]="template.workoutId">
+                  {{ template.name }}
+                </ion-select-option>
               }
             </ion-select>
           </ion-item>
@@ -103,81 +113,79 @@ const ION_COMPONENTS = [
   `,
 })
 export class AddWorkoutDialog {
-  private loadingCtrl = inject(LoadingController);
-  private router = inject(Router);
-  private toastCtrl = inject(ToastController);
-  private translate = inject(TranslateService);
-  modal = viewChild.required(IonModal);
+  private readonly router = inject(Router);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly translate = inject(TranslateService);
 
-  private workoutService = inject(WorkoutsService);
+  readonly modal = viewChild.required(IonModal);
+
+  private readonly workoutsService = inject(WorkoutsService);
+  private readonly toastService = inject(ToastService);
+
+  readonly templates = WORKOUT_TEMPLATES;
+  readonly EMPTY_TEMPLATE_ID = -1;
+  readonly isLoading = signal<boolean>(false);
+
+  readonly templateId = this.EMPTY_TEMPLATE_ID;
 
   name = '';
-  templateId = -1;
-  templates = WORKOUT_TEMPLATES;
 
-  // TODO: add validation: not same name as other workouts, only specific letters and numbers
-  isLoading = signal(false);
-
-  cancel(): void {
-    void this.modal().dismiss(null, 'cancel');
+  async cancel(): Promise<void> {
+    await this.modal().dismiss(null, 'cancel');
   }
 
   async confirm(): Promise<void> {
-    if (this.name === '' || !this.name) return;
-
-    const template = this.templates.find((t) => t.workoutId === this.templateId);
-    const list = template ? template.list : [];
-    const workoutData = this.workoutService.initWorkout(this.name, list);
+    if (!this.hasValidName()) {
+      return;
+    }
 
     const loading = await this.loadingCtrl.create({
-      // TODO: add translation german/english
-      message: 'Trainingsplan wird erstellt ...',
+      message: this.translate.instant('tabs.training.workouts.add-workout.process'),
       spinner: 'circles',
     });
     this.isLoading.set(true);
-    void loading.present();
+    await loading.present();
 
-    this.workoutService.addWorkout(workoutData).subscribe({
-      next: (response) => {
+    this.workoutsService.addWorkout(this.createWorkout()).subscribe({
+      next: async (workout) => {
+        await loading.dismiss();
         this.isLoading.set(false);
-        void loading.dismiss();
-        void this.modal().dismiss(response, 'confirm');
+
+        await this.modal().dismiss(workout, 'confirm');
       },
-      error: async (error) => {
+      error: async (error: unknown) => {
         console.error('Error saving workout:', error);
+        await loading.dismiss();
         this.isLoading.set(false);
-        void loading.dismiss();
 
-        if (error.status === 409) {
-          await this.toastCtrl
-            .create({
-              message: this.translate.instant('tabs.training.workouts.errors.already-exists'),
-              duration: 2500,
-              color: 'warning',
-              position: 'bottom',
-            })
-            .then((toast) => toast.present());
-
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'status' in error &&
+          error.status === 409
+        ) {
+          await this.toastService.show('tabs.training.workouts.add-workout.already-exists');
           return;
         }
 
-        await this.toastCtrl
-          .create({
-            message: this.translate.instant('general.unknown-error'),
-            duration: 2500,
-            color: 'warning',
-            position: 'bottom',
-          })
-          .then((toast) => toast.present());
+        await this.toastService.show('general.unknown-error');
       },
     });
   }
 
-  onAddWorkoutSubmit(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
-    const { data } = event.detail;
-    if (!data) return;
+  onModalDismiss(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
+    const workout = event.detail.data;
+    if (!workout) return;
+    void this.router.navigate(['tabs', 'training', workout.workoutId]);
+  }
 
-    const workoutId = data.workoutId;
-    void this.router.navigate(['tabs', 'training', workoutId]);
+  hasValidName(): boolean {
+    return this.name.trim().length > 0;
+  }
+
+  private createWorkout(): Workout {
+    const template = this.templates.find(({ workoutId }) => workoutId === this.templateId);
+    const list = template?.list ?? [];
+    return this.workoutsService.initWorkout(this.name.trim(), list);
   }
 }

@@ -16,6 +16,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { PostWorkoutBody } from '../../../../../models';
+import { ToastService } from '../../../../../services';
 import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
@@ -63,7 +64,7 @@ const ION_COMPONENTS = [
               <ion-item-sliding [disabled]="!isEditing()">
                 <ion-item-options side="start">
                   <ion-item-option color="medium" (click)="openChangeNameModal(workout)">
-                    {{ 'tabs.training.workouts.actions.change-name' | translate }}
+                    {{ 'tabs.training.workouts.actions.change-name.title' | translate }}
                   </ion-item-option>
                 </ion-item-options>
 
@@ -91,19 +92,21 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutsComponent {
-  private loadingCtrl = inject(LoadingController);
-  private service = inject(WorkoutsService);
-  private translate = inject(TranslateService);
-  private modalCtrl = inject(ModalController);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly modalCtrl = inject(ModalController);
+  private readonly translate = inject(TranslateService);
 
-  workoutsList = viewChild.required(IonList);
-  sortedWorkouts = this.service.sortedWorkouts;
+  readonly workoutsList = viewChild.required(IonList);
 
-  private editService = inject(IsEditingService);
-  isEditing = this.editService.isEditing;
+  private readonly toastService = inject(ToastService);
+  private readonly workoutsService = inject(WorkoutsService);
+  readonly sortedWorkouts = this.workoutsService.sortedWorkouts;
 
-  isLoading = computed(() => this.service.workoutsResource.status() === 'loading');
-  hasError = computed(() => this.service.workoutsResource.status() === 'error');
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
+
+  readonly isLoading = computed(() => this.workoutsService.workoutsResource.status() === 'loading');
+  readonly hasError = computed(() => this.workoutsService.workoutsResource.status() === 'error');
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;
@@ -128,7 +131,7 @@ export class WorkoutsComponent {
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
-          title: this.translate.instant('tabs.training.workouts.actions.change-name'),
+          title: this.translate.instant('tabs.training.workouts.actions.change-name.title'),
           label: 'Name',
           placeholder: 'Name',
           value: workout.name,
@@ -140,12 +143,12 @@ export class WorkoutsComponent {
       if (!data || data === workout.name) return;
 
       const loading = await this.loadingCtrl.create({
-        message: this.translate.instant('tabs.training.workouts.actions.change-name-process'),
+        message: this.translate.instant('tabs.training.workouts.actions.change-name.process'),
         spinner: 'circles',
       });
       await loading.present();
 
-      this.service
+      this.workoutsService
         .changeWorkoutName({
           ...workout,
           name: data,
@@ -153,8 +156,9 @@ export class WorkoutsComponent {
         .subscribe({
           next: async () => await loading.dismiss(),
           error: async (err) => {
-            await loading.dismiss();
             console.error('Unexpected fail during change name user.workoutId', err);
+            await loading.dismiss();
+            await this.toastService.show('tabs.training.workouts.actions.change-name.error');
           },
         });
     } catch (error) {
@@ -165,18 +169,19 @@ export class WorkoutsComponent {
   async deleteWorkout(id: string): Promise<void> {
     await this.workoutsList().closeSlidingItems();
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.actions.delete'),
+      message: this.translate.instant('tabs.training.workouts.actions.delete.process'),
       spinner: 'circles',
     });
     await loading.present();
 
-    this.service.deleteWorkout(id).subscribe({
+    this.workoutsService.deleteWorkout(id).subscribe({
       next: async () => {
         await loading.dismiss();
       },
       error: async (err) => {
-        await loading.dismiss();
         console.error('Unexpected fail during delete user.workoutId', err);
+        await loading.dismiss();
+        await this.toastService.show('tabs.training.workouts.actions.delete.error');
       },
     });
   }
