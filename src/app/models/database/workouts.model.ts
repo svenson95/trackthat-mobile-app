@@ -1,4 +1,4 @@
-import type { UnixTimestring } from '../date-helper.model';
+import type { UnixTimestampMilli } from '../date-helper.model';
 import type { UserId } from './users.model';
 
 export type WorkoutId = string; // mongodb doc id
@@ -8,7 +8,7 @@ export interface Workout {
   userId: UserId;
   workoutId: number;
   listId: WorkoutListId;
-  lastUpdated: UnixTimestring;
+  lastUpdated: UnixTimestampMilli;
   name: string;
   list: WorkoutList;
 }

@@ -6,7 +6,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
     workoutId: 5,
     listId: 0,
     name: '5er Split',
-    lastUpdated: 815350254,
+    lastUpdated: 1779012554195,
     list: [
       {
         type: 'HEADER',
@@ -203,7 +203,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
     workoutId: 4,
     listId: 1,
     name: '4er Split',
-    lastUpdated: 1756804801,
+    lastUpdated: 1779284093328,
     list: [
       {
         type: 'HEADER',
@@ -380,7 +380,7 @@ export const WORKOUT_TEMPLATES: Array<Workout> = [
     workoutId: 2,
     listId: 2,
     name: '2er Split',
-    lastUpdated: 1756804801,
+    lastUpdated: 1779043587201,
     list: [
       {
         type: 'HEADER',

@@ -1,1 +1,2 @@
-export type UnixTimestring = number;
+export type UnixTimestamp = number;
+export type UnixTimestampMilli = number;
