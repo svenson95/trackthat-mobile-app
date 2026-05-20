@@ -132,6 +132,7 @@
           }
         },
         "actions": {
+          "get-error": "Training log could not be loaded",
           "delete-set": {
             "process": "Set is being removed ...",
             "error": "Set could not be removed"

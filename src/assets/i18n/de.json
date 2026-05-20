@@ -132,6 +132,7 @@
           }
         },
         "actions": {
+          "get-error": "Trainings-Log konnte nicht geladen werden",
           "delete-set": {
             "process": "Satz wird entfernt ...",
             "error": "Satz konnte nicht entfernt werden"
