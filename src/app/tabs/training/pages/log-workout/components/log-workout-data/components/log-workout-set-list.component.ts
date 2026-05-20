@@ -176,10 +176,11 @@ const ION_COMPONENTS = [
             @for (
               item of exerciseGroup.sets;
               track item.type === 'set' ? item.set.itemId : item.id;
-              let idx = $index
+              let idx = $index;
+              let isLast = $last
             ) {
               @if (item.type === 'skeleton') {
-                <ion-item class="log-set skeleton-log-set" lines="none">
+                <ion-item class="log-set skeleton-log-set" [lines]="isLast ? 'none' : 'inset'">
                   <ion-label>
                     <ion-skeleton-text animated class="set-index-skeleton" />
                     <ion-skeleton-text animated class="set-value-skeleton" />
@@ -191,7 +192,7 @@ const ION_COMPONENTS = [
                 <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                   <ion-item
                     class="log-set ion-activatable"
-                    lines="none"
+                    [lines]="isLast ? 'none' : 'inset'"
                     (click)="setSelected.emit(item.set)"
                   >
                     <ion-label>
