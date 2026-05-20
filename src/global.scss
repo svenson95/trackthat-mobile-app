@@ -120,7 +120,7 @@ ion-item-group.exercise-item {
   ion-item-divider.exercise-item {
     min-height: 50px;
     margin-top: 1rem;
-    margin-bottom: 0.25rem;
+    --padding-bottom: 0.25rem;
     --padding-start: 12px;
     background-color: transparent;
 
@@ -149,4 +149,13 @@ ion-modal.datetime-modal {
 ion-modal.datetime-modal::part(content) {
   overflow: hidden;
   height: auto;
+}
+
+.item.sc-ion-label-md-h,
+.item .sc-ion-label-md-h {
+  color: black;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
