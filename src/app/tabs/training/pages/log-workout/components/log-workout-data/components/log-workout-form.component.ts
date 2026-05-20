@@ -146,6 +146,11 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     ion-datetime {
       --background: var(--ion-background-color);
     }
+
+    ion-input.custom-input.hydrated {
+      --highlight-color: var(--ion-color-primary);
+      --background: var(--ion-background-color);
+    }
   `,
   template: `
     <form [formGroup]="form">

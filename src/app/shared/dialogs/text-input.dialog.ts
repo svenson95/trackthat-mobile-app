@@ -31,6 +31,21 @@ const ION_COMPONENTS = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule],
+  styles: `
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    ion-content {
+      --padding-start: 1rem;
+      --padding-end: 1rem;
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+    }
+  `,
   template: `
     <ion-header>
       <ion-toolbar>
@@ -46,7 +61,7 @@ const ION_COMPONENTS = [
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <ion-item>
+      <ion-item lines="none">
         <ion-input
           class="custom-input"
           type="text"
@@ -62,16 +77,6 @@ const ION_COMPONENTS = [
       </ion-item>
     </ion-content>
   `,
-  styles: [
-    `
-      .actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 24px;
-      }
-    `,
-  ],
 })
 export class TextInputDialog implements OnInit {
   @Input() title = '';

@@ -46,6 +46,13 @@ const ION_COMPONENTS = [
     h4 {
       margin-left: 1rem;
     }
+
+    ion-content {
+      --padding-start: 1rem;
+      --padding-end: 1rem;
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+    }
   `,
   template: `
     <ion-modal (willDismiss)="onModalDismiss($event)" #newWorkoutModal>
@@ -92,7 +99,7 @@ const ION_COMPONENTS = [
             />
           </ion-item>
 
-          <ion-item>
+          <ion-item lines="none">
             <ion-select label="Vorlage" interface="popover" [(ngModel)]="templateId">
               <ion-select-option [value]="EMPTY_TEMPLATE_ID">
                 {{
