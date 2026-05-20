@@ -17,8 +17,24 @@ import { GoogleAuthService } from '../services';
     }
 
     #google-button {
-      margin-top: 1rem;
-      margin: auto;
+      margin: 1rem auto 0;
+
+      ::ng-deep [id^='gsi_'][id$='-wrapper'] iframe {
+        margin: 0;
+
+        html {
+          background: white;
+
+          @media (prefers-color-scheme: dark) {
+            background: #1c1c1d;
+          }
+
+          body .container-div {
+            padding: 0;
+            width: 100%;
+          }
+        }
+      }
     }
   `,
   template: `
