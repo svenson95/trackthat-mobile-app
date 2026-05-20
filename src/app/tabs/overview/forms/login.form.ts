@@ -18,23 +18,6 @@ import { GoogleAuthService } from '../services';
 
     #google-button {
       margin: 1rem auto 0;
-
-      ::ng-deep [id^='gsi_'][id$='-wrapper'] iframe {
-        margin: 0;
-
-        html {
-          background: white;
-
-          @media (prefers-color-scheme: dark) {
-            background: #1c1c1d;
-          }
-
-          body .container-div {
-            padding: 0;
-            width: 100%;
-          }
-        }
-      }
     }
   `,
   template: `
@@ -62,6 +45,7 @@ export class LoginForm implements AfterViewInit {
     try {
       await this.googleAuthService.initialize();
       this.isGoogleReady.set(true);
+      this.waitForGoogleIframeAndStyle();
     } catch (error) {
       console.error('Google Auth konnte nicht initialisiert werden:', error);
       this.isGoogleReady.set(false);
@@ -74,5 +58,55 @@ export class LoginForm implements AfterViewInit {
     if (!this.isGoogleReady()) return;
 
     this.googleAuthService.prompt();
+  }
+
+  private waitForGoogleIframeAndStyle(): void {
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const intervalId = window.setInterval(() => {
+      attempts++;
+
+      const iframe = document.querySelector<HTMLIFrameElement>('#google-button iframe');
+
+      if (iframe) {
+        window.clearInterval(intervalId);
+        this.styleGoogleButtonIframe();
+      }
+
+      if (attempts >= maxAttempts) {
+        window.clearInterval(intervalId);
+      }
+    }, 100);
+  }
+
+  private styleGoogleButtonIframe(): void {
+    const iframe = document.querySelector<HTMLIFrameElement>('#google-button iframe');
+    if (!iframe) return;
+
+    iframe.style.margin = '0';
+
+    try {
+      const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDocument) return;
+
+      const applyStyles = (): void => {
+        const html = iframeDocument.documentElement;
+        const container = iframeDocument.querySelector<HTMLElement>('body .container-div');
+
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        html.style.background = isDark ? '#1c1c1d' : 'white';
+
+        if (container) {
+          container.style.padding = '0';
+          container.style.width = '100%';
+        }
+      };
+
+      applyStyles();
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyStyles);
+    } catch (error) {
+      console.warn('Iframe styling nicht möglich, vermutlich wegen Cross-Origin iframe.', error);
+    }
   }
 }
