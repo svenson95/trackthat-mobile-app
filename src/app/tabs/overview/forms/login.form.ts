@@ -1,6 +1,6 @@
-import type { OnInit } from '@angular/core';
+import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
+import { IonSpinner } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../services';
 import { GoogleAuthService } from '../services';
@@ -8,7 +8,7 @@ import { GoogleAuthService } from '../services';
 @Component({
   selector: 'app-login-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonButton, IonSpinner, IonIcon],
+  imports: [IonSpinner],
   styles: `
     :host {
       display: flex;
@@ -17,23 +17,18 @@ import { GoogleAuthService } from '../services';
     }
   `,
   template: `
-    <ion-button
-      data-test="google-login-btn"
-      expand="block"
-      color="danger"
-      (click)="loginWithGoogle()"
-      [disabled]="isLoading() || !isGoogleReady()"
-    >
-      @if (isLoading() || isGoogleInitializing()) {
-        <ion-spinner name="dots" />
-      } @else {
-        <ion-icon name="logo-google" slot="start" />
-        <span>Mit Google anmelden</span>
-      }
-    </ion-button>
+    <div id="google-button"></div>
+
+    @if (isGoogleInitializing()) {
+      <ion-spinner></ion-spinner>
+    }
+
+    @if (!isGoogleInitializing() && !isGoogleReady()) {
+      <p>Google Login konnte nicht geladen werden</p>
+    }
   `,
 })
-export class LoginForm implements OnInit {
+export class LoginForm implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly googleAuthService = inject(GoogleAuthService);
 
@@ -42,7 +37,7 @@ export class LoginForm implements OnInit {
   readonly isGoogleReady = signal(false);
   readonly isGoogleInitializing = signal(true);
 
-  async ngOnInit(): Promise<void> {
+  async ngAfterViewInit(): Promise<void> {
     try {
       await this.googleAuthService.initialize();
       this.isGoogleReady.set(true);

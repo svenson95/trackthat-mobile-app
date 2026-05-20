@@ -8,6 +8,18 @@ interface GoogleIdentityService {
     id: {
       initialize(config: { client_id: string; callback: (response: GoogleResponse) => void }): void;
       prompt(): void;
+      renderButton(
+        parent: HTMLElement,
+        options: {
+          type?: 'standard' | 'icon';
+          theme?: 'outline' | 'filled_blue' | 'filled_black';
+          size?: 'large' | 'medium' | 'small';
+          text?: 'signin_with' | 'signup_with' | 'continue_with' | 'signin';
+          shape?: 'rectangular' | 'pill' | 'circle' | 'square';
+          logo_alignment?: 'left' | 'center';
+          width?: string | number;
+        },
+      ): void;
     };
   };
 }
@@ -32,9 +44,22 @@ export class GoogleAuthService {
   async initialize(): Promise<void> {
     await this.waitForGoogle();
 
+    const button = document.getElementById('google-button');
+
+    if (!button) {
+      throw new Error('Google button container not found');
+    }
+
     google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
-      callback: ({ credential }) => this.authenticate(credential),
+      callback: (response) => this.authenticate(response.credential),
+    });
+
+    google.accounts.id.renderButton(button, {
+      theme: 'filled_blue',
+      size: 'large',
+      type: 'standard',
+      text: 'signup_with',
     });
   }
 
@@ -63,8 +88,8 @@ export class GoogleAuthService {
         return;
       }
 
-      const maxAttempts = 50;
       let attempts = 0;
+      const maxAttempts = 50;
 
       const interval = setInterval(() => {
         attempts++;
@@ -72,6 +97,7 @@ export class GoogleAuthService {
         if (window.google?.accounts?.id) {
           clearInterval(interval);
           resolve();
+          return;
         }
 
         if (attempts >= maxAttempts) {
