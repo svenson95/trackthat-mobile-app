@@ -1,63 +1,61 @@
 import { HttpClient } from '@angular/common/http';
+import type { OnDestroy } from '@angular/core';
 import { inject, Injectable } from '@angular/core';
-import type { Observable, Subscription } from 'rxjs';
-import { catchError, EMPTY, finalize, interval, startWith, switchMap } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { catchError, EMPTY, finalize, tap } from 'rxjs';
 
 import { environment } from '../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
 })
-export class HealthService {
+export class HealthService implements OnDestroy {
   private readonly http = inject(HttpClient);
-  private readonly HEALTH_REFRESH_INTERVAL = 15_000;
 
-  private pollingSub?: Subscription;
-  private stopTimeout?: ReturnType<typeof setTimeout>;
+  private readonly HEALTH_REFRESH_INTERVAL = 15_000;
+  private readonly DELAYED_HEALTH_PING_DELAY = 45_000;
 
   private lastPingAt = 0;
   private pingInProgress = false;
 
-  pingApi = (): Observable<void> => this.http.get<void>(environment.api + 'health');
-  pingApiIfNeeded = (): Observable<void> => this.pingIfAllowed();
+  private delayedPingTimeout?: ReturnType<typeof setTimeout>;
 
-  startPolling(): void {
-    if (this.stopTimeout) {
-      clearTimeout(this.stopTimeout);
-      this.stopTimeout = undefined;
-    }
-
-    if (this.pollingSub) return;
-
-    this.pollingSub = interval(this.HEALTH_REFRESH_INTERVAL)
-      .pipe(
-        startWith(0),
-        switchMap(() => this.pingIfAllowed()),
-      )
-      .subscribe();
+  ngOnDestroy(): void {
+    this.clearDelayedPing();
   }
 
-  stopPolling(): void {
-    this.stopTimeout = setTimeout(() => {
-      this.pollingSub?.unsubscribe();
-      this.pollingSub = undefined;
-      this.stopTimeout = undefined;
-    }, 300);
+  pingToRefresh(): void {
+    this.clearDelayedPing();
+
+    this.delayedPingTimeout = setTimeout(() => {
+      this.delayedPingTimeout = undefined;
+      this.pingIfAllowed().subscribe();
+    }, this.DELAYED_HEALTH_PING_DELAY);
   }
 
   private pingIfAllowed(): Observable<void> {
     const now = Date.now();
+
     if (this.pingInProgress) return EMPTY;
     if (now - this.lastPingAt < this.HEALTH_REFRESH_INTERVAL) return EMPTY;
 
-    this.lastPingAt = now;
     this.pingInProgress = true;
 
-    return this.pingApi().pipe(
+    return this.http.get<void>(environment.api + 'health').pipe(
+      tap(() => {
+        this.lastPingAt = Date.now();
+      }),
       catchError(() => EMPTY),
       finalize(() => {
         this.pingInProgress = false;
       }),
     );
+  }
+
+  private clearDelayedPing(): void {
+    if (!this.delayedPingTimeout) return;
+
+    clearTimeout(this.delayedPingTimeout);
+    this.delayedPingTimeout = undefined;
   }
 }

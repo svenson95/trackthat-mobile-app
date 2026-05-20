@@ -10,7 +10,7 @@ import {
 import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../models';
-import { HelperService, UserService } from '../../../../../../services';
+import { HealthService, HelperService, UserService } from '../../../../../../services';
 import { LogsWorkoutService } from '../../../../services';
 
 import { ExerciseItemComponent } from '../../../workout/components';
@@ -66,6 +66,7 @@ export class LogWorkoutDataComponent {
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
+  private readonly healthService = inject(HealthService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
@@ -154,6 +155,7 @@ export class LogWorkoutDataComponent {
       this.logsWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
         next: () => {
           this.pendingSet.set(null);
+          this.healthService.pingToRefresh();
         },
         error: async (error) => {
           this.pendingSet.set(null);

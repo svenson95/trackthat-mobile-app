@@ -162,9 +162,9 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="startPolling(); selectAllOnFreshFocus($event)"
-          (ionInput)="startPolling()"
-          (ionBlur)="stopPolling(); resetSelectAllOnFocus($event)"
+          (ionFocus)="pingToRefresh(); selectAllOnFreshFocus($event)"
+          (ionInput)="pingToRefresh()"
+          (ionBlur)="pingToRefresh(); resetSelectAllOnFocus($event)"
         >
           <span slot="end">kg</span>
         </ion-input>
@@ -181,9 +181,9 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="startPolling(); selectAllOnFreshFocus($event)"
-          (ionInput)="startPolling()"
-          (ionBlur)="stopPolling(); resetSelectAllOnFocus($event)"
+          (ionFocus)="pingToRefresh(); selectAllOnFreshFocus($event)"
+          (ionInput)="pingToRefresh()"
+          (ionBlur)="pingToRefresh(); resetSelectAllOnFocus($event)"
         >
           <span slot="end">x</span>
         </ion-input>
@@ -242,8 +242,7 @@ export class LogWorkoutFormComponent {
   readonly addSet = output<LogWorkoutFormValue>();
 
   private readonly healthService = inject(HealthService);
-  readonly startPolling = (): void => this.healthService.startPolling();
-  readonly stopPolling = (): void => this.healthService.stopPolling();
+  readonly pingToRefresh = (): void => this.healthService.pingToRefresh();
 
   readonly form = this.fb.group({
     load: [
@@ -293,7 +292,6 @@ export class LogWorkoutFormComponent {
 
     this.destroyRef.onDestroy(() => {
       window.clearInterval(intervalId);
-      this.healthService.stopPolling();
     });
   }
 

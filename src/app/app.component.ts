@@ -28,14 +28,14 @@ export class AppComponent {
   @HostListener('document:visibilitychange')
   onVisibilityChange(): void {
     if (document.visibilityState === 'visible') {
-      this.healthService.pingApiIfNeeded().subscribe();
+      this.healthService.pingToRefresh();
     }
   }
 
   @HostListener('window:pageshow', ['$event'])
   onPageShow(event: PageTransitionEvent): void {
     if (event.persisted) {
-      this.healthService.pingApiIfNeeded().subscribe();
+      this.healthService.pingToRefresh();
     }
   }
 
