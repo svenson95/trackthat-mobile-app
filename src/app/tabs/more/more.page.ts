@@ -4,7 +4,8 @@ import { IonicModule, LoadingController } from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { AuthService, ContentContainerComponent, UserService } from '../../shared';
+import { ContentContainerComponent } from '../../shared/components';
+import { AuthService, UserService } from '../../shared/services';
 
 @Component({
   selector: 'app-more-page',

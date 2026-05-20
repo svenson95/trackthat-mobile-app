@@ -3,24 +3,25 @@ import { computed, inject, Injectable } from '@angular/core';
 import { map, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import {
-  UserService,
-  type DeleteWorkoutResponse,
-  type DeleteWorkoutResult,
-  type GetWorkoutsResponse,
-  type ListItem,
-  type PostWorkoutBody,
-  type PostWorkoutResponse,
-  type PutWorkoutBody,
-  type PutWorkoutResponse,
-  type PutWorkoutsBody,
-  type PutWorkoutsResponse,
-  type UserId,
-  type Workout,
-  type WorkoutDoc,
-  type WorkoutId,
-  type WorkoutList,
-} from '../../../shared';
+
+import type {
+  DeleteWorkoutResponse,
+  DeleteWorkoutResult,
+  GetWorkoutsResponse,
+  ListItem,
+  PostWorkoutBody,
+  PostWorkoutResponse,
+  PutWorkoutBody,
+  PutWorkoutResponse,
+  PutWorkoutsBody,
+  PutWorkoutsResponse,
+  UserId,
+  Workout,
+  WorkoutDoc,
+  WorkoutId,
+  WorkoutList,
+} from '../../../../app/shared/models';
+import { UserService } from '../../../shared/services';
 
 import { IsEditingService } from './is-editing.service';
 

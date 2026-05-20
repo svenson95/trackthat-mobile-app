@@ -17,7 +17,8 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { HelperService, type WorkoutSet } from '../../../../../../../shared';
+import type { WorkoutSet } from '../../../../../../../shared/models';
+import { HelperService } from '../../../../../../../shared/services';
 import { IsEditingService, LogsWorkoutService } from '../../../../../services';
 import { ExerciseItemComponent } from '../../../../workout/components';
 

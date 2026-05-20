@@ -2,7 +2,7 @@ import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { IonSpinner } from '@ionic/angular/standalone';
 
-import { AuthService } from '../../../shared';
+import { AuthService } from '../../../shared/services';
 import { GoogleAuthService } from '../services';
 
 @Component({

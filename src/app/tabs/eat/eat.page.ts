@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent } from '../../shared';
+import { ContentContainerComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-eat-page',

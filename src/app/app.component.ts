@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { AppService, HealthService } from './shared';
+import { AppService, HealthService } from './shared/services';
 
 @Component({
   selector: 'app-root',

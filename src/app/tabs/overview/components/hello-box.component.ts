@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { UserDoc } from '../../../shared';
+import type { UserDoc } from '../../../shared/models';
 
 @Component({
   selector: 'app-hello-box',

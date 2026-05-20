@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
-import { ContentContainerComponent } from '../../shared';
+import { ContentContainerComponent } from '../../shared/components';
 
 @Component({
   selector: 'app-logs-page',

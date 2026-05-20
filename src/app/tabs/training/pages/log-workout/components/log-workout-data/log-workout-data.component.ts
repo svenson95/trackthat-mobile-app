@@ -16,14 +16,10 @@ import {
   IonList,
 } from '@ionic/angular/standalone';
 
-import {
-  HealthService,
-  HelperService,
-  UserService,
-  type WorkoutSet,
-} from '../../../../../../shared';
 import { LogsWorkoutService } from '../../../../services';
 
+import type { WorkoutSet } from '../../../../../../shared/models';
+import { HealthService, HelperService, UserService } from '../../../../../../shared/services';
 import { ExerciseItemComponent } from '../../../workout/components';
 import {
   LogWorkoutFormComponent,

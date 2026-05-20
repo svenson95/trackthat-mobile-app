@@ -1,6 +1,6 @@
 import type { Routes } from '@angular/router';
 
-import { AuthGuard } from './shared';
+import { AuthGuard } from './shared/services';
 import { TabsPage } from './tabs/tabs.page';
 
 export const appRoutes: Routes = [

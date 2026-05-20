@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { AuthService } from '../shared';
+import { AuthService } from '../shared/services';
 
 @Component({
   selector: 'app-tabs',

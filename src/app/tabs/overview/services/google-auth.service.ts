@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
-import { AuthService, HelperService, type GoogleResponse } from '../../../shared';
+import type { GoogleResponse } from '../../../shared/models';
+import { AuthService, HelperService } from '../../../shared/services';
 
 interface GoogleIdentityService {
   accounts: {
