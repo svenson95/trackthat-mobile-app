@@ -93,6 +93,12 @@
   // --ion-color-dark-tint: #383a3e;
 }
 
+ion-header,
+app-content-container {
+  max-width: 600px;
+  margin: auto;
+}
+
 .input-fullscreen-modal {
   --height: 100dvh;
   --width: 100%;
