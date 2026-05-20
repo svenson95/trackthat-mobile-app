@@ -79,7 +79,7 @@ export class LogWorkoutDataComponent {
 
   readonly noSetsForThisExercise = computed<boolean>(() => {
     const log = this.logsWorkoutService.logWorkoutResource.value();
-    if (!log) return false;
+    if (!log) return true;
     const noSetForExerciseFound = !log.sets.some((l) => l.exercise === this.exercise());
     const notAdding = !this.isAddingSet();
     return noSetForExerciseFound && notAdding;
