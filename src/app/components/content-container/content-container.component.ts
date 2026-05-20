@@ -8,6 +8,8 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       display: flex;
       flex-direction: column;
       justify-content: center;
+      max-width: 500px;
+      margin: auto;
     }
   `,
   template: ` <ng-content></ng-content> `,
