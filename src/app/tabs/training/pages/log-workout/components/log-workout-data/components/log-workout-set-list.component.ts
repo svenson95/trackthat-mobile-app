@@ -1,16 +1,8 @@
 import { Location } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { IonList, LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 import {
   IonItem,
   IonItemDivider,
@@ -19,6 +11,7 @@ import {
   IonItemOptions,
   IonItemSliding,
   IonLabel,
+  IonList,
   IonSkeletonText,
 } from '@ionic/angular/standalone';
 
@@ -54,6 +47,7 @@ const ION_COMPONENTS = [
   IonItemOptions,
   IonItemSliding,
   IonLabel,
+  IonList,
   IonSkeletonText,
 ];
 
@@ -179,7 +173,7 @@ const ION_COMPONENTS = [
             <app-exercise-item [exercise]="exerciseGroup.name" />
           </ion-item-divider>
 
-          <div class="item-container">
+          <ion-list class="item-container">
             @for (
               item of exerciseGroup.sets;
               track item.type === 'set' ? item.set.itemId : item.id;
@@ -195,7 +189,7 @@ const ION_COMPONENTS = [
                   </ion-label>
                 </ion-item>
               } @else {
-                <ion-item-sliding [disabled]="!isEditing()">
+                <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                   <ion-item
                     class="log-set ion-activatable"
                     lines="none"
@@ -212,7 +206,7 @@ const ION_COMPONENTS = [
                     <ion-item-option
                       class="delete-set"
                       color="danger"
-                      (click)="deleteItem(item, item.set.itemId)"
+                      (click)="deleteItem(item, item.set.itemId, slidingItem)"
                     >
                       {{ 'general.delete' | translate }}
                     </ion-item-option>
@@ -220,7 +214,7 @@ const ION_COMPONENTS = [
                 </ion-item-sliding>
               }
             }
-          </div>
+          </ion-list>
         </ion-item-group>
       }
     }
@@ -233,8 +227,6 @@ export class LogWorkoutSetListComponent {
   readonly setItemId = input<number>();
 
   readonly setSelected = output<WorkoutSet>();
-
-  setList = viewChild(IonList);
 
   readonly loadingCtrl = inject(LoadingController);
   readonly translate = inject(TranslateService);
@@ -254,9 +246,13 @@ export class LogWorkoutSetListComponent {
     initialValue: this.route.snapshot.params,
   });
 
-  async deleteItem(item: ExerciseSetView, itemId: number): Promise<void> {
+  async deleteItem(
+    item: ExerciseSetView,
+    itemId: number,
+    slidingItem: IonItemSliding,
+  ): Promise<void> {
     if (item.type !== 'set') return;
-    await this.setList()?.closeSlidingItems();
+    await slidingItem.close();
 
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),

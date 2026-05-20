@@ -70,12 +70,12 @@ const ION_COMPONENTS = [
           </ion-item>
         } @else {
           @for (item of list; track item.listId) {
-            <ion-item-sliding [disabled]="!isEditing()">
+            <ion-item-sliding #slidingItem [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
                 <ion-item-options side="start">
                   <ion-item-option
                     color="medium"
-                    (click)="openChangeNameModal(item.name!, item.listId)"
+                    (click)="openChangeNameModal(item.name!, item.listId, slidingItem)"
                   >
                     {{ 'tabs.training.workout.actions.change-text.title' | translate }}
                   </ion-item-option>
@@ -102,7 +102,7 @@ const ION_COMPONENTS = [
                 </ion-item>
               }
               <ion-item-options side="end">
-                <ion-item-option color="danger" (click)="deleteItem(item)">
+                <ion-item-option color="danger" (click)="deleteItem(item, slidingItem)">
                   {{ 'general.delete' | translate }}
                 </ion-item-option>
               </ion-item-options>
@@ -142,9 +142,13 @@ export class WorkoutListComponent {
     event.detail.complete();
   }
 
-  async openChangeNameModal(item: string, listId: number): Promise<void> {
+  async openChangeNameModal(
+    item: string,
+    listId: number,
+    slidingItem: IonItemSliding,
+  ): Promise<void> {
     try {
-      await this.workoutList().closeSlidingItems();
+      await slidingItem.close();
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
@@ -168,8 +172,8 @@ export class WorkoutListComponent {
     }
   }
 
-  async deleteItem(item: ListItem): Promise<void> {
-    await this.workoutList().closeSlidingItems();
+  async deleteItem(item: ListItem, slidingItem: IonItemSliding): Promise<void> {
+    await slidingItem.close();
 
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.workout.actions.delete-item.process'),

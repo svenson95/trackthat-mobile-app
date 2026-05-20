@@ -61,9 +61,12 @@ const ION_COMPONENTS = [
             </ion-item>
           } @else {
             @for (workout of workouts; track workout.name) {
-              <ion-item-sliding [disabled]="!isEditing()">
+              <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                 <ion-item-options side="start">
-                  <ion-item-option color="medium" (click)="openChangeNameModal(workout)">
+                  <ion-item-option
+                    color="medium"
+                    (click)="openChangeNameModal(workout, slidingItem)"
+                  >
                     {{ 'tabs.training.workouts.actions.change-name.title' | translate }}
                   </ion-item-option>
                 </ion-item-options>
@@ -79,7 +82,7 @@ const ION_COMPONENTS = [
                 </ion-item>
 
                 <ion-item-options side="end">
-                  <ion-item-option color="danger" (click)="deleteWorkout(workout.id)">
+                  <ion-item-option color="danger" (click)="deleteWorkout(workout.id, slidingItem)">
                     {{ 'general.delete' | translate }}
                   </ion-item-option>
                 </ion-item-options>
@@ -91,7 +94,7 @@ const ION_COMPONENTS = [
     </ion-list>
   `,
 })
-export class WorkoutsComponent {
+export class WorkoutsListComponent {
   private readonly loadingCtrl = inject(LoadingController);
   private readonly modalCtrl = inject(ModalController);
   private readonly translate = inject(TranslateService);
@@ -125,9 +128,9 @@ export class WorkoutsComponent {
     event.detail.complete();
   }
 
-  async openChangeNameModal(workout: PostWorkoutBody): Promise<void> {
+  async openChangeNameModal(workout: PostWorkoutBody, slidingItem: IonItemSliding): Promise<void> {
     try {
-      await this.workoutsList().closeSlidingItems();
+      await slidingItem.close();
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
@@ -166,8 +169,8 @@ export class WorkoutsComponent {
     }
   }
 
-  async deleteWorkout(id: string): Promise<void> {
-    await this.workoutsList().closeSlidingItems();
+  async deleteWorkout(id: string, slidingItem: IonItemSliding): Promise<void> {
+    await slidingItem.close();
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.workouts.actions.delete.process'),
       spinner: 'circles',

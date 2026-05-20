@@ -30,9 +30,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
 import { ToastService, UserService } from '../../../../services';
-
 import { IsEditingService, WorkoutsService } from '../../services';
-import { WorkoutsComponent } from './components';
+
+import { WorkoutsListComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
 
 const ION_COMPONENTS = [
@@ -58,7 +58,7 @@ const ION_COMPONENTS = [
     TranslateModule,
     FormsModule,
     ContentContainerComponent,
-    WorkoutsComponent,
+    WorkoutsListComponent,
     AddWorkoutDialog,
   ],
   template: `
@@ -66,7 +66,7 @@ const ION_COMPONENTS = [
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
-            <ion-button (click)="abortEditing(workoutsComp.workoutsList())">
+            <ion-button (click)="abortEditing()">
               {{ 'general.abort' | translate }}
             </ion-button>
           } @else {
@@ -138,6 +138,7 @@ export class WorkoutsPage {
   private readonly workoutsService = inject(WorkoutsService);
 
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
+  private readonly workoutsComp = viewChild.required(WorkoutsListComponent);
   readonly isMoreMenuOpen = signal<boolean>(false);
 
   private readonly editService = inject(IsEditingService);
@@ -190,8 +191,8 @@ export class WorkoutsPage {
     await this.moreMenu().dismiss();
   }
 
-  abortEditing(list: IonList): void {
-    void list.closeSlidingItems();
+  async abortEditing(): Promise<void> {
+    await this.workoutsComp().workoutsList().closeSlidingItems();
     this.editService.editedWorkouts.set(null);
     this.isEditing.set(false);
   }
