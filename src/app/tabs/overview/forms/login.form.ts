@@ -1,5 +1,5 @@
 import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { IonButton, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 
 import { AuthService } from '../../../services';
@@ -22,9 +22,9 @@ import { GoogleAuthService } from '../services';
       expand="block"
       color="danger"
       (click)="loginWithGoogle()"
-      [disabled]="isLoading()"
+      [disabled]="isLoading() || !isGoogleReady()"
     >
-      @if (isLoading()) {
+      @if (isLoading() || isGoogleInitializing()) {
         <ion-spinner name="dots" />
       } @else {
         <ion-icon name="logo-google" slot="start" />
@@ -39,11 +39,24 @@ export class LoginForm implements OnInit {
 
   readonly isLoading = this.authService.isLoading;
 
-  ngOnInit(): void {
-    this.googleAuthService.initialize();
+  readonly isGoogleReady = signal(false);
+  readonly isGoogleInitializing = signal(true);
+
+  async ngOnInit(): Promise<void> {
+    try {
+      await this.googleAuthService.initialize();
+      this.isGoogleReady.set(true);
+    } catch (error) {
+      console.error('Google Auth konnte nicht initialisiert werden:', error);
+      this.isGoogleReady.set(false);
+    } finally {
+      this.isGoogleInitializing.set(false);
+    }
   }
 
   loginWithGoogle(): void {
+    if (!this.isGoogleReady()) return;
+
     this.googleAuthService.prompt();
   }
 }
