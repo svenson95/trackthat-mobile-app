@@ -4,7 +4,7 @@ import { map, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import type {
-  GetWorkoutsDTO,
+  GetWorkoutsResponse,
   ListItem,
   PostWorkoutBody,
   PostWorkoutResponse,
@@ -31,12 +31,12 @@ export class WorkoutsService {
   private userService = inject(UserService);
   private editService = inject(IsEditingService);
 
-  workoutsResource = httpResource<GetWorkoutsDTO>(() => ({
+  workoutsResource = httpResource<GetWorkoutsResponse>(() => ({
     url: `${this.apiUrl}/get/${this.userService.user().id}`,
     method: 'GET',
   }));
 
-  private workouts = computed<GetWorkoutsDTO>(() => {
+  private workouts = computed<GetWorkoutsResponse>(() => {
     const workouts = this.editService.editedWorkouts() ?? this.workoutsResource.value() ?? [];
     return workouts;
   });
@@ -47,7 +47,7 @@ export class WorkoutsService {
 
   getWorkout(id: number): Observable<WorkoutDoc> {
     return this.http
-      .get<GetWorkoutsDTO>(this.apiUrl + '/get/' + this.userService.user().id)
+      .get<GetWorkoutsResponse>(this.apiUrl + '/get/' + this.userService.user().id)
       .pipe(map((workouts) => workouts.find((w) => w.workoutId === id)!));
   }
 
@@ -95,8 +95,8 @@ export class WorkoutsService {
       );
   }
 
-  deleteWorkout(id: WorkoutId): Observable<void> {
-    return this.http.delete<void>(this.apiUrl + '/delete/' + id).pipe(
+  deleteWorkout(id: WorkoutId): Observable<PutWorkoutsResponse> {
+    return this.http.delete<PutWorkoutsResponse>(this.apiUrl + '/delete/' + id).pipe(
       map(() => {
         const filtered = this.workouts().filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);

@@ -104,6 +104,16 @@ export interface WorkoutDoc extends Workout {
   readonly id: WorkoutId;
 }
 
-export type GetWorkoutsDTO = Array<WorkoutDoc>;
+export type GetWorkoutsResponse = Array<WorkoutDoc>;
+
+export type PutWorkoutsBody = Array<WorkoutDoc>;
+export type PutWorkoutsResponse = Array<WorkoutDoc>;
+
 export type PostWorkoutBody = Workout;
 export type PostWorkoutResponse = WorkoutDoc;
+
+export type PutWorkoutBody = Workout;
+export type PutWorkoutResponse = WorkoutDoc;
+
+export type DeleteWorkoutBody = void;
+export type DeleteWorkoutResponse = void;
