@@ -115,7 +115,7 @@ export class WorkoutsService {
     return {
       userId: user.id,
       workoutId: workoutIds.length === 0 ? 1 : Math.max(...workoutIds) + 1,
-      listId: Math.max(...listIds) + 1,
+      listId: listIds.length === 0 ? 1 : Math.max(...listIds) + 1,
       lastUpdated: Date.now(),
       name,
       list,
