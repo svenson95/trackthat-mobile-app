@@ -117,3 +117,4 @@ export type PutWorkoutResponse = WorkoutDoc;
 
 export type DeleteWorkoutBody = void;
 export type DeleteWorkoutResponse = void;
+export type DeleteWorkoutResult = WorkoutDoc[];

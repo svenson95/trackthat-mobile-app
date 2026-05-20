@@ -4,6 +4,8 @@ import { map, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import type {
+  DeleteWorkoutResponse,
+  DeleteWorkoutResult,
   GetWorkoutsResponse,
   ListItem,
   PostWorkoutBody,
@@ -95,8 +97,8 @@ export class WorkoutsService {
       );
   }
 
-  deleteWorkout(id: WorkoutId): Observable<PutWorkoutsResponse> {
-    return this.http.delete<PutWorkoutsResponse>(this.apiUrl + '/delete/' + id).pipe(
+  deleteWorkout(id: WorkoutId): Observable<DeleteWorkoutResult> {
+    return this.http.delete<DeleteWorkoutResponse>(this.apiUrl + '/delete/' + id).pipe(
       map(() => {
         const filtered = this.workouts().filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);
