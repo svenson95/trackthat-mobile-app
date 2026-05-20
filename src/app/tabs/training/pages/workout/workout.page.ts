@@ -167,7 +167,7 @@ const ION_COMPONENTS = [
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
           <ion-list>
-            <ion-item lines="none" [button]="true" [detail]="false" (click)="startEditing()">
+            <ion-item button lines="none" [detail]="false" (click)="startEditing()">
               {{ 'general.edit' | translate }}
             </ion-item>
 
@@ -177,11 +177,11 @@ const ION_COMPONENTS = [
               </ion-item-divider>
 
               @if (workout(); as currentWorkout) {
-                <ion-item [button]="true" [detail]="false" (click)="addText(currentWorkout)">
+                <ion-item button [detail]="false" (click)="addText(currentWorkout)">
                   {{ 'tabs.training.workout.more-menu.text' | translate }}
                 </ion-item>
 
-                <ion-item [button]="true" [detail]="false" (click)="addExercise(currentWorkout)">
+                <ion-item button [detail]="false" (click)="addExercise(currentWorkout)">
                   {{ 'tabs.training.workout.more-menu.exercise' | translate }}
                 </ion-item>
 
