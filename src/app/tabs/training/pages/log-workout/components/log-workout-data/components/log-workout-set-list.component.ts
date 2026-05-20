@@ -191,6 +191,8 @@ const ION_COMPONENTS = [
               } @else {
                 <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                   <ion-item
+                    button
+                    [detail]="false"
                     class="log-set ion-activatable"
                     [lines]="isLast ? 'none' : 'inset'"
                     (click)="setSelected.emit(item.set)"

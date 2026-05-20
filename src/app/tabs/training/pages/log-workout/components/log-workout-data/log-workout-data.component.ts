@@ -96,6 +96,8 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
             let isLast = $last
           ) {
             <ion-item
+              button
+              [detail]="false"
               class="log-set ion-activatable"
               [lines]="isLast ? 'none' : 'inset'"
               (click)="setData(item)"
