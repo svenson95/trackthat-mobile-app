@@ -2,6 +2,7 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
+import { UserService } from 'src/app/services';
 import { environment } from '../../../../environments/environment.prod';
 import type {
   DeleteLogWorkoutBody,
@@ -15,15 +16,16 @@ import type {
   providedIn: 'root',
 })
 export class LogsWorkoutService {
-  private apiUrl = environment.api + 'logs-workout';
-
-  private http = inject(HttpClient);
+  private readonly apiUrl = environment.api + 'logs-workout';
+  private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
 
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | null>(() => {
     const date = this.getTodayStartTimestamp();
+    const userId = this.userService.user().id;
 
     return {
-      url: `${this.apiUrl}/get/${date}`,
+      url: `${this.apiUrl}/get/${date}/${userId}`,
       method: 'GET',
     };
   });
