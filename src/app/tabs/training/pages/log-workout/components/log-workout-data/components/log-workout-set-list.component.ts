@@ -63,29 +63,8 @@ const ION_COMPONENTS = [
       gap: 0.5rem;
     }
 
-    .log-set {
-      --min-height: 32px;
-
-      ion-label {
-        margin-top: 2px;
-        margin-bottom: 2px;
-        margin-inline-end: 0;
-      }
-    }
-
-    .item-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-
-      ion-label {
-        display: flex;
-        justify-content: space-between;
-
-        h3 {
-          margin-bottom: 0;
-        }
-      }
+    ion-item-option.delete-set {
+      font-size: 12px;
     }
 
     .exercise-skeleton-title {
@@ -134,10 +113,6 @@ const ION_COMPONENTS = [
       width: 14%;
       height: 0.875rem;
       border-radius: 999px;
-    }
-
-    ion-item-option.delete-set {
-      font-size: 12px;
     }
   `,
   template: `

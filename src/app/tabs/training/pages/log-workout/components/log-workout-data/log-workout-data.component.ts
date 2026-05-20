@@ -51,32 +51,9 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       margin-bottom: 6rem;
     }
 
-    // TODO refactor this and set-list component
-    .log-set {
-      --min-height: 32px;
-
-      ion-label {
-        margin-top: 2px;
-        margin-bottom: 2px;
-        margin-inline-end: 0;
-      }
-    }
-
     .item-container {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
       margin-top: 0.5rem;
-
-      ion-label {
-        display: flex;
-        justify-content: space-between;
-        color: grey;
-
-        h3 {
-          margin-bottom: 0;
-        }
-      }
+      color: grey;
     }
   `,
   template: `
@@ -90,7 +67,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
         </ion-item-divider>
 
         @if (latest) {
-          <ion-list class="item-container latest-set">
+          <ion-list class="item-container">
             @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
               <ion-item
                 button

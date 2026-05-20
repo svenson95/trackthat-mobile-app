@@ -160,3 +160,26 @@ ion-modal.datetime-modal::part(content) {
     color: white;
   }
 }
+
+// TODO refactor: remove seperate ion-item-divider element in log-workout-data (other one in log-workout-set-list)
+.item-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .log-set {
+    --min-height: 32px;
+
+    ion-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      margin-inline-end: 0;
+
+      h3 {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
