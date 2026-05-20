@@ -10,7 +10,7 @@ import {
 import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../models';
-import { ToastService, UserService } from '../../../../../../services';
+import { HelperService, UserService } from '../../../../../../services';
 import { LogsWorkoutService } from '../../../../services';
 
 import { ExerciseItemComponent } from '../../../workout/components';
@@ -69,7 +69,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
 export class LogWorkoutDataComponent {
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly userService = inject(UserService);
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
@@ -162,7 +162,7 @@ export class LogWorkoutDataComponent {
         error: async (error) => {
           this.pendingSet.set(null);
           console.error('Could not add workout set', error);
-          await this.toastService.show('tabs.training.log-workout.actions.add-set.error');
+          await this.helperService.showError('tabs.training.log-workout.actions.add-set.error');
         },
       });
     });

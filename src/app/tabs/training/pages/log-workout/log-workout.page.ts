@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   effect,
+  ElementRef,
   inject,
   input,
   signal,
@@ -29,6 +30,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
+import { HelperService } from '../../../../services';
 import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
 
 import { LogWorkoutDataComponent } from './components';
@@ -126,16 +128,19 @@ export class LogWorkoutPage {
   readonly logId = input<string | undefined>();
   readonly exercise = input<string | undefined>();
 
-  readonly logsWorkoutService = inject(LogsWorkoutService);
-  readonly workoutsService = inject(WorkoutsService);
-
-  private editService = inject(IsEditingService);
-  isEditing = this.editService.isEditing;
-  private moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
-  readonly isMoreMenuOpen = signal<boolean>(false);
-
+  private readonly logsWorkoutService = inject(LogsWorkoutService);
+  private readonly workoutsService = inject(WorkoutsService);
+  private readonly helperService = inject(HelperService);
+  private readonly editService = inject(IsEditingService);
+  private readonly host = inject(ElementRef<HTMLElement>);
   private readonly location = inject(Location);
   private readonly route = inject(ActivatedRoute);
+
+  readonly isEditing = this.editService.isEditing;
+
+  readonly isMoreMenuOpen = signal<boolean>(false);
+  private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
+
   readonly routeParams = toSignal(this.route.params, {
     initialValue: this.route.snapshot.params,
   });
@@ -172,6 +177,7 @@ export class LogWorkoutPage {
   }
 
   async abortEditing(): Promise<void> {
+    await this.helperService.closeSlidingItems(this.host);
     this.isEditing.set(false);
   }
 }

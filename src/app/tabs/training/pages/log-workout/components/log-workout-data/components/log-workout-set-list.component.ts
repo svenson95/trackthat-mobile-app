@@ -18,7 +18,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { WorkoutSet } from '../../../../../../../models';
-import { ToastService } from '../../../../../../../services';
+import { HelperService } from '../../../../../../../services';
 import { IsEditingService, LogsWorkoutService } from '../../../../../services';
 import { ExerciseItemComponent } from '../../../../workout/components';
 
@@ -233,7 +233,7 @@ export class LogWorkoutSetListComponent {
   readonly route = inject(ActivatedRoute);
   readonly location = inject(Location);
 
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
   private readonly editService = inject(IsEditingService);
   readonly isEditing = this.editService.isEditing;
   readonly logsWorkoutService = inject(LogsWorkoutService);
@@ -271,7 +271,7 @@ export class LogWorkoutSetListComponent {
       error: async (err) => {
         console.error('Unexpected fail during delete log-workout.set', err);
         await loading.dismiss();
-        await this.toastService.show('tabs.training.log-workout.actions.delete-set.error');
+        await this.helperService.showError('tabs.training.log-workout.actions.delete-set.error');
       },
     });
   }

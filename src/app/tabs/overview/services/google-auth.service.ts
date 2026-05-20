@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
 import type { GoogleResponse } from '../../../models';
-import { AuthService, ToastService } from '../../../services';
+import { AuthService, HelperService } from '../../../services';
 
 interface GoogleIdentityService {
   accounts: {
@@ -21,7 +21,7 @@ const GOOGLE_CLIENT_ID = '81384485805-o4b55e424moljjf98egavlhol819l18a.apps.goog
 })
 export class GoogleAuthService {
   private readonly authService = inject(AuthService);
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
 
   initialize(): void {
     google.accounts.id.initialize({
@@ -38,7 +38,7 @@ export class GoogleAuthService {
     this.authService.putAuthWithGoogle(credential).subscribe({
       error: async (error) => {
         console.error('Google login failed', error);
-        await this.toastService.show('tabs.overview.actions.google-auth.error');
+        await this.helperService.showError('tabs.overview.actions.google-auth.error');
       },
     });
   }

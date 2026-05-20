@@ -36,7 +36,7 @@ import {
   WORKOUT_LIST_ITEM_SPACER,
   type WorkoutDoc,
 } from '../../../../models';
-import { ToastService } from '../../../../services';
+import { HelperService } from '../../../../services';
 import { TextInputDialog } from '../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../services';
 
@@ -197,6 +197,8 @@ const ION_COMPONENTS = [
   `,
 })
 export class WorkoutPage {
+  readonly workoutId = input<string | undefined>();
+
   private readonly loadingCtrl = inject(LoadingController);
   private readonly modalCtrl = inject(ModalController);
   private readonly translate = inject(TranslateService);
@@ -205,10 +207,10 @@ export class WorkoutPage {
   private readonly workoutListComp = viewChild.required(WorkoutListComponent);
 
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
   private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
 
+  readonly isEditing = this.editService.isEditing;
   readonly isMoreMenuOpen = signal<boolean>(false);
 
   readonly skeletonItems = [
@@ -220,8 +222,6 @@ export class WorkoutPage {
     { type: 'EXERCISE', width: '75%' },
     { type: 'EXERCISE', width: '58%' },
   ];
-
-  readonly workoutId = input<string | undefined>();
 
   readonly isLoading = computed(() => {
     return this.workoutsService.workoutsResource.isLoading();
@@ -273,8 +273,8 @@ export class WorkoutPage {
   }
 
   async abortEditing(): Promise<void> {
-    const list = this.workoutListComp()?.workoutList();
-    await list?.closeSlidingItems();
+    const list = this.workoutListComp().workoutList();
+    await list.closeSlidingItems();
     this.editService.editedList.set(null);
     this.isEditing.set(false);
   }
@@ -313,7 +313,7 @@ export class WorkoutPage {
         const message = data
           ? 'tabs.training.workout.actions.update-text.error'
           : 'tabs.training.workout.actions.update-list.error';
-        await this.toastService.show(message);
+        await this.helperService.showError(message);
       },
     });
   }
@@ -401,15 +401,15 @@ export class WorkoutPage {
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: () => {
+      next: async () => {
+        await loading.dismiss();
         this.isEditing.set(false);
-        void loading.dismiss();
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
+        await loading.dismiss();
         this.isEditing.set(false);
-        void loading.dismiss();
-        await this.toastService.show('tabs.training.workout.actions.update-list.error');
+        await this.helperService.showError('tabs.training.workout.actions.update-list.error');
       },
     });
     this.isMoreMenuOpen.set(false);

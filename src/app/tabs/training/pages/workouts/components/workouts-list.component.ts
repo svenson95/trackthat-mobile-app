@@ -16,7 +16,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { PostWorkoutBody } from '../../../../../models';
-import { ToastService } from '../../../../../services';
+import { HelperService } from '../../../../../services';
 import { TextInputDialog } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
@@ -101,7 +101,7 @@ export class WorkoutsListComponent {
 
   readonly workoutsList = viewChild.required(IonList);
 
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
   private readonly workoutsService = inject(WorkoutsService);
   readonly sortedWorkouts = this.workoutsService.sortedWorkouts;
 
@@ -161,7 +161,7 @@ export class WorkoutsListComponent {
           error: async (err) => {
             console.error('Unexpected fail during change name user.workoutId', err);
             await loading.dismiss();
-            await this.toastService.show('tabs.training.workouts.actions.change-name.error');
+            await this.helperService.showError('tabs.training.workouts.actions.change-name.error');
           },
         });
     } catch (error) {
@@ -184,7 +184,7 @@ export class WorkoutsListComponent {
       error: async (err) => {
         console.error('Unexpected fail during delete user.workoutId', err);
         await loading.dismiss();
-        await this.toastService.show('tabs.training.workouts.actions.delete.error');
+        await this.helperService.showError('tabs.training.workouts.actions.delete.error');
       },
     });
   }

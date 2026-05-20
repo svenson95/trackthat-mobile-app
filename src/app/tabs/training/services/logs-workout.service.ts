@@ -10,7 +10,7 @@ import type {
   PostLogWorkoutResponse,
   WorkoutSet,
 } from '../../../models';
-import { ToastService, UserService } from '../../../services';
+import { HelperService, UserService } from '../../../services';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,7 @@ export class LogsWorkoutService {
   private readonly apiUrl = environment.api + 'logs-workout';
   private readonly http = inject(HttpClient);
   private readonly userService = inject(UserService);
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
 
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | null>(() => {
     const date = this.getTodayStartTimestamp();
@@ -41,7 +41,7 @@ export class LogsWorkoutService {
       const error = this.logWorkoutResource.error();
       if (!error) return;
 
-      await this.toastService.show('tabs.training.log-workout.actions.get-error');
+      await this.helperService.showError('tabs.training.log-workout.actions.get-error');
     });
   }
 

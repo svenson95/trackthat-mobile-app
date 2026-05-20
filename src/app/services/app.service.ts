@@ -4,7 +4,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { AlertController } from '@ionic/angular';
 
 import { AuthService } from './auth/auth.service';
-import { ToastService } from './toast.service';
+import { HelperService } from './helper.service';
 
 const ALERT_OPTIONS = {
   header: 'Update verfügbar',
@@ -26,7 +26,7 @@ export class AppService {
   private readonly swUpdate = inject(SwUpdate);
   private readonly alertCtrl = inject(AlertController);
 
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
   private readonly authService = inject(AuthService);
 
   getVersionUpdates(): void {
@@ -45,7 +45,7 @@ export class AppService {
     this.authService.getVerify(token).subscribe({
       error: async (error) => {
         console.error('Verify authToken failed', error);
-        await this.toastService.show('general.actions.verify.error');
+        await this.helperService.showError('general.actions.verify.error');
       },
     });
   }

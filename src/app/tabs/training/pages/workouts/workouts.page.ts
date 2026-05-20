@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   inject,
   Injector,
   signal,
@@ -29,7 +30,7 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../../../components';
-import { ToastService, UserService } from '../../../../services';
+import { HelperService, UserService } from '../../../../services';
 import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutsListComponent } from './components';
@@ -131,8 +132,9 @@ const ION_COMPONENTS = [
 export class WorkoutsPage {
   private readonly injector = inject(Injector);
   private readonly loadingCtrl = inject(LoadingController);
-  private readonly toastService = inject(ToastService);
+  private readonly helperService = inject(HelperService);
   private readonly translate = inject(TranslateService);
+  private readonly host = inject(ElementRef<HTMLElement>);
 
   private readonly userService = inject(UserService);
   private readonly workoutsService = inject(WorkoutsService);
@@ -193,6 +195,7 @@ export class WorkoutsPage {
 
   async abortEditing(): Promise<void> {
     await this.workoutsComp().workoutsList().closeSlidingItems();
+    await this.helperService.closeSlidingItems(this.host);
     this.editService.editedWorkouts.set(null);
     this.isEditing.set(false);
   }
@@ -208,17 +211,19 @@ export class WorkoutsPage {
     const userId = this.userService.user().id;
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
-      next: () => {
+      next: async () => {
+        await this.helperService.closeSlidingItems(this.host);
+        await loading.dismiss();
         this.isEditing.set(false);
         this.editService.editedWorkouts.set(null);
-        void loading.dismiss();
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
+        await this.helperService.closeSlidingItems(this.host);
+        await loading.dismiss();
         this.isEditing.set(false);
         this.editService.editedWorkouts.set(null);
-        void loading.dismiss();
-        await this.toastService.show('tabs.training.workouts.actions.update-list.error');
+        await this.helperService.showError('tabs.training.workouts.actions.update-list.error');
       },
     });
   }
