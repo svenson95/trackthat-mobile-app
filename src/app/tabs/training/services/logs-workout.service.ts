@@ -74,7 +74,6 @@ export class LogsWorkoutService {
   private getTodayStartTimestamp(): string {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
-    return today.getTime().toString();
+    return Math.floor(today.getTime() / 1000).toString();
   }
 }
