@@ -42,10 +42,6 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
       margin-top: 1rem;
       margin-bottom: 2rem;
     }
-
-    .exercise-item {
-      margin-top: 1rem;
-    }
   `,
   template: `
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
