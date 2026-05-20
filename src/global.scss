@@ -166,6 +166,7 @@ ion-modal.datetime-modal::part(content) {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  margin-top: 0.5rem;
 
   .log-set {
     --min-height: 32px;

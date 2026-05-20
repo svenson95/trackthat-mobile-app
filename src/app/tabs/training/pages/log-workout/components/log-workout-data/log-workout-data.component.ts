@@ -51,12 +51,8 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       margin-bottom: 6rem;
     }
 
-    .item-container {
-      margin-top: 0.5rem;
-
-      ion-label {
-        color: grey;
-      }
+    .item-container ion-label {
+      color: grey;
     }
   `,
   template: `
