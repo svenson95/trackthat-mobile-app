@@ -1,5 +1,5 @@
 import { HttpClient, httpResource } from '@angular/common/http';
-import { computed, effect, inject, Injectable } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
@@ -21,12 +21,24 @@ export class LogsWorkoutService {
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
 
-  readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | null>(() => {
+  readonly exercise = signal<string | null>(null);
+
+  readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
     const date = this.getTodayStartTimestamp();
     const userId = this.userService.user().id;
 
     return {
       url: `${this.apiUrl}/get/${date}/${userId}`,
+      method: 'GET',
+    };
+  });
+
+  readonly latestSetResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
+    const exercise = this.exercise();
+    const userId = this.userService.user().id;
+
+    return {
+      url: `${this.apiUrl}/get/latest-log/${exercise}/${userId}`,
       method: 'GET',
     };
   });
