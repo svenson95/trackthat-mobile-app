@@ -25,6 +25,11 @@ export class HealthService implements OnDestroy {
   }
 
   pingToRefresh(): void {
+    this.pingIfAllowed().subscribe();
+    this.scheduleDelayedPing();
+  }
+
+  scheduleDelayedPing(): void {
     this.clearDelayedPing();
 
     this.delayedPingTimeout = setTimeout(() => {

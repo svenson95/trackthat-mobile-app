@@ -155,7 +155,7 @@ export class LogWorkoutDataComponent {
       this.logsWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
         next: () => {
           this.pendingSet.set(null);
-          this.healthService.pingToRefresh();
+          this.healthService.scheduleDelayedPing();
         },
         error: async (error) => {
           this.pendingSet.set(null);
