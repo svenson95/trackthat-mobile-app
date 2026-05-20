@@ -140,7 +140,7 @@ export class AddWorkoutDialog {
     }
 
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.add-workout.process'),
+      message: this.translate.instant('tabs.training.workouts.actions.add-workout.process'),
       spinner: 'circles',
     });
     this.isLoading.set(true);
