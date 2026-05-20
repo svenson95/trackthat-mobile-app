@@ -61,9 +61,11 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
     @let latest = latestSet();
     @if (noSetsForThisExercise()) {
       <ion-item-group class="exercise-item">
-        <ion-item-divider class="exercise-item is-selected-exercise">
-          <app-exercise-item [exercise]="exercise()!" />
-        </ion-item-divider>
+        @if (!isAddingSet()) {
+          <ion-item-divider class="exercise-item is-selected-exercise">
+            <app-exercise-item [exercise]="exercise()!" />
+          </ion-item-divider>
+        }
 
         @if (latest) {
           <ion-list class="item-container">
@@ -122,7 +124,7 @@ export class LogWorkoutDataComponent {
     exercise: string;
     time: string;
   } | null>(null);
-  readonly isAddingSet = computed(() => this.pendingSet() !== null);
+  readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
 
   readonly exercises = computed<ExerciseView[]>(() => {
     const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
