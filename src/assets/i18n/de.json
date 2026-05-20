@@ -39,10 +39,6 @@
             "already-exists": "Es existiert bereits ein Trainingsplan mit diesem Namen"
           },
           "edit": "Bearbeiten",
-          "delete": {
-            "process": "Trainingsplan wird entfernt ...",
-            "error": "Trainingsplan konnte nicht entfernt werden"
-          },
           "change-name": {
             "title": "Name ändern",
             "process": "Name wird geändert ..."
@@ -50,6 +46,10 @@
           "update-list": {
             "process": "Liste wird gespeichert ...",
             "error": "Liste konnte nicht gespeichert werden"
+          },
+          "delete": {
+            "process": "Trainingsplan wird entfernt ...",
+            "error": "Trainingsplan konnte nicht entfernt werden"
           }
         }
       },
@@ -80,7 +80,7 @@
             "process": "Liste wird gespeichert ...",
             "error": "Liste konnte nicht gespeichert werden"
           },
-          "delete-workout": {
+          "delete": {
             "process": "Element wird entfernt ...",
             "error": "Element konnte nicht entfernt werden"
           }

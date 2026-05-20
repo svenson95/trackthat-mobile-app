@@ -39,10 +39,6 @@
             "already-exists": "A training plan with this name already exists"
           },
           "edit": "Edit",
-          "delete": {
-            "process": "Training Plan is being deleted ...",
-            "error": "Training Plan could not be removed"
-          },
           "change-name": {
             "title": "Change name",
             "process": "Name is being changed ..."
@@ -50,6 +46,10 @@
           "update-list": {
             "process": "List is being saved ...",
             "error": "List could not be saved"
+          },
+          "delete": {
+            "process": "Training Plan is being deleted ...",
+            "error": "Training Plan could not be removed"
           }
         }
       },
@@ -80,7 +80,7 @@
             "process": "List is being saved ...",
             "error": "List could not be saved"
           },
-          "delete-workout": {
+          "delete": {
             "process": "Item is being removed ...",
             "error": "Item could not be removed"
           }
