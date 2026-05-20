@@ -116,7 +116,7 @@ const ION_COMPONENTS = [
         <ion-buttons slot="primary">
           @if (isEditing()) {
             <ion-button
-              (click)="saveEdit({ message: 'tabs.training.workout.actions.update-list' })"
+              (click)="saveEdit({ message: 'tabs.training.workout.actions.update-list.process' })"
             >
               {{ 'general.save' | translate }}
             </ion-button>
@@ -311,7 +311,7 @@ export class WorkoutPage {
         this.editService.editedList.set(null);
         void loading.dismiss();
         const message = data
-          ? 'tabs.training.workout.actions.update-text.error'
+          ? 'tabs.training.workout.actions.change-text.error'
           : 'tabs.training.workout.actions.update-list.error';
         await this.helperService.showError(message);
       },
