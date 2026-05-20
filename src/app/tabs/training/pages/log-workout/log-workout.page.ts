@@ -166,6 +166,10 @@ export class LogWorkoutPage {
     this.location.replaceState(target);
   });
 
+  readonly syncRouteWithService = effect(() => {
+    this.logsWorkoutService.exercise.set(this.exercise()!);
+  });
+
   async startEditing(): Promise<void> {
     this.isEditing.set(true);
     await this.moreMenu().dismiss();

@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,7 +8,13 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { IonItemDivider, IonItemGroup } from '@ionic/angular/standalone';
+import {
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+  IonList,
+} from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../models';
 import { HealthService, HelperService, UserService } from '../../../../../../services';
@@ -22,7 +29,7 @@ import {
   type LogWorkoutFormValue,
 } from '../../components';
 
-const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
+const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel];
 
 @Component({
   selector: 'app-log-workout-data',
@@ -32,6 +39,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
     LogWorkoutFormComponent,
     LogWorkoutSetListComponent,
     ExerciseItemComponent,
+    DatePipe,
   ],
   styles: `
     :host {
@@ -40,7 +48,35 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
       align-items: center;
       padding-inline: 1rem;
       margin-top: 1rem;
-      margin-bottom: 2rem;
+      margin-bottom: 6rem;
+    }
+
+    // TODO refactor this and set-list component
+    .log-set {
+      --min-height: 32px;
+
+      ion-label {
+        margin-top: 2px;
+        margin-bottom: 2px;
+        margin-inline-end: 0;
+      }
+    }
+
+    .item-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+
+      ion-label {
+        display: flex;
+        justify-content: space-between;
+        color: grey;
+
+        h3 {
+          margin-bottom: 0;
+        }
+      }
     }
   `,
   template: `
@@ -51,6 +87,27 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup];
         <ion-item-divider class="exercise-item is-selected-exercise">
           <app-exercise-item [exercise]="exercise()!" />
         </ion-item-divider>
+
+        <ion-list class="item-container latest-set">
+          @for (
+            item of latestSet()!.sets;
+            track item.itemId;
+            let idx = $index;
+            let isLast = $last
+          ) {
+            <ion-item
+              class="log-set ion-activatable"
+              [lines]="isLast ? 'none' : 'inset'"
+              (click)="setData(item)"
+            >
+              <ion-label>
+                <h3>#{{ idx + 1 }}</h3>
+                <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                <h3>{{ latestSet()!.date * 1000 | date: 'dd.MM.yy' }}</h3>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
       </ion-item-group>
     }
 
@@ -69,6 +126,7 @@ export class LogWorkoutDataComponent {
   private readonly healthService = inject(HealthService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
+  readonly latestSet = this.logsWorkoutService.latestSetResource.value;
 
   readonly itemId = input<string>();
   readonly exercise = input<string>();

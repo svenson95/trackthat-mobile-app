@@ -3,7 +3,7 @@ import type { UserId } from './users.model';
 export type LogWorkoutId = string; // mongodb doc id
 
 export interface Log {
-  date: Date;
+  date: number;
   userId: UserId;
   logId: number;
 }
