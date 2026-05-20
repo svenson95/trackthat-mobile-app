@@ -42,7 +42,7 @@ import { AuthService, UserService } from '../../services';
               <ion-label>{{ 'tabs.more.settings.label' | translate }}</ion-label>
             </ion-item-divider>
 
-            <ion-item button (click)="logout()" detail="true" lines="none">
+            <ion-item button (click)="logout()" detail="true">
               <ion-label>{{ 'tabs.more.settings.sign-off' | translate }}</ion-label>
             </ion-item>
 
