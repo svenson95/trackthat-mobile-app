@@ -164,7 +164,9 @@ export class AddWorkoutDialog {
           'status' in error &&
           error.status === 409
         ) {
-          await this.helperService.showError('tabs.training.workouts.add-workout.already-exists');
+          await this.helperService.showError(
+            'tabs.training.workouts.actions.add-workout.already-exists',
+          );
           return;
         }
 

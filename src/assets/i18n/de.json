@@ -80,7 +80,7 @@
             "process": "Liste wird gespeichert ...",
             "error": "Liste konnte nicht gespeichert werden"
           },
-          "delete-item": {
+          "delete-workout": {
             "process": "Element wird entfernt ...",
             "error": "Element konnte nicht entfernt werden"
           }

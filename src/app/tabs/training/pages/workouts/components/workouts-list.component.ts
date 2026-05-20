@@ -172,7 +172,7 @@ export class WorkoutsListComponent {
   async deleteWorkout(id: string, slidingItem: IonItemSliding): Promise<void> {
     await slidingItem.close();
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.actions.delete.process'),
+      message: this.translate.instant('tabs.training.workouts.actions.delete-workout.process'),
       spinner: 'circles',
     });
     await loading.present();
@@ -186,7 +186,7 @@ export class WorkoutsListComponent {
         console.error('Unexpected fail during delete user.workoutId', err);
         await loading.dismiss();
         this.editService.editedWorkouts.set(null);
-        await this.helperService.showError('tabs.training.workouts.actions.delete.error');
+        await this.helperService.showError('tabs.training.workouts.actions.delete-workout.error');
       },
     });
   }

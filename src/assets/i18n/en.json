@@ -80,7 +80,7 @@
             "process": "List is being saved ...",
             "error": "List could not be saved"
           },
-          "delete-item": {
+          "delete-workout": {
             "process": "Item is being removed ...",
             "error": "Item could not be removed"
           }

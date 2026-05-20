@@ -176,7 +176,7 @@ export class WorkoutListComponent {
     await slidingItem.close();
 
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workout.actions.delete-item.process'),
+      message: this.translate.instant('tabs.training.workout.actions.delete-workout.process'),
       spinner: 'circles',
     });
     await loading.present();
@@ -198,7 +198,7 @@ export class WorkoutListComponent {
       error: async (err) => {
         console.error('Unexpected fail during delete workout item', err);
         await loading.dismiss();
-        await this.helperService.showError('tabs.training.workout.actions.delete-item.error');
+        await this.helperService.showError('tabs.training.workout.actions.delete-workout.error');
       },
     });
   }
