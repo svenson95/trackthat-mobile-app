@@ -112,7 +112,7 @@ const ION_COMPONENTS = [
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
-          <ion-list>
+          <ion-list lines="none">
             <ion-item [button]="true" [detail]="false" (click)="startEditing()">
               {{ 'general.edit' | translate }}
             </ion-item>

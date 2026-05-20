@@ -139,7 +139,7 @@ export class LogWorkoutDataComponent {
       exercise,
       itemId: this.getNextItemId(),
       note: formValue.note,
-      time: this.getCurrentTime(),
+      time: this.getCurrentTime(), // TODO: get time from form -> this.logWorkoutForm()!.form.value.time!
     };
 
     const pendingSetId = crypto.randomUUID();

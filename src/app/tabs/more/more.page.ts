@@ -64,7 +64,7 @@ import { AuthService, UserService } from '../../services';
           </ion-item-group>
         </ion-list>
 
-        <ion-list [inset]="true">
+        <ion-list [inset]="true" lines="none">
           <ion-item-group>
             <ion-item-divider>
               <ion-label>{{ 'tabs.more.user.label' | translate }}</ion-label>
