@@ -95,7 +95,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     }
 
     ion-input[type='number'] {
-      text-align: right;
+      text-align: center;
 
       ::ng-deep label.input-wrapper {
         padding-inline: 0.75rem;
