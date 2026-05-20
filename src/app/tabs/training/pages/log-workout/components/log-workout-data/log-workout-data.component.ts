@@ -83,29 +83,31 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
 
     @let latest = latestSet();
-    @if (noSetsForThisExercise() && latest) {
+    @if (noSetsForThisExercise()) {
       <ion-item-group class="exercise-item">
         <ion-item-divider class="exercise-item is-selected-exercise">
           <app-exercise-item [exercise]="exercise()!" />
         </ion-item-divider>
 
-        <ion-list class="item-container latest-set">
-          @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
-            <ion-item
-              button
-              [detail]="false"
-              class="log-set ion-activatable"
-              [lines]="isLast ? 'none' : 'inset'"
-              (click)="setData(item)"
-            >
-              <ion-label>
-                <h3>#{{ idx + 1 }}</h3>
-                <h3>{{ item.reps }}x {{ item.load }} kg</h3>
-                <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
+        @if (latest) {
+          <ion-list class="item-container latest-set">
+            @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
+              <ion-item
+                button
+                [detail]="false"
+                class="log-set ion-activatable"
+                [lines]="isLast ? 'none' : 'inset'"
+                (click)="setData(item)"
+              >
+                <ion-label>
+                  <h3>#{{ idx + 1 }}</h3>
+                  <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                  <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        }
       </ion-item-group>
     }
 
