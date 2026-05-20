@@ -82,19 +82,15 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
   template: `
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
 
-    @if (noSetsForThisExercise()) {
+    @let latest = latestSet();
+    @if (noSetsForThisExercise() && latest) {
       <ion-item-group class="exercise-item">
         <ion-item-divider class="exercise-item is-selected-exercise">
           <app-exercise-item [exercise]="exercise()!" />
         </ion-item-divider>
 
         <ion-list class="item-container latest-set">
-          @for (
-            item of latestSet()!.sets;
-            track item.itemId;
-            let idx = $index;
-            let isLast = $last
-          ) {
+          @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
             <ion-item
               button
               [detail]="false"
@@ -105,7 +101,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
               <ion-label>
                 <h3>#{{ idx + 1 }}</h3>
                 <h3>{{ item.reps }}x {{ item.load }} kg</h3>
-                <h3>{{ latestSet()!.date * 1000 | date: 'dd.MM.yy' }}</h3>
+                <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
               </ion-label>
             </ion-item>
           }
