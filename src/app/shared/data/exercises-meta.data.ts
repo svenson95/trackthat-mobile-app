@@ -1,4 +1,4 @@
-import type { ExerciseEquipment, ExerciseVariant, MuscleGroup } from '../../models';
+import type { ExerciseEquipment, ExerciseVariant, MuscleGroup } from '../models';
 
 // TODO: missing types for biceps-curls 'barbell', 'cable-tower', 'machine' ...
 export interface ExerciseMetadata {

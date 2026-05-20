@@ -29,8 +29,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent } from '../../../../components';
-import { HelperService } from '../../../../services';
+import { ContentContainerComponent, HelperService } from '../../../../shared';
 import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
 
 import { LogWorkoutDataComponent } from './components';

@@ -1,16 +1,17 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { type Observable, tap } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import type {
-  DeleteLogWorkoutBody,
-  DeleteLogWorkoutResponse,
-  GetLogWorkoutDTO,
-  PostLogWorkoutResponse,
-  WorkoutSet,
-} from '../../../models';
-import { HelperService, UserService } from '../../../services';
+import {
+  type DeleteLogWorkoutBody,
+  type DeleteLogWorkoutResponse,
+  type GetLogWorkoutDTO,
+  type PostLogWorkoutResponse,
+  type WorkoutSet,
+  HelperService,
+  UserService,
+} from '../../../shared';
 
 @Injectable({
   providedIn: 'root',

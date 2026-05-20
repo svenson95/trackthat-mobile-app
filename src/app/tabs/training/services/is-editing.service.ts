@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-import type { ListItem, WorkoutDoc } from '../../../models';
+import type { ListItem, WorkoutDoc } from '../../../shared';
 
 @Injectable({
   providedIn: 'root',

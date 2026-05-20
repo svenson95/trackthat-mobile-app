@@ -1,4 +1,4 @@
-import type { WorkoutSet } from '../../models';
+import type { WorkoutSet } from '../models';
 
 export const EXERCISES_EXAMPLE_DATA: { name: string; sets: WorkoutSet[] }[] = [
   {

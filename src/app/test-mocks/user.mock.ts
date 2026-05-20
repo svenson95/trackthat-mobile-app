@@ -1,4 +1,4 @@
-import type { UserDoc } from '../models';
+import type { UserDoc } from '../shared';
 
 export const USER_MOCK: UserDoc = {
   id: '68bac247db73ea806bbfffe3',
@@ -9,5 +9,4 @@ export const USER_MOCK: UserDoc = {
   email: 'testuser@mail.com',
   weight: 0,
   height: 0,
-  workoutIds: [1],
 };

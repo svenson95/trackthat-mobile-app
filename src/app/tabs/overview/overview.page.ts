@@ -3,8 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent } from '../../components';
-import { AuthService, UserService } from '../../services';
+import { AuthService, ContentContainerComponent, UserService } from '../../shared';
 
 import { HelloBoxComponent, LoginBoxComponent } from './components';
 

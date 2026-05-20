@@ -15,9 +15,7 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { PostWorkoutBody } from '../../../../../models';
-import { HelperService } from '../../../../../services';
-import { TextInputDialog } from '../../../../../shared';
+import { HelperService, TextInputDialog, type PostWorkoutBody } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [

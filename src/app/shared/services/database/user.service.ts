@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { computed, Injectable, linkedSignal } from '@angular/core';
 
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../../environments/environment.prod';
 import type { GetUsersResponse, UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })

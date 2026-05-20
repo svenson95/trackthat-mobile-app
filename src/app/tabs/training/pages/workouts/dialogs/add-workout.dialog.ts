@@ -19,9 +19,12 @@ import type { OverlayEventDetail } from '@ionic/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { Workout, WorkoutDoc } from '../../../../../models';
-import { HelperService } from '../../../../../services';
-import { WORKOUT_TEMPLATES } from '../../../../../shared';
+import {
+  HelperService,
+  WORKOUT_TEMPLATES,
+  type Workout,
+  type WorkoutDoc,
+} from '../../../../../shared';
 import { WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [

@@ -16,7 +16,7 @@ import { IonButton, IonIcon, IonInput, IonLabel } from '@ionic/angular/standalon
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { HealthService } from '../../../../../../../services';
+import { HealthService } from '../../../../../../../shared';
 import { DatetimePickerModalComponent } from '../../../dialogs';
 
 export type LogWorkoutFormValue = {

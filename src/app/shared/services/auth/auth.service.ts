@@ -2,9 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../../environments/environment.prod';
 import type { GetAuthBody, GetAuthResponse, GoogleJWT, JwtToken } from '../../models';
-import { UserService } from '../database/user.service';
+import { UserService } from '../../services';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

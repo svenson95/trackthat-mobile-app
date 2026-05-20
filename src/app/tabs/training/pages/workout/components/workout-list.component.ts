@@ -27,9 +27,7 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { type ListItem, type Workout } from '../../../../../models';
-import { HelperService } from '../../../../../services';
-import { TextInputDialog } from '../../../../../shared';
+import { HelperService, TextInputDialog, type ListItem, type Workout } from '../../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../../services';
 
 import { ExerciseItemComponent } from './exercise-item.component';

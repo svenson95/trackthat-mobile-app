@@ -1,4 +1,4 @@
-import type { Workout } from '../../models';
+import type { Workout } from '../models';
 
 export const WORKOUT_TEMPLATES: Array<Workout> = [
   {

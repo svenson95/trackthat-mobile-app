@@ -29,8 +29,7 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { ContentContainerComponent } from '../../../../components';
-import { HelperService, UserService } from '../../../../services';
+import { ContentContainerComponent, HelperService, UserService } from '../../../../shared';
 import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutsListComponent } from './components';

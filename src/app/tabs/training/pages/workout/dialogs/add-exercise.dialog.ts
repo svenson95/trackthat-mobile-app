@@ -17,8 +17,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { ListItemExercise, WorkoutList } from '../../../../../models';
-import type { ExerciseMetadata } from '../../../../../shared';
+import type { ExerciseMetadata, ListItemExercise, WorkoutList } from '../../../../../shared';
 import { EXERCISES_METADATA } from '../../../../../shared';
 
 import { ExerciseItemComponent } from '../components';
