@@ -24,7 +24,7 @@ export class LogsWorkoutService {
   readonly exercise = signal<string | null>(null);
 
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
-    const date = this.getTodayStartTimestamp();
+    const date = Math.floor(Date.now() / 1000);
     const userId = this.userService.user().id;
 
     return {
@@ -81,11 +81,5 @@ export class LogsWorkoutService {
           this.logWorkoutResource.set(updatedLog);
         }),
       );
-  }
-
-  private getTodayStartTimestamp(): string {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return Math.floor(today.getTime() / 1000).toString();
   }
 }
