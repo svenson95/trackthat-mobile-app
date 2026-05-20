@@ -15,6 +15,11 @@ import { GoogleAuthService } from '../services';
       flex-direction: column;
       gap: 10px;
     }
+
+    #google-button {
+      margin-top: 1rem;
+      margin: auto;
+    }
   `,
   template: `
     <div id="google-button"></div>
