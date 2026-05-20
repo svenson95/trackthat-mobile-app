@@ -60,7 +60,7 @@ const ION_COMPONENTS = [
               </ion-label>
             </ion-item>
           } @else {
-            @for (workout of workouts; track workout.name) {
+            @for (workout of workouts; track workout.workoutId) {
               <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                 <ion-item-options side="start">
                   <ion-item-option
@@ -178,12 +178,14 @@ export class WorkoutsListComponent {
     await loading.present();
 
     this.workoutsService.deleteWorkout(id).subscribe({
-      next: async () => {
+      next: async (filtered) => {
         await loading.dismiss();
+        this.editService.editedWorkouts.set(filtered);
       },
       error: async (err) => {
         console.error('Unexpected fail during delete user.workoutId', err);
         await loading.dismiss();
+        this.editService.editedWorkouts.set(null);
         await this.helperService.showError('tabs.training.workouts.actions.delete.error');
       },
     });

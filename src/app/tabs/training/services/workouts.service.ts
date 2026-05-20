@@ -97,9 +97,10 @@ export class WorkoutsService {
 
   deleteWorkout(id: WorkoutId): Observable<void> {
     return this.http.delete<void>(this.apiUrl + '/delete/' + id).pipe(
-      tap(() => {
+      map(() => {
         const filtered = this.workouts().filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);
+        return filtered;
       }),
     );
   }
