@@ -66,54 +66,6 @@ const ION_COMPONENTS = [
     ion-item-option.delete-set {
       font-size: 12px;
     }
-
-    .exercise-skeleton-title {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      width: 100%;
-    }
-
-    .rounded-skeleton {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 50%;
-      flex: 0 0 auto;
-    }
-
-    .title-skeleton {
-      width: 60%;
-      height: 1rem;
-      border-radius: 999px;
-    }
-
-    .skeleton-log-set {
-      pointer-events: none;
-    }
-
-    .set-index-skeleton {
-      width: 8%;
-      height: 0.875rem;
-      border-radius: 999px;
-    }
-
-    .set-value-skeleton {
-      width: 25%;
-      height: 0.875rem;
-      border-radius: 999px;
-    }
-
-    .set-time-skeleton {
-      width: 22%;
-      height: 0.875rem;
-      border-radius: 999px;
-    }
-
-    .set-break-skeleton {
-      width: 14%;
-      height: 0.875rem;
-      border-radius: 999px;
-    }
   `,
   template: `
     @if (isLoading()) {

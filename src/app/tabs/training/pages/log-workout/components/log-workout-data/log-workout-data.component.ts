@@ -14,6 +14,7 @@ import {
   IonItemGroup,
   IonLabel,
   IonList,
+  IonSkeletonText,
 } from '@ionic/angular/standalone';
 
 import { LogsWorkoutService } from '../../../../services';
@@ -29,7 +30,7 @@ import {
   type LogWorkoutFormValue,
 } from '../../components';
 
-const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel];
+const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel, IonSkeletonText];
 
 @Component({
   selector: 'app-log-workout-data',
@@ -67,24 +68,45 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
           </ion-item-divider>
         }
 
-        @if (latest && !isAddingSet()) {
-          <ion-list class="item-container">
-            @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
-              <ion-item
-                button
-                [detail]="false"
-                class="log-set ion-activatable"
-                [lines]="isLast ? 'none' : 'inset'"
-                (click)="setData(item)"
-              >
+        @if (isLoadingLatest()) {
+          <ion-item-divider class="exercise-item">
+            <div class="exercise-skeleton-title">
+              <ion-skeleton-text animated class="rounded-skeleton" />
+              <ion-skeleton-text animated class="title-skeleton" />
+            </div>
+          </ion-item-divider>
+
+          <div class="item-container">
+            @for (item of skeletonSets; track item) {
+              <ion-item class="log-set skeleton-log-set" lines="none">
                 <ion-label>
-                  <h3>#{{ idx + 1 }}</h3>
-                  <h3>{{ item.reps }}x {{ item.load }} kg</h3>
-                  <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
+                  <ion-skeleton-text animated class="set-index-skeleton" />
+                  <ion-skeleton-text animated class="set-value-skeleton" />
+                  <ion-skeleton-text animated class="set-time-skeleton" />
                 </ion-label>
               </ion-item>
             }
-          </ion-list>
+          </div>
+        } @else {
+          @if (latest && !isAddingSet()) {
+            <ion-list class="item-container">
+              @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
+                <ion-item
+                  button
+                  [detail]="false"
+                  class="log-set ion-activatable"
+                  [lines]="isLast ? 'none' : 'inset'"
+                  (click)="setData(item)"
+                >
+                  <ion-label>
+                    <h3>#{{ idx + 1 }}</h3>
+                    <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                    <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
+                  </ion-label>
+                </ion-item>
+              }
+            </ion-list>
+          }
         }
       </ion-item-group>
     }
@@ -125,6 +147,13 @@ export class LogWorkoutDataComponent {
     time: string;
   } | null>(null);
   readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
+
+  readonly isLoadingLatest = computed(() => {
+    return (
+      this.logsWorkoutService.latestSetResource.isLoading() &&
+      !!this.logsWorkoutService.logWorkoutResource.value()
+    );
+  });
 
   readonly exercises = computed<ExerciseView[]>(() => {
     const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
