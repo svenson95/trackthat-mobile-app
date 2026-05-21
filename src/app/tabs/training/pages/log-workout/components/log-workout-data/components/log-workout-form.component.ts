@@ -431,7 +431,10 @@ export class LogWorkoutFormComponent {
     await modal.present();
 
     const result = await modal.onDidDismiss<string>();
-    if (result.role !== 'confirm' || typeof result.data !== 'string') return;
+    if (result.role !== 'confirm' || typeof result.data !== 'string') {
+      this.timeManuallyChanged.set(false);
+      return;
+    }
 
     const normalizedTime = this.normalizeTimeForBackend(result.data);
     this.timeManuallyChanged.set(true);
