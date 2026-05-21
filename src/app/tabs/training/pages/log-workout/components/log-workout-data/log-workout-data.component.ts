@@ -50,6 +50,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       padding-inline: 1rem;
       margin-top: 1rem;
       margin-bottom: 6rem;
+      gap: 0.5rem;
     }
 
     .item-container ion-label {

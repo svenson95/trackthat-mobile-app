@@ -37,7 +37,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     form {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.5rem;
     }
 
     .row {
