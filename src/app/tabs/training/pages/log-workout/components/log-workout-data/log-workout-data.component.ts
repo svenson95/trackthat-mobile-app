@@ -69,13 +69,6 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
         }
 
         @if (isLoadingLatest()) {
-          <ion-item-divider class="exercise-item">
-            <div class="exercise-skeleton-title">
-              <ion-skeleton-text animated class="rounded-skeleton" />
-              <ion-skeleton-text animated class="title-skeleton" />
-            </div>
-          </ion-item-divider>
-
           <div class="item-container">
             @for (item of skeletonSets; track item) {
               <ion-item class="log-set skeleton-log-set" lines="none">
