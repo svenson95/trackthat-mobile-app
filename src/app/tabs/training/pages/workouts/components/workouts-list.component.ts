@@ -42,7 +42,7 @@ const ION_COMPONENTS = [
         @if (isLoading()) {
           <ion-item>
             <ion-label>
-              <p>{{ 'general.loading' | translate }} ...</p>
+              <p>{{ 'tabs.training.workouts.loading' | translate }}</p>
             </ion-label>
           </ion-item>
         } @else if (hasError()) {

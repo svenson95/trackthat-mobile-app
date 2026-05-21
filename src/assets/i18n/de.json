@@ -27,6 +27,7 @@
       "tab-title": "Trainingspläne",
       "workouts": {
         "no-plans": "Keine Pläne vorhanden",
+        "loading": "Liste wird geladen ...",
         "actions": {
           "add-workout": {
             "title": "Neuer Plan",

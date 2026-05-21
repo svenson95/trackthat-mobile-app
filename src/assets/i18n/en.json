@@ -27,6 +27,7 @@
       "tab-title": "Training Plans",
       "workouts": {
         "no-plans": "No Plans available",
+        "loading": "Training plans are loading ...",
         "actions": {
           "add-workout": {
             "title": "New Plan",
