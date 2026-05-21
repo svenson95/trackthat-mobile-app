@@ -68,7 +68,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
           </ion-item-divider>
         }
 
-        @if (isLoadingLatest()) {
+        @if (isLoading()) {
           <div class="item-container">
             @for (item of skeletonSets; track item) {
               <ion-item class="log-set skeleton-log-set" lines="none">
@@ -141,10 +141,10 @@ export class LogWorkoutDataComponent {
   } | null>(null);
   readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
 
-  readonly isLoadingLatest = computed(() => {
+  readonly isLoading = computed(() => {
     return (
-      this.logsWorkoutService.latestSetResource.isLoading() &&
-      !!this.logsWorkoutService.logWorkoutResource.value()
+      this.logsWorkoutService.logWorkoutResource.isLoading() ||
+      this.logsWorkoutService.latestSetResource.isLoading()
     );
   });
 
