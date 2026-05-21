@@ -140,7 +140,7 @@ export class LogWorkoutDataComponent {
     return noSetForExerciseFound && notAdding;
   });
 
-  readonly skeletonSets = [1, 2, 3];
+  readonly skeletonSets = [1, 2];
   readonly pendingSet = signal<{
     id: string;
     exercise: string;
