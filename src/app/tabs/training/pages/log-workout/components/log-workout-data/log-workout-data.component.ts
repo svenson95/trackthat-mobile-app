@@ -67,7 +67,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
           </ion-item-divider>
         }
 
-        @if (latest) {
+        @if (latest && !isAddingSet()) {
           <ion-list class="item-container">
             @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
               <ion-item
