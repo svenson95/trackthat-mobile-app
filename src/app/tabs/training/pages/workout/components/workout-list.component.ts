@@ -76,7 +76,7 @@ const ION_COMPONENTS = [
                 <ion-item-options side="start">
                   <ion-item-option
                     color="medium"
-                    (click)="openChangeNameModal(item.name!, item.listId, slidingItem)"
+                    (click)="openChangeTextModal(item.name!, item.listId, slidingItem)"
                   >
                     {{ 'tabs.training.workout.actions.change-text.title' | translate }}
                   </ion-item-option>
@@ -143,7 +143,7 @@ export class WorkoutListComponent {
     event.detail.complete();
   }
 
-  async openChangeNameModal(
+  async openChangeTextModal(
     item: string,
     listId: number,
     slidingItem: IonItemSliding,
@@ -165,7 +165,7 @@ export class WorkoutListComponent {
       if (!data || data === item) return;
 
       this.save.emit({
-        message: 'tabs.training.workout.actions.change-text.process',
+        message: this.translate.instant('tabs.training.workout.actions.change-text.process'),
         data: { ...this.workout().list.find((w) => w.listId === listId)!, name: data },
       });
     } catch (error) {
