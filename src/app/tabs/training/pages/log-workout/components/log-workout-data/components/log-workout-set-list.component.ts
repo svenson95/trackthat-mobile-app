@@ -161,7 +161,10 @@ export class LogWorkoutSetListComponent {
   readonly logsWorkoutService = inject(LogsWorkoutService);
 
   readonly isLoading = computed(() => {
-    return this.logsWorkoutService.logWorkoutResource.isLoading();
+    return (
+      this.logsWorkoutService.logWorkoutResource.isLoading() &&
+      !this.logsWorkoutService.latestSetResource.isLoading()
+    );
   });
 
   readonly routeParams = toSignal(this.route.params, {
