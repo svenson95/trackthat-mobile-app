@@ -32,13 +32,6 @@ const ION_COMPONENTS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule],
   styles: `
-    .actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 24px;
-    }
-
     ion-content {
       --padding-start: 1rem;
       --padding-end: 1rem;
