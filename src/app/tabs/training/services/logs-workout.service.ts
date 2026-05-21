@@ -12,9 +12,7 @@ import type {
 } from '../../../shared/models';
 import { HelperService, UserService } from '../../../shared/services';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class LogsWorkoutService {
   private readonly apiUrl = environment.api + 'logs-workout';
   private readonly http = inject(HttpClient);

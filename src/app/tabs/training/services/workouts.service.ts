@@ -17,7 +17,6 @@ import type {
   PutWorkoutsResponse,
   UserId,
   Workout,
-  WorkoutDoc,
   WorkoutId,
   WorkoutList,
 } from '../../../../app/shared/models';
@@ -25,9 +24,7 @@ import { UserService } from '../../../shared/services';
 
 import { IsEditingService } from './is-editing.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class WorkoutsService {
   private apiUrl = environment.api + 'workouts';
 
@@ -48,12 +45,6 @@ export class WorkoutsService {
   sortedWorkouts = computed(() => {
     return [...this.workouts()].sort((a, b) => a.listId - b.listId);
   });
-
-  getWorkout(id: number): Observable<WorkoutDoc> {
-    return this.http
-      .get<GetWorkoutsResponse>(this.apiUrl + '/get/' + this.userService.user().id)
-      .pipe(map((workouts) => workouts.find((w) => w.workoutId === id)!));
-  }
 
   addWorkout(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
     return this.http.post<PostWorkoutResponse>(this.apiUrl + '/add', workout).pipe(
