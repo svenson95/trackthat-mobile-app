@@ -119,7 +119,7 @@ export class LogWorkoutDataComponent {
   private readonly helperService = inject(HelperService);
   private readonly healthService = inject(HealthService);
 
-  readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
+  readonly logWorkoutForm = viewChild.required(LogWorkoutFormComponent);
   readonly latestSet = this.logsWorkoutService.latestSetResource.value;
 
   readonly itemId = input<string>();
@@ -193,13 +193,16 @@ export class LogWorkoutDataComponent {
       return;
     }
 
+    const time = this.logWorkoutForm().timeManuallyChanged()
+      ? this.logWorkoutForm().formValueTime()
+      : this.getCurrentTime();
     const set: WorkoutSet = {
       load: formValue.load,
       reps: formValue.reps,
       exercise,
       itemId: this.getNextItemId(),
       note: formValue.note,
-      time: this.getCurrentTime(), // TODO: get time from form -> this.logWorkoutForm()!.form.value.time!
+      time,
     };
 
     const pendingSetId = crypto.randomUUID();

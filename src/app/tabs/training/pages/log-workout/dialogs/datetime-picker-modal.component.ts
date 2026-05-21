@@ -25,7 +25,7 @@ type PickerKind = 'date' | 'time';
     <ion-datetime
       #datetime
       [presentation]="kind"
-      [value]="selectedValue"
+      [value]="selectedValue()"
       locale="de-DE"
       mode="ios"
       size="cover"
@@ -60,10 +60,10 @@ export class DatetimePickerModalComponent implements OnInit {
 
   onChange(event: DatetimeCustomEvent): void {
     const value = event.detail.value;
-
-    if (typeof value === 'string') {
-      this.selectedValue.set(value);
-    }
+    if (typeof value !== 'string') return;
+    const timeIndex = value.indexOf('T');
+    const time = value.substring(timeIndex + 1, timeIndex + 9);
+    this.selectedValue.set(time);
   }
 
   cancel(): void {
@@ -73,6 +73,7 @@ export class DatetimePickerModalComponent implements OnInit {
   reset(datetime: IonDatetime): void {
     this.selectedValue.set(this.resetValue);
     void datetime.reset(this.resetValue);
+    void this.modalController.dismiss(this.resetValue, 'confirm');
   }
 
   async confirm(datetime: IonDatetime): Promise<void> {

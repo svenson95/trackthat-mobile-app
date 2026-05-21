@@ -286,7 +286,7 @@ export class LogWorkoutFormComponent {
     return this.formatDate(this.form.value.date ?? 0);
   });
 
-  private readonly timeManuallyChanged = signal(false);
+  readonly timeManuallyChanged = signal<boolean>(false);
 
   constructor() {
     const REFRESH_INTERVAL = 30_000;
@@ -424,7 +424,7 @@ export class LogWorkoutFormComponent {
       cssClass: 'datetime-modal',
       componentProps: {
         kind: 'time',
-        value: this.form.controls.time.value.substring(0, 5),
+        value: this.formValueTime(),
         resetValue: this.getCurrentTimeForDatetime(),
       },
     });
