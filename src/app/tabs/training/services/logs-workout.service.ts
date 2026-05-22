@@ -23,7 +23,8 @@ export class LogsWorkoutService {
 
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
     const date = Math.floor(Date.now() / 1000);
-    const userId = this.userService.user().id;
+    const userId = this.userService.userData()?.id;
+    if (!userId) return undefined;
 
     return {
       url: `${this.apiUrl}/get/${date}/${userId}`,
@@ -33,7 +34,8 @@ export class LogsWorkoutService {
 
   readonly latestSetResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
     const exercise = this.exercise();
-    const userId = this.userService.user().id;
+    const userId = this.userService.userData()?.id;
+    if (!userId) return undefined;
 
     return {
       url: `${this.apiUrl}/get/latest-log/${exercise}/${userId}`,

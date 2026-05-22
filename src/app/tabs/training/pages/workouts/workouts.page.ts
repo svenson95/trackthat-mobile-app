@@ -208,7 +208,8 @@ export class WorkoutsPage {
     await loading.present();
 
     const workouts = this.editService.editedWorkouts()!;
-    const userId = this.userService.user().id;
+    const userId = this.userService.userData()?.id;
+    if (!userId) return;
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
       next: async () => {

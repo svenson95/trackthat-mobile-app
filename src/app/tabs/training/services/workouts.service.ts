@@ -26,23 +26,31 @@ import { IsEditingService } from './is-editing.service';
 
 @Injectable()
 export class WorkoutsService {
-  private apiUrl = environment.api + 'workouts';
+  private readonly apiUrl = environment.api + 'workouts';
 
-  private http = inject(HttpClient);
-  private userService = inject(UserService);
-  private editService = inject(IsEditingService);
+  private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
+  private readonly editService = inject(IsEditingService);
 
-  workoutsResource = httpResource<GetWorkoutsResponse>(() => ({
-    url: `${this.apiUrl}/get/${this.userService.user().id}`,
-    method: 'GET',
-  }));
+  readonly workoutsResource = httpResource<GetWorkoutsResponse>(() => {
+    const userId = this.userService.userData()?.id;
+    if (!userId) return undefined;
 
-  private workouts = computed<GetWorkoutsResponse>(() => {
-    const workouts = this.editService.editedWorkouts() ?? this.workoutsResource.value() ?? [];
-    return workouts;
+    return {
+      url: `${this.apiUrl}/get/${userId}`,
+      method: 'GET',
+    };
   });
 
-  sortedWorkouts = computed(() => {
+  private readonly workouts = computed<GetWorkoutsResponse>(() => {
+    return (
+      (this.editService.isEditing()
+        ? this.editService.editedWorkouts()
+        : this.workoutsResource.value()) ?? []
+    );
+  });
+
+  readonly sortedWorkouts = computed(() => {
     return [...this.workouts()].sort((a, b) => a.listId - b.listId);
   });
 
@@ -101,9 +109,10 @@ export class WorkoutsService {
   }
 
   initWorkout(name: string, list: WorkoutList): Workout {
-    const user = this.userService.user();
     const workoutIds = this.workouts().map((w) => w.workoutId);
     const listIds = this.workouts().map((w) => w.listId);
+    const user = this.userService.userData();
+    if (!user) throw new Error('No user found during initWorkout');
 
     return {
       userId: user.id,

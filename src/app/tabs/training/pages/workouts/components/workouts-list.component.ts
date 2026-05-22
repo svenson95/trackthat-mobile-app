@@ -39,7 +39,7 @@ const ION_COMPONENTS = [
   template: `
     <ion-list [inset]="true">
       <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
-        @if (isLoading()) {
+        @if (isInitialLoading()) {
           <ion-item>
             <ion-label>
               <p>{{ 'tabs.training.workouts.loading' | translate }}</p>
@@ -108,8 +108,17 @@ export class WorkoutsListComponent {
   private readonly editService = inject(IsEditingService);
   readonly isEditing = this.editService.isEditing;
 
-  readonly isLoading = computed(() => this.workoutsService.workoutsResource.status() === 'loading');
-  readonly hasError = computed(() => this.workoutsService.workoutsResource.status() === 'error');
+  readonly hasError = computed<boolean>(
+    () => this.workoutsService.workoutsResource.status() === 'error',
+  );
+
+  readonly hasWorkoutsValue = computed<boolean>(
+    () => this.workoutsService.workoutsResource.value() !== undefined,
+  );
+
+  readonly isInitialLoading = computed<boolean>(
+    () => this.workoutsService.workoutsResource.status() === 'loading' && !this.hasWorkoutsValue(),
+  );
 
   handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
     const from = event.detail.from;

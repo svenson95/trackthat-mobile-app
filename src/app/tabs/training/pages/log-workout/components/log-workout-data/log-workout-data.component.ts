@@ -181,7 +181,7 @@ export class LogWorkoutDataComponent {
     }
 
     const logId = this.logsWorkoutService.logId();
-    const userId = this.userService.user().id;
+    const userId = this.userService.userData()?.id;
     const exercise = this.exercise();
 
     if (!userId || !exercise) {

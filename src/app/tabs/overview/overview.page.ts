@@ -33,8 +33,9 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
       </ion-header>
 
       <app-content-container>
-        @if (isLoggedIn()) {
-          <app-hello-box [user]="user()" />
+        @let user = userData();
+        @if (isLoggedIn() && user) {
+          <app-hello-box [user]="user" />
         } @else {
           <app-login-box />
         }
@@ -43,9 +44,9 @@ import { HelloBoxComponent, LoginBoxComponent } from './components';
   `,
 })
 export class OverviewPage {
-  private authService = inject(AuthService);
-  isLoggedIn = this.authService.isLoggedIn;
+  private readonly authService = inject(AuthService);
+  readonly isLoggedIn = this.authService.isLoggedIn;
 
-  private userService = inject(UserService);
-  user = this.userService.user;
+  private readonly userService = inject(UserService);
+  readonly userData = this.userService.userData;
 }
