@@ -19,11 +19,17 @@ import { GoogleAuthService } from '../services';
     #google-button {
       margin: 1rem auto 0;
     }
+
+    ion-spinner {
+      margin: 1rem auto;
+    }
   `,
   template: `
-    <div id="google-button"></div>
+    @if (!isLoading()) {
+      <button id="google-button"></button>
+    }
 
-    @if (isGoogleInitializing()) {
+    @if (isGoogleInitializing() || isLoading()) {
       <ion-spinner></ion-spinner>
     }
 
