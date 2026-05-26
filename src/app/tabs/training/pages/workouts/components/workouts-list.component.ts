@@ -167,9 +167,22 @@ export class WorkoutsListComponent {
         })
         .subscribe({
           next: async () => await loading.dismiss(),
-          error: async (err) => {
-            console.error('Unexpected fail during change name user.workoutId', err);
+          error: async (error) => {
             await loading.dismiss();
+
+            if (
+              typeof error === 'object' &&
+              error !== null &&
+              'status' in error &&
+              error.status === 409
+            ) {
+              await this.helperService.showError(
+                'tabs.training.workouts.actions.add-workout.already-exists',
+              );
+              return;
+            }
+
+            console.error('Unexpected fail during change name user.workoutId', error);
             await this.helperService.showError('tabs.training.workouts.actions.change-name.error');
           },
         });
