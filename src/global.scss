@@ -115,6 +115,11 @@ app-content-container {
   --padding-bottom: calc(env(safe-area-inset-bottom) + 96px);
 }
 
+ion-card {
+  border-radius: 0;
+  box-shadow: none;
+}
+
 ion-item-group.exercise-item {
   width: 100%;
 
