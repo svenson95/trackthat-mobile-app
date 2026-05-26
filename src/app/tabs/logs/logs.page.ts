@@ -43,8 +43,7 @@ const ION_COMPONENTS = [
   imports: [...ION_COMPONENTS, TranslateModule, ContentContainerComponent, ExerciseItemComponent],
   styles: `
     ion-datetime {
-      --background: white;
-      --background-rgb: rgb(255, 255, 255);
+      --background: var(--ion-card-background);
     }
 
     .no-data {
