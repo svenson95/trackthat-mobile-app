@@ -17,10 +17,10 @@ import { AuthService } from '../shared/services';
           <ion-label>{{ 'tabs.training.tab-label' | translate }}</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="eat" href="/tabs/eat" [disabled]="!isLoggedIn()">
+        <!-- <ion-tab-button tab="eat" href="/tabs/eat" [disabled]="!isLoggedIn()">
           <ion-icon aria-hidden="true" [name]="eatIcon()"></ion-icon>
           <ion-label>{{ 'tabs.eat.tab-label' | translate }}</ion-label>
-        </ion-tab-button>
+        </ion-tab-button> -->
 
         <ion-tab-button tab="overview" href="/tabs/overview">
           <ion-icon aria-hidden="true" [name]="overviewIcon()"></ion-icon>

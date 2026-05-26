@@ -47,11 +47,11 @@ export const appRoutes: Routes = [
           },
         ],
       },
-      {
-        path: 'eat',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./tabs/eat/eat.page').then((m) => m.EatPage),
-      },
+      // {
+      //   path: 'eat',
+      //   canActivate: [AuthGuard],
+      //   loadComponent: () => import('./tabs/eat/eat.page').then((m) => m.EatPage),
+      // },
       {
         path: 'overview',
         loadComponent: () => import('./tabs/overview/overview.page').then((m) => m.OverviewPage),
