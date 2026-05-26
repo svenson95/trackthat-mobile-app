@@ -73,7 +73,7 @@ export class WorkoutsService {
         );
 
         this.workoutsResource.set(updated);
-        this.editService.editedWorkouts.set(updated);
+        this.editService.setEditedWorkouts(updated);
       }),
     );
   }

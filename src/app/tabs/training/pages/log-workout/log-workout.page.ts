@@ -171,7 +171,7 @@ export class LogWorkoutPage {
   });
 
   async startEditing(): Promise<void> {
-    this.isEditing.set(true);
+    this.editService.setIsEditing(true);
     await this.moreMenu().dismiss();
   }
 
@@ -182,6 +182,6 @@ export class LogWorkoutPage {
 
   async abortEditing(): Promise<void> {
     await this.helperService.closeSlidingItems(this.host);
-    this.isEditing.set(false);
+    this.editService.setIsEditing(false);
   }
 }

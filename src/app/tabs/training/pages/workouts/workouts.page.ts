@@ -138,13 +138,12 @@ export class WorkoutsPage {
 
   private readonly userService = inject(UserService);
   private readonly workoutsService = inject(WorkoutsService);
+  private readonly editService = inject(IsEditingService);
+  readonly isEditing = this.editService.isEditing;
 
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   private readonly workoutsComp = viewChild.required(WorkoutsListComponent);
   readonly isMoreMenuOpen = signal<boolean>(false);
-
-  private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
 
   private readonly addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
@@ -188,16 +187,16 @@ export class WorkoutsPage {
   }
 
   async startEditing(): Promise<void> {
-    this.editService.editedWorkouts.set(structuredClone(this.workoutsService.sortedWorkouts()));
-    this.isEditing.set(true);
+    this.editService.setEditedWorkouts(structuredClone(this.workoutsService.sortedWorkouts()));
+    this.editService.setIsEditing(true);
     await this.moreMenu().dismiss();
   }
 
   async abortEditing(): Promise<void> {
     await this.workoutsComp().workoutsList().closeSlidingItems();
     await this.helperService.closeSlidingItems(this.host);
-    this.editService.editedWorkouts.set(null);
-    this.isEditing.set(false);
+    this.editService.setIsEditing(false);
+    this.editService.setEditedWorkouts(null);
   }
 
   async saveEdit(): Promise<void> {
@@ -215,15 +214,15 @@ export class WorkoutsPage {
       next: async () => {
         await this.helperService.closeSlidingItems(this.host);
         await loading.dismiss();
-        this.isEditing.set(false);
-        this.editService.editedWorkouts.set(null);
+        this.editService.setIsEditing(false);
+        this.editService.setEditedWorkouts(null);
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         await this.helperService.closeSlidingItems(this.host);
         await loading.dismiss();
-        this.isEditing.set(false);
-        this.editService.editedWorkouts.set(null);
+        this.editService.setIsEditing(false);
+        this.editService.setEditedWorkouts(null);
         await this.helperService.showError('tabs.training.workouts.actions.update-list.error');
       },
     });

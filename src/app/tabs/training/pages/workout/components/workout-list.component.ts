@@ -27,11 +27,10 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { IsEditingService, WorkoutsService } from '../../../services';
-
 import { TextInputDialog } from '../../../../../shared/components';
 import type { ListItem, Workout } from '../../../../../shared/models';
 import { HelperService } from '../../../../../shared/services';
+import { IsEditingService, WorkoutsService } from '../../../services';
 
 import { ExerciseItemComponent } from './exercise-item.component';
 
@@ -134,11 +133,11 @@ export class WorkoutListComponent {
     const from = event.detail.from;
     const to = event.detail.to;
 
-    const ids = this.editService.editedList() ?? [];
+    const ids = this.editService.editedWorkoutList() ?? [];
     const items = [...ids];
     const moved = items.splice(from, 1)[0];
     items.splice(to, 0, moved);
-    this.editService.editedList.set(items);
+    this.editService.setEditedWorkoutList(items);
 
     event.detail.complete();
   }
@@ -193,7 +192,7 @@ export class WorkoutListComponent {
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: async (res) => {
-        this.editService.editedList.set(res.list);
+        this.editService.setEditedWorkoutList(res.list);
         await loading.dismiss();
       },
       error: async (err) => {

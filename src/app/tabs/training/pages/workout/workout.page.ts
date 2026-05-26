@@ -241,7 +241,7 @@ export class WorkoutPage {
     const currentWorkout = workouts.find((w) => Number(w.workoutId) === workoutId);
     if (!currentWorkout) return undefined;
 
-    const editedList = this.editService.editedList();
+    const editedList = this.editService.editedWorkoutList();
     const isEditing = this.editService.isEditing();
 
     return {
@@ -267,16 +267,16 @@ export class WorkoutPage {
     const currentWorkout = this.workout();
     if (!currentWorkout) return;
 
-    this.editService.editedList.set(structuredClone(currentWorkout.list));
-    this.isEditing.set(true);
+    this.editService.setIsEditing(true);
+    this.editService.setEditedWorkoutList(structuredClone(currentWorkout.list));
     await this.moreMenu().dismiss();
   }
 
   async abortEditing(): Promise<void> {
     const list = this.workoutListComp().workoutList();
     await list.closeSlidingItems();
-    this.editService.editedList.set(null);
-    this.isEditing.set(false);
+    this.editService.setIsEditing(false);
+    this.editService.setEditedWorkoutList(null);
   }
 
   async saveEdit({ message, data }: { message: string; data?: ListItem }): Promise<void> {
@@ -289,7 +289,7 @@ export class WorkoutPage {
     });
     await loading.present();
 
-    const editedList = this.editService.editedList();
+    const editedList = this.editService.editedWorkoutList();
     const list = editedList ?? currentWorkout.list;
     const changedName = data ? list.map((i) => (i.listId === data.listId ? data : i)) : list;
     const normalized = this.workoutsService.normalizeWorkoutList(changedName);
@@ -301,14 +301,14 @@ export class WorkoutPage {
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: () => {
-        this.isEditing.set(false);
-        this.editService.editedList.set(null);
+        this.editService.setIsEditing(false);
+        this.editService.setEditedWorkoutList(null);
         void loading.dismiss();
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
-        this.isEditing.set(false);
-        this.editService.editedList.set(null);
+        this.editService.setIsEditing(false);
+        this.editService.setEditedWorkoutList(null);
         void loading.dismiss();
         const message = data
           ? 'tabs.training.workout.actions.change-text.error'
@@ -403,12 +403,12 @@ export class WorkoutPage {
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: async () => {
         await loading.dismiss();
-        this.isEditing.set(false);
+        this.editService.setIsEditing(false);
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
         await loading.dismiss();
-        this.isEditing.set(false);
+        this.editService.setIsEditing(false);
         await this.helperService.showError('tabs.training.workout.actions.update-list.error');
       },
     });

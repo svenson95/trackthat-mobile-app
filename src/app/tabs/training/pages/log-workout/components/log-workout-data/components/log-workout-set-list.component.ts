@@ -190,7 +190,7 @@ export class LogWorkoutSetListComponent {
       next: async (response) => {
         await loading.dismiss();
         if (response === null) {
-          this.isEditing.set(false);
+          this.editService.setIsEditing(false);
         }
       },
       error: async (err) => {

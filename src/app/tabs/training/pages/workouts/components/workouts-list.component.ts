@@ -127,7 +127,7 @@ export class WorkoutsListComponent {
     const workouts = [...this.editService.editedWorkouts()!];
     const moved = workouts.splice(from, 1)[0];
     workouts.splice(to, 0, moved);
-    this.editService.editedWorkouts.set(
+    this.editService.setEditedWorkouts(
       workouts.map((workout, index) => ({
         ...workout,
         listId: index,
@@ -189,12 +189,12 @@ export class WorkoutsListComponent {
     this.workoutsService.deleteWorkout(id).subscribe({
       next: async (filtered) => {
         await loading.dismiss();
-        this.editService.editedWorkouts.set(filtered);
+        this.editService.setEditedWorkouts(filtered);
       },
       error: async (err) => {
         console.error('Unexpected fail during delete user.workoutId', err);
         await loading.dismiss();
-        this.editService.editedWorkouts.set(null);
+        this.editService.setEditedWorkouts(null);
         await this.helperService.showError('tabs.training.workouts.actions.delete.error');
       },
     });
