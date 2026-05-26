@@ -57,8 +57,9 @@ export class WorkoutsService {
   addWorkout(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
     return this.http.post<PostWorkoutResponse>(this.apiUrl + '/add', workout).pipe(
       tap((createdWorkout) => {
-        const workouts = [...this.workouts(), createdWorkout];
-        this.workoutsResource.set(workouts);
+        const workouts = this.workoutsResource.value() ?? [];
+        const updated = [...workouts, createdWorkout];
+        this.workoutsResource.set(updated);
       }),
     );
   }
@@ -66,9 +67,10 @@ export class WorkoutsService {
   changeWorkoutName(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
     return this.http.post<PostWorkoutResponse>(this.apiUrl + '/change-name', workout).pipe(
       tap((updatedWorkout) => {
-        const updated = this.workoutsResource
-          .value()!
-          .map((w) => (w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w));
+        const workouts = this.workoutsResource.value() ?? [];
+        const updated = workouts.map((w) =>
+          w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w,
+        );
 
         this.workoutsResource.set(updated);
         this.editService.editedWorkouts.set(updated);
@@ -79,8 +81,9 @@ export class WorkoutsService {
   updateWorkoutList(workout: PutWorkoutBody): Observable<PutWorkoutResponse> {
     return this.http.post<PutWorkoutResponse>(`${this.apiUrl}/change-list`, workout).pipe(
       tap((updatedWorkout) => {
-        const updated = this.workouts().map((w) =>
-          w.workoutId === updatedWorkout.workoutId ? { ...w, ...updatedWorkout } : w,
+        const workouts = this.workoutsResource.value() ?? [];
+        const updated = workouts.map((w) =>
+          w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w,
         );
 
         this.workoutsResource.set(updated);
@@ -101,7 +104,8 @@ export class WorkoutsService {
   deleteWorkout(id: WorkoutId): Observable<DeleteWorkoutResult> {
     return this.http.delete<DeleteWorkoutResponse>(this.apiUrl + '/delete/' + id).pipe(
       map(() => {
-        const filtered = this.workouts().filter((w) => w.id !== id);
+        const workouts = this.workoutsResource.value() ?? [];
+        const filtered = workouts.filter((w) => w.id !== id);
         this.workoutsResource.set(filtered);
         return filtered;
       }),
@@ -109,8 +113,9 @@ export class WorkoutsService {
   }
 
   initWorkout(name: string, list: WorkoutList): Workout {
-    const workoutIds = this.workouts().map((w) => w.workoutId);
-    const listIds = this.workouts().map((w) => w.listId);
+    const workouts = this.workoutsResource.value() ?? [];
+    const workoutIds = workouts.map((w) => w.workoutId);
+    const listIds = workouts.map((w) => w.listId);
     const user = this.userService.userData();
     if (!user) throw new Error('No user found during initWorkout');
 
