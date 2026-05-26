@@ -66,9 +66,9 @@ export class WorkoutsService {
   changeWorkoutName(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
     return this.http.post<PostWorkoutResponse>(this.apiUrl + '/change-name', workout).pipe(
       tap((updatedWorkout) => {
-        const updated = this.workouts().map((w) =>
-          w.workoutId === updatedWorkout.workoutId ? { ...w, ...updatedWorkout } : w,
-        );
+        const updated = this.workoutsResource
+          .value()!
+          .map((w) => (w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w));
 
         this.workoutsResource.set(updated);
         this.editService.editedWorkouts.set(updated);
