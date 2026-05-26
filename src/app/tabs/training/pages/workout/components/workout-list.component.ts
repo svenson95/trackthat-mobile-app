@@ -28,11 +28,11 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { TextInputDialog } from '../../../../../shared/components';
+import { ExerciseItemComponent } from '../../../../../shared/components/exercise-item.component';
 import type { ListItem, Workout } from '../../../../../shared/models';
 import { HelperService } from '../../../../../shared/services';
-import { IsEditingService, WorkoutsService } from '../../../services';
 
-import { ExerciseItemComponent } from './exercise-item.component';
+import { IsEditingService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
   IonIcon,

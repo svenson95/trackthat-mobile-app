@@ -17,10 +17,11 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { ExerciseItemComponent } from '../../../../../../../shared/components';
 import type { WorkoutSet } from '../../../../../../../shared/models';
 import { HelperService } from '../../../../../../../shared/services';
+
 import { IsEditingService, LogsWorkoutService } from '../../../../../services';
-import { ExerciseItemComponent } from '../../../../workout/components';
 
 export type ExerciseSetView =
   | {

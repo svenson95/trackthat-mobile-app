@@ -17,11 +17,11 @@ import {
   IonSkeletonText,
 } from '@ionic/angular/standalone';
 
-import { LogsWorkoutService } from '../../../../services';
-
+import { ExerciseItemComponent } from '../../../../../../shared/components';
 import type { WorkoutSet } from '../../../../../../shared/models';
 import { HealthService, HelperService, UserService } from '../../../../../../shared/services';
-import { ExerciseItemComponent } from '../../../workout/components';
+
+import { LogsWorkoutService } from '../../../../services';
 import {
   LogWorkoutFormComponent,
   LogWorkoutSetListComponent,

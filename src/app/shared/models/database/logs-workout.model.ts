@@ -31,6 +31,7 @@ export interface LogWorkoutDoc extends LogWorkout {
 }
 
 export type GetLogWorkoutDTO = LogWorkoutDoc;
+export type GetLogsWorkoutDTO = Array<LogWorkoutDoc>;
 
 export type PostLogWorkoutBody = LogWorkout;
 export type PostLogWorkoutResponse = LogWorkoutDoc;

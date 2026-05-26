@@ -1,8 +1,12 @@
 import type { Routes } from '@angular/router';
 
 import { AuthGuard } from './shared/services';
+import { LogsWorkoutService as LogsPageLogsWorkoutService } from './tabs/logs/services';
 import { TabsPage } from './tabs/tabs.page';
-import { LogsWorkoutService, WorkoutsService } from './tabs/training/services';
+import {
+  LogsWorkoutService as TrainingPageLogsWorkoutService,
+  WorkoutsService,
+} from './tabs/training/services';
 
 export const appRoutes: Routes = [
   {
@@ -30,7 +34,7 @@ export const appRoutes: Routes = [
               import('./tabs/training/pages/log-workout/log-workout.page').then(
                 (m) => m.LogWorkoutPage,
               ),
-            providers: [LogsWorkoutService],
+            providers: [TrainingPageLogsWorkoutService],
             children: [
               {
                 path: ':logId',
@@ -55,6 +59,7 @@ export const appRoutes: Routes = [
       {
         path: 'logs',
         canActivate: [AuthGuard],
+        providers: [LogsPageLogsWorkoutService],
         loadComponent: () => import('./tabs/logs/logs.page').then((m) => m.LogsPage),
       },
       {
