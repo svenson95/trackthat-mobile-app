@@ -27,7 +27,7 @@ export class LogsWorkoutService {
     if (!userId) return undefined;
 
     return {
-      url: `${this.apiUrl}/get/${date}/${userId}`,
+      url: `${this.apiUrl}/get/latest-workout/${date}/${userId}`,
       method: 'GET',
     };
   });
