@@ -44,6 +44,11 @@ const ION_COMPONENTS = [
   styles: `
     ion-datetime {
       --background: var(--ion-card-background);
+      --wheel-fade-background-rgb: 255, 255, 255;
+
+      @media (prefers-color-scheme: dark) {
+        --wheel-fade-background-rgb: 28, 28, 29;
+      }
     }
 
     .no-data {
