@@ -17,7 +17,7 @@
     },
     "actions": {
       "verify": {
-        "error": "Authentication failed, try to log in again"
+        "error": "Authentication failed, please log in again"
       }
     }
   },

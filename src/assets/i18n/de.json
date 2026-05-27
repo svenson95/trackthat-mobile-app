@@ -17,7 +17,7 @@
     },
     "actions": {
       "verify": {
-        "error": "Authentifizierung fehlgeschlagen, versuche dich wieder anzumelden"
+        "error": "Authentifizierung fehlgeschlagen, bitte melde dich erneut an"
       }
     }
   },
