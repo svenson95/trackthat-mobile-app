@@ -7,10 +7,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ContentContainerComponent } from '../../shared/components';
 import { AuthService, UserService } from '../../shared/services';
 
+import { UsersService } from './services';
+
 @Component({
   selector: 'app-more-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonicModule, ContentContainerComponent, TranslateModule],
+  providers: [UsersService],
   styles: `
     li:not(:last-child) .list-item {
       margin-bottom: 1rem;
@@ -99,20 +102,22 @@ import { AuthService, UserService } from '../../shared/services';
   `,
 })
 export class MorePage {
-  private usersService = inject(UserService);
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private loadingCtrl = inject(LoadingController);
+  private readonly router = inject(Router);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly translate = inject(TranslateService);
 
-  currentLanguage = this.usersService.currentLanguage;
-  private translate = inject(TranslateService);
+  private readonly userService = inject(UserService);
+  private readonly usersService = inject(UsersService);
+  private readonly authService = inject(AuthService);
 
-  allUsers = this.usersService.allUsersResource;
-  isLoading = computed(() => this.allUsers.status() === 'loading');
-  isResolved = computed(() => this.allUsers.status() === 'resolved');
-  hasError = computed(() => this.allUsers.status() === 'error');
+  readonly currentLanguage = this.userService.currentLanguage;
 
-  logout = async (): Promise<void> => {
+  readonly allUsers = this.usersService.allUsersResource;
+  readonly isLoading = computed(() => this.allUsers.status() === 'loading');
+  readonly isResolved = computed(() => this.allUsers.status() === 'resolved');
+  readonly hasError = computed(() => this.allUsers.status() === 'error');
+
+  async logout(): Promise<void> {
     const loading = await this.loadingCtrl.create({
       message: 'Du wirst abgemeldet ...',
       spinner: 'circles',
@@ -123,7 +128,7 @@ export class MorePage {
     await this.router.navigate(['/tabs/overview']);
 
     await loading.dismiss();
-  };
+  }
 
   changeLanguage(lang: string): void {
     this.translate.use(lang);

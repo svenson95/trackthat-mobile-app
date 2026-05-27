@@ -1,13 +1,9 @@
-import { httpResource } from '@angular/common/http';
 import { Injectable, linkedSignal } from '@angular/core';
 
-import { environment } from '../../../../environments/environment.prod';
-import type { GetUsersResponse, UserDoc } from '../../models';
+import type { UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly apiUrl = environment.api + 'users';
-
   readonly currentLanguage = localStorage.getItem('language') || 'de';
 
   readonly userData = linkedSignal<undefined | UserDoc>(
@@ -30,8 +26,4 @@ export class UserService {
     localStorage.removeItem('user');
     this.userData.set(undefined);
   }
-
-  allUsersResource = httpResource<GetUsersResponse>(() => {
-    return { url: `${this.apiUrl}/`, method: 'GET' };
-  });
 }
