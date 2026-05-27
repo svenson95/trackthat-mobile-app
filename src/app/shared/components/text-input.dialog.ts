@@ -47,7 +47,7 @@ const ION_COMPONENTS = [
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="save()" [strong]="true" [disabled]="value.trim() === initialValue">
+          <ion-button (click)="save()" [strong]="true" [disabled]="isValueInvalid">
             {{ 'general.save' | translate }}
           </ion-button>
         </ion-buttons>
@@ -58,6 +58,8 @@ const ION_COMPONENTS = [
         <ion-input
           class="custom-input"
           type="text"
+          [maxlength]="maxLength ?? null"
+          [counter]="!!maxLength"
           [(ngModel)]="value"
           [placeholder]="placeholder"
           [label]="label"
@@ -76,10 +78,19 @@ export class TextInputDialog implements OnInit {
   @Input() label = '';
   @Input() placeholder = '';
   @Input() value = '';
+  @Input() maxLength?: number;
 
   initialValue = '';
 
   private modalCtrl = inject(ModalController);
+
+  get isValueTooLong(): boolean {
+    return !!this.maxLength && this.value.trim().length > this.maxLength;
+  }
+
+  get isValueInvalid(): boolean {
+    return this.value.trim() === this.initialValue || this.isValueTooLong;
+  }
 
   async ngOnInit(): Promise<void> {
     this.initialValue = this.value.trim();
@@ -90,6 +101,11 @@ export class TextInputDialog implements OnInit {
   }
 
   async save(): Promise<void> {
-    await this.modalCtrl.dismiss(this.value.trim());
+    const trimmedValue = this.value.trim();
+    if (this.maxLength && trimmedValue.length > this.maxLength) {
+      return;
+    }
+
+    await this.modalCtrl.dismiss(trimmedValue);
   }
 }

@@ -19,9 +19,14 @@ import type { OverlayEventDetail } from '@ionic/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { WORKOUT_TEMPLATES } from '../../../../../shared/data';
-import type { Workout, WorkoutDoc } from '../../../../../shared/models';
-import { HelperService } from '../../../../../shared/services';
+import {
+  HelperService,
+  WORKOUT_NAME_MAX_LENGTH,
+  WORKOUT_TEMPLATES,
+  type Workout,
+  type WorkoutDoc,
+} from '../../../../../shared';
+
 import { WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -73,7 +78,7 @@ const ION_COMPONENTS = [
               <ion-button
                 (click)="confirm()"
                 [strong]="true"
-                [disabled]="isLoading() || !hasValidName()"
+                [disabled]="isLoading() || !hasValidName"
               >
                 {{ 'general.save' | translate }}
               </ion-button>
@@ -85,9 +90,10 @@ const ION_COMPONENTS = [
           <ion-item>
             <ion-input
               class="custom-input"
-              id="name-input"
               label="Name"
               type="text"
+              [maxlength]="INPUT_MAX_LENGTH"
+              [counter]="true"
               [placeholder]="
                 'tabs.training.workouts.actions.add-workout.name-placeholder' | translate
               "
@@ -129,20 +135,25 @@ export class AddWorkoutDialog {
   private readonly workoutsService = inject(WorkoutsService);
   private readonly helperService = inject(HelperService);
 
+  readonly INPUT_MAX_LENGTH = WORKOUT_NAME_MAX_LENGTH;
   readonly templates = WORKOUT_TEMPLATES;
   readonly EMPTY_TEMPLATE_ID = -1;
   readonly isLoading = signal<boolean>(false);
 
-  readonly templateId = this.EMPTY_TEMPLATE_ID;
-
+  templateId = this.EMPTY_TEMPLATE_ID;
   name = '';
+
+  get hasValidName(): boolean {
+    return this.name.trim().length > 0;
+  }
 
   async cancel(): Promise<void> {
     await this.modal().dismiss(null, 'cancel');
   }
 
   async confirm(): Promise<void> {
-    if (!this.hasValidName()) {
+    const trimmedName = this.name.trim();
+    if (!this.hasValidName || trimmedName.length > this.INPUT_MAX_LENGTH) {
       return;
     }
 
@@ -153,7 +164,8 @@ export class AddWorkoutDialog {
     this.isLoading.set(true);
     await loading.present();
 
-    this.workoutsService.addWorkout(this.createWorkout()).subscribe({
+    const workout = this.createWorkout(trimmedName);
+    this.workoutsService.addWorkout(workout).subscribe({
       next: async (workout) => {
         await loading.dismiss();
         this.isLoading.set(false);
@@ -188,13 +200,9 @@ export class AddWorkoutDialog {
     void this.router.navigate(['tabs', 'training', workout.workoutId]);
   }
 
-  hasValidName(): boolean {
-    return this.name.trim().length > 0;
-  }
-
-  private createWorkout(): Workout {
+  private createWorkout(name: string): Workout {
     const template = this.templates.find(({ workoutId }) => workoutId === this.templateId);
     const list = template?.list ?? [];
-    return this.workoutsService.initWorkout(this.name.trim(), list);
+    return this.workoutsService.initWorkout(name, list);
   }
 }

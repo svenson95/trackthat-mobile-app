@@ -15,9 +15,13 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { TextInputDialog } from '../../../../../shared/components';
-import type { PostWorkoutBody } from '../../../../../shared/models';
-import { HelperService } from '../../../../../shared/services';
+import {
+  HelperService,
+  TextInputDialog,
+  WORKOUT_NAME_MAX_LENGTH,
+  type PostWorkoutBody,
+} from '../../../../../shared';
+
 import { IsEditingService, WorkoutsService } from '../../../services';
 
 const ION_COMPONENTS = [
@@ -147,6 +151,7 @@ export class WorkoutsListComponent {
           label: 'Name',
           placeholder: 'Name',
           value: workout.name,
+          maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
       await modal.present();
