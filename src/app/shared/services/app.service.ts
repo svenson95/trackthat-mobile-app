@@ -43,9 +43,9 @@ export class AppService {
     if (!token) return;
 
     this.authService.getVerify(token).subscribe({
-      error: async (error) => {
-        console.error('Verify authToken failed', error);
+      error: async (_error) => {
         await this.helperService.showError('general.actions.verify.error');
+        this.authService.logout();
       },
     });
   }
