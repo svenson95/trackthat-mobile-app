@@ -167,7 +167,10 @@
       "tab-title": "More",
       "settings": {
         "label": "Settings",
-        "sign-off": "Sign-off",
+        "sign-off": {
+          "label": "Sign-off",
+          "process": "You are being logged out ..."
+        },
         "language": {
           "label": "Language",
           "english": "English",

@@ -46,7 +46,7 @@ import { UsersService } from './services';
             </ion-item-divider>
 
             <ion-item button (click)="logout()" detail="true">
-              <ion-label>{{ 'tabs.more.settings.sign-off' | translate }}</ion-label>
+              <ion-label>{{ 'tabs.more.settings.sign-off.label' | translate }}</ion-label>
             </ion-item>
 
             <ion-item>
@@ -119,7 +119,7 @@ export class MorePage {
 
   async logout(): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: 'Du wirst abgemeldet ...',
+      message: this.translate.instant('tabs.more.settings.sign-off.process'),
       spinner: 'circles',
     });
     await loading.present();

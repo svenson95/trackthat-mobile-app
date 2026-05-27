@@ -167,7 +167,10 @@
       "tab-title": "Mehr",
       "settings": {
         "label": "Einstellungen",
-        "sign-off": "Abmelden",
+        "sign-off": {
+          "label": "Abmelden",
+          "process": "Du wirst abgemeldet ..."
+        },
         "language": {
           "label": "Sprache",
           "english": "Englisch",
