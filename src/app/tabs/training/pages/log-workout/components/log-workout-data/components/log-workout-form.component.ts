@@ -148,7 +148,6 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     }
 
     ion-input.custom-input.hydrated {
-      --highlight-color: var(--ion-color-primary);
       --background: var(--ion-background-color);
     }
   `,

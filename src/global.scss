@@ -120,8 +120,14 @@ ion-card {
   box-shadow: none;
 }
 
-ion-input .input-bottom {
-  margin-bottom: 0.5rem;
+ion-input {
+  &.custom-input.hydrated {
+    --highlight-color: var(--ion-color-primary);
+  }
+
+  .input-bottom {
+    margin-bottom: 0.5rem;
+  }
 }
 
 ion-item-group.exercise-item {
