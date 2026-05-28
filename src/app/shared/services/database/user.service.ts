@@ -1,10 +1,14 @@
-import { Injectable, linkedSignal } from '@angular/core';
+import { inject, Injectable, linkedSignal, signal } from '@angular/core';
+
+import { TranslateService } from '@ngx-translate/core';
 
 import type { UserDoc } from '../../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  readonly currentLanguage = localStorage.getItem('language') || 'de';
+  private readonly translate = inject(TranslateService);
+
+  readonly currentLanguage = signal<string>(localStorage.getItem('language') || 'de');
 
   readonly userData = linkedSignal<undefined | UserDoc>(
     () => {
@@ -25,5 +29,11 @@ export class UserService {
   clearUser(): void {
     localStorage.removeItem('user');
     this.userData.set(undefined);
+  }
+
+  setLanguage(lang: 'de' | 'en'): void {
+    localStorage.setItem('language', lang);
+    this.translate.use(lang);
+    this.currentLanguage.set(lang);
   }
 }

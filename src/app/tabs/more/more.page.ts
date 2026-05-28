@@ -52,8 +52,8 @@ import { UsersService } from './services';
             <ion-item>
               <ion-select
                 [label]="'tabs.more.settings.language.label' | translate"
-                [value]="currentLanguage"
-                (ionChange)="changeLanguage($event.detail.value)"
+                [value]="currentLanguage()"
+                (ionChange)="setLanguage($event.detail.value)"
                 [cancelText]="'general.abort' | translate"
               >
                 <ion-select-option value="de">
@@ -111,6 +111,7 @@ export class MorePage {
   private readonly authService = inject(AuthService);
 
   readonly currentLanguage = this.userService.currentLanguage;
+  readonly setLanguage = this.userService.setLanguage;
 
   readonly allUsers = this.usersService.allUsersResource;
   readonly isLoading = computed(() => this.allUsers.status() === 'loading');
@@ -128,10 +129,5 @@ export class MorePage {
     await this.router.navigate(['/tabs/overview']);
 
     await loading.dismiss();
-  }
-
-  changeLanguage(lang: string): void {
-    this.translate.use(lang);
-    localStorage.setItem('language', lang);
   }
 }

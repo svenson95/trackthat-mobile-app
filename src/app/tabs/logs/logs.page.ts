@@ -18,6 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent, ExerciseItemComponent } from '../../shared/components';
 import type { GetLogsWorkoutDTO, LogWorkoutDoc, WorkoutSet } from '../../shared/models';
+import { UserService } from '../../shared/services';
 
 import { LogsWorkoutService } from './services';
 
@@ -92,6 +93,7 @@ const ION_COMPONENTS = [
               [value]="selectedDateValue()"
               [highlightedDates]="highlightedDates()"
               (ionChange)="onDateChange($event)"
+              [locale]="currentLanguage()"
             ></ion-datetime>
           </ion-card-content>
         </ion-card>
@@ -140,6 +142,7 @@ const ION_COMPONENTS = [
 })
 export class LogsPage {
   private readonly logWorkoutService = inject(LogsWorkoutService);
+  private readonly userService = inject(UserService);
 
   private readonly logs = computed<GetLogsWorkoutDTO>(() => {
     return this.logWorkoutService.allLogsWorkoutResource.value() ?? [];
@@ -150,6 +153,7 @@ export class LogsPage {
   readonly selectedDateValue = computed(() => new Date(this.selectedDate() * 1000).toISOString());
 
   readonly isLoading = this.logWorkoutService.allLogsWorkoutResource.isLoading;
+  readonly currentLanguage = this.userService.currentLanguage;
 
   readonly exercises = computed<{ name: string; sets: WorkoutSet[] }[]>(() => {
     const selectedDateInSeconds = this.timestampToDateIso(this.selectedDate());
