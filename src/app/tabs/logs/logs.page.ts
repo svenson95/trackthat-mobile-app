@@ -50,7 +50,7 @@ const ION_COMPONENTS = [
       }
     }
 
-    .no-data {
+    .logs-data-label {
       margin-inline: auto;
     }
 
@@ -129,8 +129,10 @@ const ION_COMPONENTS = [
               </ion-item-group>
             }
           </div>
+        } @else if (isLoading()) {
+          <p class="logs-data-label">{{ 'tabs.logs.loading' | translate }}</p>
         } @else {
-          <p class="no-data">Keine Logs für diesen Tag vorhanden.</p>
+          <p class="logs-data-label">{{ 'tabs.logs.no-data' | translate }}</p>
         }
       </app-content-container>
     </ion-content>
@@ -146,6 +148,8 @@ export class LogsPage {
   private readonly selectedDate = signal<number>(Math.floor(Date.now() / 1000));
 
   readonly selectedDateValue = computed(() => new Date(this.selectedDate() * 1000).toISOString());
+
+  readonly isLoading = this.logWorkoutService.allLogsWorkoutResource.isLoading;
 
   readonly exercises = computed<{ name: string; sets: WorkoutSet[] }[]>(() => {
     const selectedDateInSeconds = this.timestampToDateIso(this.selectedDate());

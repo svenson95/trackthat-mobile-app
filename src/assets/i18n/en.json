@@ -160,7 +160,9 @@
     },
     "logs": {
       "tab-label": "Logs",
-      "tab-title": "Logs"
+      "tab-title": "Logs",
+      "no-data": "No logs available for this day",
+      "loading": "Loading logs ..."
     },
     "more": {
       "tab-label": "More",
