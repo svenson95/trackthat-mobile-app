@@ -19,13 +19,9 @@ import type { OverlayEventDetail } from '@ionic/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import {
-  HelperService,
-  WORKOUT_NAME_MAX_LENGTH,
-  WORKOUT_TEMPLATES,
-  type Workout,
-  type WorkoutDoc,
-} from '../../../../../shared';
+import { WORKOUT_NAME_MAX_LENGTH, WORKOUT_TEMPLATES } from '../../../../../shared/data';
+import type { Workout, WorkoutDoc } from '../../../../../shared/models';
+import { HelperService } from '../../../../../shared/services';
 
 import { WorkoutsService } from '../../../services';
 
