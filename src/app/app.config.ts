@@ -1,6 +1,6 @@
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import type { ApplicationConfig } from '@angular/core';
-import { importProvidersFrom, isDevMode } from '@angular/core';
+import { importProvidersFrom, inject, isDevMode, provideAppInitializer } from '@angular/core';
 import {
   PreloadAllModules,
   provideRouter,
@@ -15,6 +15,11 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { appRoutes } from './app.routes';
+import { StartupService } from './shared/services';
+
+const APP_INITIALIZER_PROVIDER = provideAppInitializer(() => {
+  inject(StartupService);
+});
 
 const ROUTER_PROVIDERS = [
   provideRouter(appRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
@@ -49,6 +54,7 @@ const I18N_PROVIDERS = [
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    APP_INITIALIZER_PROVIDER,
     ...ROUTER_PROVIDERS,
     ...HTTP_PROVIDERS,
     ...IONIC_PROVIDERS,

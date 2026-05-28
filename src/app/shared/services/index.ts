@@ -4,3 +4,4 @@ export * from './auth/auth.service';
 export * from './database/user.service';
 export * from './health.service';
 export * from './helper.service';
+export * from './startup.service';

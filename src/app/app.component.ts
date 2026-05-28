@@ -3,22 +3,28 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { AppService, HealthService } from './shared/services';
+import { AppService, HealthService, StartupService } from './shared/services';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonicModule],
   providers: [AppService],
+  styles: `
+    :host {
+      position: static;
+    }
+  `,
   template: `
     <ion-app>
-      <ion-router-outlet></ion-router-outlet>
+      <ion-router-outlet (activate)="onRouteActivated()"></ion-router-outlet>
     </ion-app>
   `,
 })
 export class AppComponent {
   private readonly SUPPORTED_LANGUAGES = ['de', 'en'] as const;
   private readonly DEFAULT_LANGAUGE = 'de';
+  private readonly startupService = inject(StartupService);
 
   private appService = inject(AppService);
   private translate = inject(TranslateService);
@@ -45,6 +51,15 @@ export class AppComponent {
     this.appService.preventBrowserSwipeBack();
 
     this.configureTranslate();
+  }
+
+  onRouteActivated(): void {
+    if (this.startupService.routeActivated) {
+      return;
+    }
+
+    this.startupService.routeActivated = true;
+    this.startupService.hideAppInitializer();
   }
 
   private configureTranslate(): void {
