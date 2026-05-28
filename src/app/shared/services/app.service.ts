@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import type { VersionEvent } from '@angular/service-worker';
 import { SwUpdate } from '@angular/service-worker';
 import { AlertController } from '@ionic/angular';
@@ -25,6 +26,7 @@ const ALERT_OPTIONS = {
 export class AppService {
   private readonly swUpdate = inject(SwUpdate);
   private readonly alertCtrl = inject(AlertController);
+  private readonly router = inject(Router);
 
   private readonly helperService = inject(HelperService);
   private readonly authService = inject(AuthService);
@@ -46,6 +48,7 @@ export class AppService {
       error: async (_error) => {
         await this.helperService.showError('general.actions.verify.error');
         this.authService.logout();
+        await this.router.navigate(['/']);
       },
     });
   }
