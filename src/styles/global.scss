@@ -98,6 +98,10 @@ ion-modal.datetime-modal::part(content) {
   height: auto;
 }
 
+ion-alert {
+  outline: none !important;
+}
+
 .item.sc-ion-label-md-h,
 .item .sc-ion-label-md-h {
   color: black;
