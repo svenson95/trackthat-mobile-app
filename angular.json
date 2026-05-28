@@ -36,7 +36,7 @@
                 "output": "."
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/styles/global.scss", "src/styles/variables.scss"],
             "scripts": [],
             "serviceWorker": true,
             "ngswConfigPath": "src/ngsw-config.json"
@@ -118,7 +118,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/styles/global.scss", "src/styles/variables.scss"],
             "scripts": []
           },
           "configurations": {

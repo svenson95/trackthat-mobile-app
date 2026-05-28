@@ -1,0 +1,175 @@
+// src/theme/variables.scss
+
+/*
+ * Ionic Theme Variables
+ * -----------------------------------------------------
+ * Keep this file for global design tokens only:
+ * colors, spacing, radius, app backgrounds, typography tokens.
+ */
+
+/*
+ * Dark mode based on system preference.
+ * Ionic applies the dark palette automatically when the OS is in dark mode.
+ */
+@import '@ionic/angular/css/palettes/dark.system.css';
+
+/*
+ * Optional alternatives:
+ * Always dark:
+ * @import '@ionic/angular/css/palettes/dark.always.css';
+ *
+ * Manual toggle via class `.ion-palette-dark`:
+ * @import '@ionic/angular/css/palettes/dark.class.css';
+ */
+
+/* -----------------------------------------------------
+ * Light Theme / Base Theme
+ * ----------------------------------------------------- */
+
+:root {
+  /*
+   * Brand Colors
+   * Example palette for TrackThat / Fitness app.
+   * Adjust primary to your logo/accent color.
+   */
+
+  --ion-color-primary: #fd5900;
+  --ion-color-primary-rgb: 253, 89, 0;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #df4e00;
+  --ion-color-primary-tint: #fd6a1a;
+
+  --ion-color-secondary: #00a4fd;
+  --ion-color-secondary-rgb: 0, 164, 253;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0090df;
+  --ion-color-secondary-tint: #1aadfd;
+
+  --ion-color-tertiary: #8b5cf6;
+  --ion-color-tertiary-rgb: 139, 92, 246;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #7a51d8;
+  --ion-color-tertiary-tint: #976cf7;
+
+  --ion-color-success: #22c55e;
+  --ion-color-success-rgb: 34, 197, 94;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #1ead52;
+  --ion-color-success-tint: #38cb6e;
+
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #111827;
+  --ion-color-warning-contrast-rgb: 17, 24, 39;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6a823;
+
+  --ion-color-danger: #ef4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  --ion-color-medium: #64748b;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #58667a;
+  --ion-color-medium-tint: #748196;
+
+  // --ion-color-light: #f8fafc;
+  // --ion-color-light-rgb: 248, 250, 252;
+  // --ion-color-light-contrast: #0f172a;
+  // --ion-color-light-contrast-rgb: 15, 23, 42;
+  // --ion-color-light-shade: #dadee0;
+  // --ion-color-light-tint: #f9fbfc;
+
+  /*
+   * Ionic App Background / Text
+   */
+
+  --ion-background-color: #f8fafc;
+  --ion-background-color-rgb: 248, 250, 252;
+
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+
+  // --ion-toolbar-background: #ffffff;
+  // --ion-toolbar-color: #0f172a;
+
+  // --ion-tab-bar-background: #ffffff;
+  // --ion-tab-bar-color: #64748b;
+  // --ion-tab-bar-color-selected: var(--ion-color-primary);
+
+  --ion-item-background: #ffffff;
+  --ion-card-background: #ffffff;
+
+  /*
+   * Custom App Tokens
+   * Use these in your own components instead of hardcoded colors.
+   */
+
+  // --app-page-background: #f8fafc;
+  // --app-surface: #ffffff;
+  // --app-surface-variant: #f1f5f9;
+  // --app-border-color: #e2e8f0;
+
+  // --app-text-primary: #0f172a;
+  // --app-text-secondary: #475569;
+  // --app-text-muted: #94a3b8;
+
+  // --app-radius-sm: 8px;
+  // --app-radius-md: 12px;
+  // --app-radius-lg: 16px;
+  // --app-radius-xl: 24px;
+
+  // --app-spacing-xs: 4px;
+  // --app-spacing-sm: 8px;
+  // --app-spacing-md: 16px;
+  // --app-spacing-lg: 24px;
+
+  // --app-shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* -----------------------------------------------------
+ * Dark Theme Custom Overrides
+ * -----------------------------------------------------
+ * Ionic's dark.system.css already sets the Ionic dark palette.
+ * Here you only override your custom app tokens.
+ */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-background-color: #020617;
+    --ion-background-color-rgb: 2, 6, 23;
+
+    --ion-text-color: #f8fafc;
+    --ion-text-color-rgb: 248, 250, 252;
+
+    // --ion-toolbar-background: #020617;
+    // --ion-toolbar-color: #f8fafc;
+
+    // --ion-tab-bar-background: #020617;
+    // --ion-tab-bar-color: #94a3b8;
+    // --ion-tab-bar-color-selected: var(--ion-color-primary);
+
+    --ion-item-background: #0f172a;
+    --ion-card-background: #0f172a;
+
+    // --app-page-background: #020617;
+    // --app-surface: #0f172a;
+    // --app-surface-variant: #1e293b;
+    // --app-border-color: #334155;
+
+    // --app-text-primary: #f8fafc;
+    // --app-text-secondary: #cbd5e1;
+    // --app-text-muted: #64748b;
+
+    // --app-shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.32);
+  }
+}
