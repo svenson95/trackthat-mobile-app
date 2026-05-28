@@ -17,8 +17,7 @@ import {
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent, ExerciseItemComponent } from '../../shared/components';
-import type { GetLogsWorkoutDTO, WorkoutSet } from '../../shared/models';
-import { UserService } from '../../shared/services';
+import type { GetLogsWorkoutDTO, LogWorkoutDoc, WorkoutSet } from '../../shared/models';
 
 import { LogsWorkoutService } from './services';
 
@@ -90,16 +89,17 @@ const ION_COMPONENTS = [
           <ion-card-content>
             <ion-datetime
               presentation="date"
-              [value]="selectedDateIso()"
+              [value]="selectedDateValue()"
+              [highlightedDates]="highlightedDates()"
               (ionChange)="onDateChange($event)"
             ></ion-datetime>
           </ion-card-content>
         </ion-card>
 
-        @let data = logs();
-        @if (data.length > 0) {
+        @let selectedExercises = exercises();
+        @if (selectedExercises.length > 0) {
           <div class="exercises-container">
-            @for (exercise of exercises(); track exercise.name) {
+            @for (exercise of selectedExercises; track exercise.name) {
               <ion-item-group class="exercise-item">
                 <ion-item-divider class="exercise-item is-selected-exercise">
                   <app-exercise-item [exercise]="exercise.name" />
@@ -138,20 +138,41 @@ const ION_COMPONENTS = [
 })
 export class LogsPage {
   private readonly logWorkoutService = inject(LogsWorkoutService);
-  private readonly userService = inject(UserService);
 
-  readonly selectedDateIso = signal(new Date().toISOString());
-  readonly logs = signal<GetLogsWorkoutDTO>([]);
+  private readonly logs = computed<GetLogsWorkoutDTO>(() => {
+    return this.logWorkoutService.allLogsWorkoutResource.value() ?? [];
+  });
 
-  readonly selectedDate = computed(() => new Date(this.selectedDateIso()));
+  private readonly selectedDate = signal<number>(Math.floor(Date.now() / 1000));
+
+  readonly selectedDateValue = computed(() => new Date(this.selectedDate() * 1000).toISOString());
 
   readonly exercises = computed<{ name: string; sets: WorkoutSet[] }[]>(() => {
-    // TODO: show all logs not only first one
-    const sets = this.logs()[0].sets ?? [];
+    const selectedDateInSeconds = this.timestampToDateIso(this.selectedDate());
+
+    const sets = this.logs()
+      .filter((log: LogWorkoutDoc) => this.timestampToDateIso(log.date) === selectedDateInSeconds)
+      .reduce<WorkoutSet[]>((allSets, log) => [...allSets, ...(log.sets ?? [])], []);
+
     const exercises = this.groupSetsByExercise(sets);
 
     return exercises.sort((a, b) => this.getFirstExerciseTime(a) - this.getFirstExerciseTime(b));
   });
+
+  readonly highlightedDates = computed(() => {
+    return this.logs().map((l) => ({
+      date: this.timestampToDateIso(l.date),
+      backgroundColor: 'var(--ion-color-light-tint)',
+    }));
+  });
+
+  onDateChange(event: CustomEvent): void {
+    const value = event.detail.value;
+    if (!value || Array.isArray(value)) return;
+
+    const timestamp = Math.floor(new Date(value).getTime() / 1000);
+    this.selectedDate.set(timestamp);
+  }
 
   // TODO refactor copied functions to service
   private groupSetsByExercise(sets: WorkoutSet[]): { name: string; sets: WorkoutSet[] }[] {
@@ -198,40 +219,13 @@ export class LogsPage {
     return this.timeToSeconds(firstSet.time);
   }
 
-  constructor() {
-    this.loadLogsForSelectedDate();
-  }
+  private timestampToDateIso(timestampInSeconds: number): string {
+    const date = new Date(timestampInSeconds * 1000);
 
-  onDateChange(event: CustomEvent): void {
-    const value = event.detail.value;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
 
-    if (!value || Array.isArray(value)) return;
-
-    this.selectedDateIso.set(value);
-    this.loadLogsForSelectedDate();
-  }
-
-  private loadLogsForSelectedDate(): void {
-    const userId = this.userService.userData()?.id;
-
-    if (!userId) {
-      this.logs.set([]);
-      return;
-    }
-
-    const selectedDate = new Date(this.selectedDateIso());
-
-    const dateInSeconds = Math.floor(
-      new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate(),
-      ).getTime() / 1000,
-    );
-
-    this.logWorkoutService.getAllLogsWorkout(dateInSeconds, userId).subscribe({
-      next: (logs) => this.logs.set(logs ?? []),
-      error: () => this.logs.set([]),
-    });
+    return `${year}-${month}-${day}`;
   }
 }
