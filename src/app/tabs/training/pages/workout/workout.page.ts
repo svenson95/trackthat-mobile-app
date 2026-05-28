@@ -30,9 +30,11 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { ContentContainerComponent, TextInputDialog } from '../../../../shared/components';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../../../shared/data';
 import type { ListItem, ListItemExercise, WorkoutDoc } from '../../../../shared/models';
 import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../shared/models';
 import { HelperService } from '../../../../shared/services';
+
 import { IsEditingService, WorkoutsService } from '../../services';
 
 import { WorkoutListComponent } from './components';
@@ -327,6 +329,7 @@ export class WorkoutPage {
           label: 'Text',
           placeholder: this.translate.instant('tabs.training.workout.actions.add-text.placeholder'),
           value: '',
+          maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
       await modal.present();

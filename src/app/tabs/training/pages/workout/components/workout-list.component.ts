@@ -27,8 +27,8 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { TextInputDialog } from '../../../../../shared/components';
-import { ExerciseItemComponent } from '../../../../../shared/components/exercise-item.component';
+import { ExerciseItemComponent, TextInputDialog } from '../../../../../shared/components';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../../../../shared/data';
 import type { ListItem, Workout } from '../../../../../shared/models';
 import { HelperService } from '../../../../../shared/services';
 
@@ -156,6 +156,7 @@ export class WorkoutListComponent {
           label: 'Text',
           placeholder: 'Text',
           value: item,
+          maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
       await modal.present();
