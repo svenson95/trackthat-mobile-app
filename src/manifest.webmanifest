@@ -1,7 +1,7 @@
 {
   "name": "TrackThat",
   "short_name": "TrackThat",
-  "theme_color": "#af1817",
+  "theme_color": "#fd5900",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",
