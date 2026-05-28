@@ -100,6 +100,14 @@ ion-modal.datetime-modal::part(content) {
 
 ion-alert {
   outline: none !important;
+
+  &:focus,
+  &:focus-visible,
+  & .alert-wrapper:focus,
+  & .alert-wrapper:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
 .item.sc-ion-label-md-h,
