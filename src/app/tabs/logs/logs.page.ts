@@ -95,8 +95,9 @@ const ION_COMPONENTS = [
               presentation="date"
               [value]="selectedDateValue()"
               [highlightedDates]="highlightedDates()"
-              (ionChange)="onDateChange($event)"
               [locale]="currentLanguage()"
+              [firstDayOfWeek]="1"
+              (ionChange)="onDateChange($event)"
             ></ion-datetime>
           </ion-card-content>
         </ion-card>
