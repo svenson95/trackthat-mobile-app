@@ -56,6 +56,9 @@ const ION_COMPONENTS = [
     }
 
     .date-card {
+      margin: 16px;
+      border-radius: var(--app-radius-1);
+
       ion-card-content {
         padding: 0.5rem;
       }

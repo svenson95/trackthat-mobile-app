@@ -114,7 +114,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     ion-button {
       margin: 0;
       min-height: 44px;
-      --border-radius: 0;
+      --border-radius: var(--app-radius-1);
 
       height: 18px;
       width: 18px;
