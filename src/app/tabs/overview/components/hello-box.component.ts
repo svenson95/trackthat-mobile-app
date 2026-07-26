@@ -9,6 +9,12 @@ import type { UserDoc } from '../../../shared/models';
   selector: 'app-hello-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonicModule, TranslateModule],
+  styles: `
+    ion-card {
+      margin: 16px;
+      border-radius: var(--app-radius-1);
+    }
+  `,
   template: `
     <ion-card>
       <ion-card-header>
