@@ -46,6 +46,7 @@ export class AppComponent {
   }
 
   constructor() {
+    this.healthService.pingToRefresh();
     this.appService.getVersionUpdates();
     this.appService.updateUserData();
     this.appService.preventBrowserSwipeBack();
