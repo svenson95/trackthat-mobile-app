@@ -144,8 +144,9 @@
  */
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --ion-background-color: #020617;
+  :root.ios,
+  :root.md {
+    --ion-background-color: #000;
     --ion-background-color-rgb: 2, 6, 23;
 
     --ion-text-color: #f8fafc;
@@ -158,8 +159,8 @@
     // --ion-tab-bar-color: #94a3b8;
     // --ion-tab-bar-color-selected: var(--ion-color-primary);
 
-    --ion-item-background: #0f172a;
-    --ion-card-background: #0f172a;
+    --ion-item-background: var(--background);
+    --ion-card-background: var(--background);
 
     // --app-page-background: #020617;
     // --app-surface: #0f172a;
