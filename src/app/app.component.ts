@@ -26,8 +26,8 @@ export class AppComponent {
   private readonly DEFAULT_LANGAUGE = 'de';
   private readonly startupService = inject(StartupService);
 
-  private appService = inject(AppService);
-  private translate = inject(TranslateService);
+  private readonly appService = inject(AppService);
+  private readonly translate = inject(TranslateService);
 
   private readonly healthService = inject(HealthService);
 
