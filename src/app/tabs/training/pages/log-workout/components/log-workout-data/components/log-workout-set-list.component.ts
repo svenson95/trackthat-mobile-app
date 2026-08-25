@@ -1,4 +1,4 @@
-import { Location } from '@angular/common';
+import { Location, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
@@ -55,7 +55,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-log-workout-set-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, NgTemplateOutlet, TranslateModule, ExerciseItemComponent],
   styles: `
     :host {
       display: flex;
@@ -67,32 +67,56 @@ const ION_COMPONENTS = [
     ion-item-option.delete-set {
       font-size: 12px;
     }
+
+    ion-item-divider.is-selected-exercise {
+      margin-bottom: 1rem;
+    }
   `,
   template: `
+    <ion-item-divider class="workout-section-divider">
+      <ion-label>Aktuelles Training</ion-label>
+    </ion-item-divider>
+
     @if (isLoading()) {
       <ion-item-group class="exercise-item">
+        <ion-item-divider class="exercise-item is-selected-exercise">
+          <app-exercise-item [exercise]="selectedExercise()" />
+        </ion-item-divider>
+
         <div class="item-container">
           @for (item of skeletonSets(); track item) {
-            <ion-item class="log-set skeleton-log-set" lines="none">
+            <ion-item class="log-set skeleton-log-set" [lines]="$last ? 'none' : 'inset'">
               <ion-label>
                 <ion-skeleton-text animated class="set-index-skeleton" />
                 <ion-skeleton-text animated class="set-value-skeleton" />
                 <ion-skeleton-text animated class="set-time-skeleton" />
+                <ion-skeleton-text animated class="set-break-skeleton" />
               </ion-label>
             </ion-item>
           }
         </div>
       </ion-item-group>
     } @else {
-      @for (exerciseGroup of exercises(); track exerciseGroup.name) {
-        <ion-item-group class="exercise-item">
-          <ion-item-divider
-            class="exercise-item"
-            [class.is-selected-exercise]="exerciseGroup.name === selectedExercise()"
-          >
-            <app-exercise-item [exercise]="exerciseGroup.name" />
-          </ion-item-divider>
+      @for (exerciseGroup of exerciseGroups(); track exerciseGroup.name) {
+        <ng-container
+          *ngTemplateOutlet="
+            exerciseGroupTemplate;
+            context: {
+              $implicit: exerciseGroup,
+              selected: exerciseGroup.name === selectedExercise(),
+            }
+          "
+        />
+      }
+    }
 
+    <ng-template #exerciseGroupTemplate let-exerciseGroup let-selected="selected">
+      <ion-item-group class="exercise-item">
+        <ion-item-divider class="exercise-item" [class.is-selected-exercise]="selected">
+          <app-exercise-item [exercise]="exerciseGroup.name" />
+        </ion-item-divider>
+
+        @if (exerciseGroup.sets.length > 0) {
           <ion-list class="item-container">
             @for (
               item of exerciseGroup.sets;
@@ -138,9 +162,9 @@ const ION_COMPONENTS = [
               }
             }
           </ion-list>
-        </ion-item-group>
-      }
-    }
+        }
+      </ion-item-group>
+    </ng-template>
   `,
 })
 export class LogWorkoutSetListComponent {
@@ -158,14 +182,31 @@ export class LogWorkoutSetListComponent {
 
   private readonly helperService = inject(HelperService);
   private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
   readonly logsWorkoutService = inject(LogsWorkoutService);
 
-  readonly isLoading = computed(() => {
-    return (
-      this.logsWorkoutService.logWorkoutResource.isLoading() &&
-      !this.logsWorkoutService.latestSetResource.isLoading()
-    );
+  readonly isEditing = this.editService.isEditing;
+
+  readonly isLoading = computed<boolean>(() =>
+    this.logsWorkoutService.logWorkoutResource.isLoading(),
+  );
+
+  readonly exerciseGroups = computed<ExerciseView[]>(() => {
+    const exercises = this.exercises();
+    const selectedExercise = this.selectedExercise();
+
+    const selectedExerciseExists = exercises.some(({ name }) => name === selectedExercise);
+
+    if (selectedExerciseExists) {
+      return exercises;
+    }
+
+    return [
+      ...exercises,
+      {
+        name: selectedExercise,
+        sets: [],
+      },
+    ];
   });
 
   readonly routeParams = toSignal(this.route.params, {
@@ -178,25 +219,31 @@ export class LogWorkoutSetListComponent {
     slidingItem: IonItemSliding,
   ): Promise<void> {
     if (item.type !== 'set') return;
+
     await slidingItem.close();
 
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),
       spinner: 'circles',
     });
+
     await loading.present();
 
     const logId = String(this.logsWorkoutService.logId()!);
+
     this.logsWorkoutService.deleteSet(logId, itemId, item.set).subscribe({
       next: async (response) => {
         await loading.dismiss();
+
         if (response === null) {
           this.editService.setIsEditing(false);
         }
       },
       error: async (err) => {
         console.error('Unexpected fail during delete log-workout.set', err);
+
         await loading.dismiss();
+
         await this.helperService.showError('tabs.training.log-workout.actions.delete-set.error');
       },
     });

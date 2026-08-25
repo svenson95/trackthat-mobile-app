@@ -189,33 +189,25 @@ export class LogsPage {
   // TODO refactor copied functions to service
   private groupSetsByExercise(sets: WorkoutSet[]): { name: string; sets: WorkoutSet[] }[] {
     const grouped = sets.reduce<Record<string, WorkoutSet[]>>((acc, set) => {
-      const exercise = set.exercise;
+      if (!acc[set.exercise]) {
+        acc[set.exercise] = [];
+      }
 
-      if (!acc[exercise]) acc[exercise] = [];
-      acc[exercise].push(set);
+      acc[set.exercise].push(set);
 
       return acc;
     }, {});
 
-    return Object.keys(grouped)
-      .map((name) => {
-        const exerciseSets = grouped[name].sort((a, b) => {
-          return this.timeToSeconds(a.time) - this.timeToSeconds(b.time);
-        });
-
-        return {
-          name,
-          sets: exerciseSets,
-        };
-      })
+    return Object.entries(grouped)
+      .map(([name, exerciseSets]) => ({
+        name,
+        sets: exerciseSets.sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time)),
+      }))
       .sort((a, b) => {
-        const newestASet = a.sets[a.sets.length - 1];
-        const newestBSet = b.sets[b.sets.length - 1];
+        const firstA = a.sets[0];
+        const firstB = b.sets[0];
 
-        const newestA = this.timeToSeconds(newestASet?.time);
-        const newestB = this.timeToSeconds(newestBSet?.time);
-
-        return newestB - newestA;
+        return this.timeToSeconds(firstA?.time) - this.timeToSeconds(firstB?.time);
       });
   }
 

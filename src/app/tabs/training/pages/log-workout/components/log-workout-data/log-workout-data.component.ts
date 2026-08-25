@@ -17,7 +17,6 @@ import {
   IonSkeletonText,
 } from '@ionic/angular/standalone';
 
-import { ExerciseItemComponent } from '../../../../../../shared/components';
 import type { WorkoutSet } from '../../../../../../shared/models';
 import { HealthService, HelperService, UserService } from '../../../../../../shared/services';
 
@@ -35,13 +34,7 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
 @Component({
   selector: 'app-log-workout-data',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ION_COMPONENTS,
-    LogWorkoutFormComponent,
-    LogWorkoutSetListComponent,
-    ExerciseItemComponent,
-    DatePipe,
-  ],
+  imports: [...ION_COMPONENTS, LogWorkoutFormComponent, LogWorkoutSetListComponent, DatePipe],
   styles: `
     :host {
       display: flex;
@@ -53,57 +46,32 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       gap: 0.5rem;
     }
 
+    .sticky-form {
+      position: sticky;
+      top: 0.5rem;
+      z-index: 100;
+
+      width: 100%;
+      padding-bottom: 0.5rem;
+
+      background: var(--ion-color-base);
+
+      isolation: isolate;
+    }
+
+    app-log-workout-set-list {
+      position: relative;
+      z-index: 0;
+    }
+
     .item-container ion-label {
       color: grey;
     }
   `,
   template: `
-    <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
-
-    @let latest = latestSet();
-    @if (noSetsForThisExercise()) {
-      <ion-item-group class="exercise-item">
-        @if (!isAddingSet()) {
-          <ion-item-divider class="exercise-item is-selected-exercise">
-            <app-exercise-item [exercise]="exercise()!" />
-          </ion-item-divider>
-        }
-
-        @if (isLoading()) {
-          <div class="item-container">
-            @for (item of skeletonSets; track item) {
-              <ion-item class="log-set skeleton-log-set" lines="none">
-                <ion-label>
-                  <ion-skeleton-text animated class="set-index-skeleton" />
-                  <ion-skeleton-text animated class="set-value-skeleton" />
-                  <ion-skeleton-text animated class="set-time-skeleton" />
-                </ion-label>
-              </ion-item>
-            }
-          </div>
-        } @else {
-          @if (latest && !isAddingSet()) {
-            <ion-list class="item-container">
-              @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
-                <ion-item
-                  button
-                  [detail]="false"
-                  class="log-set ion-activatable"
-                  [lines]="isLast ? 'none' : 'inset'"
-                  (click)="setData(item)"
-                >
-                  <ion-label>
-                    <h3>#{{ idx + 1 }}</h3>
-                    <h3>{{ item.reps }}x {{ item.load }} kg</h3>
-                    <h3>{{ latest.date * 1000 | date: 'dd.MM.yy' }}</h3>
-                  </ion-label>
-                </ion-item>
-              }
-            </ion-list>
-          }
-        }
-      </ion-item-group>
-    }
+    <div class="sticky-form">
+      <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
+    </div>
 
     <app-log-workout-set-list
       [skeletonSets]="skeletonSets"
@@ -111,53 +79,100 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       [selectedExercise]="exercise()!"
       (setSelected)="setData($event)"
     />
+
+    @let latest = latestSet();
+
+    @if (isLatestSetLoading()) {
+      <ion-item-group class="exercise-item">
+        <ion-item-divider>
+          <ion-label>Letztes Training</ion-label>
+        </ion-item-divider>
+
+        <div class="item-container">
+          @for (item of skeletonSets; track item) {
+            <ion-item class="log-set skeleton-log-set" lines="none">
+              <ion-label>
+                <ion-skeleton-text animated class="set-index-skeleton" />
+                <ion-skeleton-text animated class="set-value-skeleton" />
+                <ion-skeleton-text animated class="set-time-skeleton" />
+              </ion-label>
+            </ion-item>
+          }
+        </div>
+      </ion-item-group>
+    } @else if (latest && latest.sets.length > 0) {
+      <ion-item-group class="exercise-item">
+        <ion-item-divider>
+          <ion-label>Letztes Training</ion-label>
+        </ion-item-divider>
+
+        <ion-list class="item-container">
+          @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
+            <ion-item
+              button
+              [detail]="false"
+              class="log-set ion-activatable"
+              [lines]="isLast ? 'none' : 'inset'"
+              (click)="setData(item)"
+            >
+              <ion-label>
+                <h3>#{{ idx + 1 }}</h3>
+                <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                <h3>
+                  {{ latest.date * 1000 | date: 'dd.MM.yy' }}
+                </h3>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-item-group>
+    }
   `,
 })
 export class LogWorkoutDataComponent {
+  readonly itemId = input<string>();
+  readonly exercise = input<string>();
+  readonly logId = input<string>();
+
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
   private readonly healthService = inject(HealthService);
 
   readonly logWorkoutForm = viewChild.required(LogWorkoutFormComponent);
+
   readonly latestSet = this.logsWorkoutService.latestSetResource.value;
 
-  readonly itemId = input<string>();
-  readonly exercise = input<string>();
-  readonly logId = input<string>();
-
-  readonly noSetsForThisExercise = computed<boolean>(() => {
-    const log = this.logsWorkoutService.logWorkoutResource.value();
-    if (!log) return true;
-    const noSetForExerciseFound = !log.sets.some((l) => l.exercise === this.exercise());
-    const notAdding = !this.isAddingSet();
-    return noSetForExerciseFound && notAdding;
-  });
-
   readonly skeletonSets = [1, 2];
+
   readonly pendingSet = signal<{
     id: string;
     exercise: string;
     time: string;
   } | null>(null);
+
   readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
 
-  readonly isLoading = computed(() => {
-    return (
-      this.logsWorkoutService.logWorkoutResource.isLoading() ||
-      this.logsWorkoutService.latestSetResource.isLoading()
-    );
-  });
+  readonly isLatestSetLoading = computed<boolean>(() =>
+    this.logsWorkoutService.latestSetResource.isLoading(),
+  );
 
   readonly exercises = computed<ExerciseView[]>(() => {
     const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
+
     const exercises = this.groupSetsByExercise(sets).map<ExerciseView>(({ name, sets }) => ({
       name,
-      sets: sets.map((set) => ({ type: 'set', set })),
+      sets: sets.map((set) => ({
+        type: 'set',
+        set,
+      })),
     }));
 
     const pendingSet = this.pendingSet();
-    if (!pendingSet) return exercises;
+
+    if (!pendingSet) {
+      return exercises;
+    }
 
     const skeletonSet: ExerciseSetView = {
       type: 'skeleton',
@@ -167,12 +182,20 @@ export class LogWorkoutDataComponent {
     };
 
     const targetExercise = exercises.find(({ name }) => name === pendingSet.exercise);
+
     if (!targetExercise) {
-      return [{ name: pendingSet.exercise, sets: [skeletonSet] }, ...exercises];
+      return [
+        ...exercises,
+        {
+          name: pendingSet.exercise,
+          sets: [skeletonSet],
+        },
+      ];
     }
 
     targetExercise.sets.push(skeletonSet);
-    return exercises.sort((a, b) => this.getNewestExerciseTime(b) - this.getNewestExerciseTime(a));
+
+    return exercises;
   });
 
   addSet(formValue: LogWorkoutFormValue): void {
@@ -190,12 +213,14 @@ export class LogWorkoutDataComponent {
         userId,
         exercise,
       });
+
       return;
     }
 
     const time = this.logWorkoutForm().timeManuallyChanged()
       ? this.logWorkoutForm().formValueTime()
       : this.getCurrentTime();
+
     const set: WorkoutSet = {
       load: formValue.load,
       reps: formValue.reps,
@@ -210,7 +235,7 @@ export class LogWorkoutDataComponent {
     this.pendingSet.set({
       id: pendingSetId,
       exercise,
-      time: this.getCurrentTime(),
+      time,
     });
 
     requestAnimationFrame(() => {
@@ -221,7 +246,9 @@ export class LogWorkoutDataComponent {
         },
         error: async (error) => {
           this.pendingSet.set(null);
+
           console.error('Could not add workout set', error);
+
           await this.helperService.showError('tabs.training.log-workout.actions.add-set.error');
         },
       });
@@ -236,21 +263,13 @@ export class LogWorkoutDataComponent {
     });
   }
 
-  private getNewestExerciseTime(exercise: ExerciseView): number {
-    const newestSet = exercise.sets[exercise.sets.length - 1];
-
-    if (!newestSet) return 0;
-
-    return newestSet.type === 'set'
-      ? this.timeToSeconds(newestSet.set.time)
-      : this.timeToSeconds(newestSet.time);
-  }
-
   private getCurrentTime(): string {
     const now = new Date();
+
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
+
     return `${hours}:${minutes}:${seconds}`;
   }
 
@@ -266,38 +285,32 @@ export class LogWorkoutDataComponent {
 
   private groupSetsByExercise(sets: WorkoutSet[]): { name: string; sets: WorkoutSet[] }[] {
     const grouped = sets.reduce<Record<string, WorkoutSet[]>>((acc, set) => {
-      const exercise = set.exercise;
+      if (!acc[set.exercise]) {
+        acc[set.exercise] = [];
+      }
 
-      if (!acc[exercise]) acc[exercise] = [];
-      acc[exercise].push(set);
+      acc[set.exercise].push(set);
 
       return acc;
     }, {});
 
-    return Object.keys(grouped)
-      .map((name) => {
-        const exerciseSets = grouped[name].sort((a, b) => {
-          return this.timeToSeconds(a.time) - this.timeToSeconds(b.time);
-        });
-
-        return {
-          name,
-          sets: exerciseSets,
-        };
-      })
+    return Object.entries(grouped)
+      .map(([name, exerciseSets]) => ({
+        name,
+        sets: exerciseSets.sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time)),
+      }))
       .sort((a, b) => {
-        const newestASet = a.sets[a.sets.length - 1];
-        const newestBSet = b.sets[b.sets.length - 1];
+        const firstA = a.sets[0];
+        const firstB = b.sets[0];
 
-        const newestA = this.timeToSeconds(newestASet?.time);
-        const newestB = this.timeToSeconds(newestBSet?.time);
-
-        return newestB - newestA;
+        return this.timeToSeconds(firstA?.time) - this.timeToSeconds(firstB?.time);
       });
   }
 
   private timeToSeconds(time: string | null | undefined): number {
-    if (!time) return 0;
+    if (!time) {
+      return 0;
+    }
 
     const [hours = '0', minutes = '0', seconds = '0'] = time.split(':');
 

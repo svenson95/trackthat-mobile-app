@@ -70,13 +70,11 @@ ion-item-group.exercise-item {
     min-height: 50px;
     --padding-bottom: 0.25rem;
     --padding-start: 12px;
-    background-color: transparent;
+    --background: white;
+    background: white;
     border-radius: var(--app-radius-1);
 
     &.is-selected-exercise {
-      --background: white;
-      background: white;
-
       text-decoration: underline;
       text-decoration-color: var(--ion-color-primary);
       text-underline-offset: 0.25rem;
