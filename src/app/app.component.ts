@@ -3,12 +3,13 @@ import { IonicModule } from '@ionic/angular';
 
 import { TranslateService } from '@ngx-translate/core';
 
+import { ServerStartupOverlayComponent } from './shared/components';
 import { AppService, StartupService } from './shared/services';
 
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule],
+  imports: [IonicModule, ServerStartupOverlayComponent],
   providers: [AppService],
   styles: `
     :host {
@@ -18,6 +19,8 @@ import { AppService, StartupService } from './shared/services';
   template: `
     <ion-app>
       <ion-router-outlet (activate)="onRouteActivated()"></ion-router-outlet>
+
+      <app-server-startup-overlay />
     </ion-app>
   `,
 })

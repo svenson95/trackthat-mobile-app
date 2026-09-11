@@ -1,4 +1,4 @@
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import type { ApplicationConfig } from '@angular/core';
 import { importProvidersFrom, inject, isDevMode, provideAppInitializer } from '@angular/core';
 import {
@@ -10,12 +10,13 @@ import {
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { appRoutes } from './app.routes';
+import { serverStartupInterceptor } from './shared/interceptors';
 import { StartupService } from './shared/services';
+
+import { appRoutes } from './app.routes';
 
 const APP_INITIALIZER_PROVIDER = provideAppInitializer(() => {
   inject(StartupService);
@@ -25,7 +26,9 @@ const ROUTER_PROVIDERS = [
   provideRouter(appRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
 ];
 
-const HTTP_PROVIDERS = [provideHttpClient(withInterceptorsFromDi())];
+const HTTP_PROVIDERS = [
+  provideHttpClient(withInterceptors([serverStartupInterceptor]), withInterceptorsFromDi()),
+];
 
 const IONIC_PROVIDERS = [
   importProvidersFrom(IonicModule.forRoot()),
