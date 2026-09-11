@@ -19,9 +19,14 @@ import { ServerStartupService } from '../services';
       justify-content: center;
     }
 
+    ion-backdrop {
+      background: #000;
+      opacity: 0.35;
+    }
+
     .server-startup-card {
       position: relative;
-      z-index: 1;
+      z-index: 3;
 
       display: flex;
       align-items: center;
@@ -60,6 +65,27 @@ import { ServerStartupService } from '../services';
       background: var(--ion-color-success);
     }
 
+    .loading-dots {
+      display: inline-flex;
+      width: 1.2em;
+    }
+
+    .loading-dot {
+      opacity: 0;
+    }
+
+    .loading-dot:nth-child(1) {
+      animation: loading-dot-1 1.6s infinite;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation: loading-dot-2 1.6s infinite;
+    }
+
+    .loading-dot:nth-child(3) {
+      animation: loading-dot-3 1.6s infinite;
+    }
+
     @keyframes status-pulse {
       0%,
       100% {
@@ -68,6 +94,57 @@ import { ServerStartupService } from '../services';
 
       50% {
         opacity: 0.4;
+      }
+    }
+
+    @keyframes loading-dot-1 {
+      0%,
+      10% {
+        opacity: 0;
+      }
+
+      15%,
+      75% {
+        opacity: 1;
+      }
+
+      80%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes loading-dot-2 {
+      0%,
+      30% {
+        opacity: 0;
+      }
+
+      35%,
+      75% {
+        opacity: 1;
+      }
+
+      80%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes loading-dot-3 {
+      0%,
+      50% {
+        opacity: 0;
+      }
+
+      55%,
+      75% {
+        opacity: 1;
+      }
+
+      80%,
+      100% {
+        opacity: 0;
       }
     }
   `,
@@ -86,7 +163,13 @@ import { ServerStartupService } from '../services';
 
           @switch (serverStartupService.status()) {
             @case ('starting') {
-              <span>Server wird gestartet</span>
+              <span>
+                Server wird gestartet<span class="loading-dots" aria-hidden="true">
+                  <span class="loading-dot">.</span>
+                  <span class="loading-dot">.</span>
+                  <span class="loading-dot">.</span>
+                </span>
+              </span>
             }
 
             @case ('started') {
