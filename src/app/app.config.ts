@@ -1,6 +1,6 @@
 import { provideHttpClient, withInterceptors, withInterceptorsFromDi } from '@angular/common/http';
 import type { ApplicationConfig } from '@angular/core';
-import { importProvidersFrom, inject, isDevMode, provideAppInitializer } from '@angular/core';
+import { inject, isDevMode, provideAppInitializer } from '@angular/core';
 import {
   PreloadAllModules,
   provideRouter,
@@ -9,7 +9,7 @@ import {
   withPreloading,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -31,7 +31,7 @@ const HTTP_PROVIDERS = [
 ];
 
 const IONIC_PROVIDERS = [
-  importProvidersFrom(IonicModule.forRoot()),
+  provideIonicAngular(),
   {
     provide: RouteReuseStrategy,
     useClass: IonicRouteStrategy,

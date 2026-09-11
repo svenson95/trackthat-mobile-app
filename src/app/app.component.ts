@@ -1,15 +1,26 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { bicycleOutline, calendarOutline, ellipsisHorizontal, person } from 'ionicons/icons';
 
 import { TranslateService } from '@ngx-translate/core';
 
 import { ServerStartupOverlayComponent } from './shared/components';
 import { AppService, StartupService } from './shared/services';
 
+export const registerAppIcons = (): void => {
+  addIcons({
+    bicycleOutline,
+    calendarOutline,
+    ellipsisHorizontal,
+    person,
+  });
+};
+
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, ServerStartupOverlayComponent],
+  imports: [IonApp, IonRouterOutlet, ServerStartupOverlayComponent],
   providers: [AppService],
   styles: `
     :host {
@@ -33,6 +44,8 @@ export class AppComponent {
   private readonly translate = inject(TranslateService);
 
   constructor() {
+    registerAppIcons();
+
     this.appService.getVersionUpdates();
     this.appService.updateUserData();
     this.appService.preventBrowserSwipeBack();
