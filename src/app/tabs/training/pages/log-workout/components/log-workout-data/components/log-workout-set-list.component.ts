@@ -1,7 +1,4 @@
-import { Location, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
 import { LoadingController } from '@ionic/angular';
 import {
   IonItem,
@@ -55,7 +52,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-log-workout-set-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, NgTemplateOutlet, TranslateModule, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
     :host {
       display: flex;
@@ -80,7 +77,7 @@ const ION_COMPONENTS = [
     @if (isLoading()) {
       <ion-item-group class="exercise-item">
         <ion-item-divider class="exercise-item is-selected-exercise">
-          <app-exercise-item [exercise]="selectedExercise()" />
+          <app-exercise-item [exercise]="exercise().name" />
         </ion-item-divider>
 
         <div class="item-container">
@@ -97,22 +94,10 @@ const ION_COMPONENTS = [
         </div>
       </ion-item-group>
     } @else {
-      @for (exerciseGroup of exerciseGroups(); track exerciseGroup.name) {
-        <ng-container
-          *ngTemplateOutlet="
-            exerciseGroupTemplate;
-            context: {
-              $implicit: exerciseGroup,
-              selected: exerciseGroup.name === selectedExercise(),
-            }
-          "
-        />
-      }
-    }
+      @let exerciseGroup = exercise();
 
-    <ng-template #exerciseGroupTemplate let-exerciseGroup let-selected="selected">
       <ion-item-group class="exercise-item">
-        <ion-item-divider class="exercise-item" [class.is-selected-exercise]="selected">
+        <ion-item-divider class="exercise-item is-selected-exercise">
           <app-exercise-item [exercise]="exerciseGroup.name" />
         </ion-item-divider>
 
@@ -164,21 +149,17 @@ const ION_COMPONENTS = [
           </ion-list>
         }
       </ion-item-group>
-    </ng-template>
+    }
   `,
 })
 export class LogWorkoutSetListComponent {
   readonly skeletonSets = input<number[]>([]);
-  readonly exercises = input.required<ExerciseView[]>();
-  readonly selectedExercise = input.required<string>();
-  readonly setItemId = input<number>();
+  readonly exercise = input.required<ExerciseView>();
 
   readonly setSelected = output<WorkoutSet>();
 
   readonly loadingCtrl = inject(LoadingController);
   readonly translate = inject(TranslateService);
-  readonly route = inject(ActivatedRoute);
-  readonly location = inject(Location);
 
   private readonly helperService = inject(HelperService);
   private readonly editService = inject(IsEditingService);
@@ -190,35 +171,14 @@ export class LogWorkoutSetListComponent {
     this.logsWorkoutService.logWorkoutResource.isLoading(),
   );
 
-  readonly exerciseGroups = computed<ExerciseView[]>(() => {
-    const exercises = this.exercises();
-    const selectedExercise = this.selectedExercise();
-
-    const selectedExerciseExists = exercises.some(({ name }) => name === selectedExercise);
-
-    if (selectedExerciseExists) {
-      return exercises;
-    }
-
-    return [
-      ...exercises,
-      {
-        name: selectedExercise,
-        sets: [],
-      },
-    ];
-  });
-
-  readonly routeParams = toSignal(this.route.params, {
-    initialValue: this.route.snapshot.params,
-  });
-
   async deleteItem(
     item: ExerciseSetView,
     itemId: number,
     slidingItem: IonItemSliding,
   ): Promise<void> {
-    if (item.type !== 'set') return;
+    if (item.type !== 'set') {
+      return;
+    }
 
     await slidingItem.close();
 

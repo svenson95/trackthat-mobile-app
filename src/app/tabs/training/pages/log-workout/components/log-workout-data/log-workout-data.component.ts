@@ -73,12 +73,13 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
     </div>
 
-    <app-log-workout-set-list
-      [skeletonSets]="skeletonSets"
-      [exercises]="exercises()"
-      [selectedExercise]="exercise()!"
-      (setSelected)="setData($event)"
-    />
+    @if (exerciseView(); as exerciseView) {
+      <app-log-workout-set-list
+        [skeletonSets]="skeletonSets"
+        [exercise]="exerciseView"
+        (setSelected)="setData($event)"
+      />
+    }
 
     @let latest = latestSet();
 
@@ -156,45 +157,36 @@ export class LogWorkoutDataComponent {
     this.logsWorkoutService.latestSetResource.isLoading(),
   );
 
-  readonly exercises = computed<ExerciseView[]>(() => {
-    const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
+  readonly exerciseView = computed<ExerciseView | undefined>(() => {
+    const exercise = this.exercise();
 
-    const exercises = this.groupSetsByExercise(sets).map<ExerciseView>(({ name, sets }) => ({
-      name,
-      sets: sets.map((set) => ({
+    if (!exercise) {
+      return undefined;
+    }
+
+    const sets = (this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [])
+      .filter((set) => set.exercise === exercise)
+      .sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time))
+      .map<ExerciseSetView>((set) => ({
         type: 'set',
         set,
-      })),
-    }));
+      }));
 
     const pendingSet = this.pendingSet();
 
-    if (!pendingSet) {
-      return exercises;
+    if (pendingSet?.exercise === exercise) {
+      sets.push({
+        type: 'skeleton',
+        id: pendingSet.id,
+        exercise: pendingSet.exercise,
+        time: pendingSet.time,
+      });
     }
 
-    const skeletonSet: ExerciseSetView = {
-      type: 'skeleton',
-      id: pendingSet.id,
-      exercise: pendingSet.exercise,
-      time: pendingSet.time,
+    return {
+      name: exercise,
+      sets,
     };
-
-    const targetExercise = exercises.find(({ name }) => name === pendingSet.exercise);
-
-    if (!targetExercise) {
-      return [
-        ...exercises,
-        {
-          name: pendingSet.exercise,
-          sets: [skeletonSet],
-        },
-      ];
-    }
-
-    targetExercise.sets.push(skeletonSet);
-
-    return exercises;
   });
 
   addSet(formValue: LogWorkoutFormValue): void {
@@ -279,30 +271,6 @@ export class LogWorkoutDataComponent {
     }, -1);
 
     return maxItemId + 1;
-  }
-
-  private groupSetsByExercise(sets: WorkoutSet[]): { name: string; sets: WorkoutSet[] }[] {
-    const grouped = sets.reduce<Record<string, WorkoutSet[]>>((acc, set) => {
-      if (!acc[set.exercise]) {
-        acc[set.exercise] = [];
-      }
-
-      acc[set.exercise].push(set);
-
-      return acc;
-    }, {});
-
-    return Object.entries(grouped)
-      .map(([name, exerciseSets]) => ({
-        name,
-        sets: exerciseSets.sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time)),
-      }))
-      .sort((a, b) => {
-        const firstA = a.sets[0];
-        const firstB = b.sets[0];
-
-        return this.timeToSeconds(firstA?.time) - this.timeToSeconds(firstB?.time);
-      });
   }
 
   private timeToSeconds(time: string | null | undefined): number {
