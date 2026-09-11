@@ -16,7 +16,6 @@ import { IonButton, IonIcon, IonInput, IonLabel } from '@ionic/angular/standalon
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { HealthService } from '../../../../../../../shared/services';
 import { DatetimePickerModalComponent } from '../../../dialogs';
 
 export type LogWorkoutFormValue = {
@@ -166,9 +165,8 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="pingToRefresh(); selectAllOnFreshFocus($event)"
-          (ionInput)="pingToRefresh()"
-          (ionBlur)="pingToRefresh(); resetSelectAllOnFocus($event)"
+          (ionFocus)="selectAllOnFreshFocus($event)"
+          (ionBlur)="resetSelectAllOnFocus($event)"
         >
           <span slot="end">kg</span>
         </ion-input>
@@ -185,9 +183,8 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
-          (ionFocus)="pingToRefresh(); selectAllOnFreshFocus($event)"
-          (ionInput)="pingToRefresh()"
-          (ionBlur)="pingToRefresh(); resetSelectAllOnFocus($event)"
+          (ionFocus)="selectAllOnFreshFocus($event)"
+          (ionBlur)="resetSelectAllOnFocus($event)"
         >
           <span slot="end">x</span>
         </ion-input>
@@ -244,9 +241,6 @@ export class LogWorkoutFormComponent {
 
   readonly isAddingSet = input<boolean>(false);
   readonly addSet = output<LogWorkoutFormValue>();
-
-  private readonly healthService = inject(HealthService);
-  readonly pingToRefresh = (): void => this.healthService.pingToRefresh();
 
   readonly form = this.fb.group({
     load: [

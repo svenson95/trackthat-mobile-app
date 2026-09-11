@@ -18,7 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import type { WorkoutSet } from '../../../../../../shared/models';
-import { HealthService, HelperService, UserService } from '../../../../../../shared/services';
+import { HelperService, UserService } from '../../../../../../shared/services';
 
 import { LogsWorkoutService } from '../../../../services';
 import {
@@ -137,7 +137,6 @@ export class LogWorkoutDataComponent {
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
-  private readonly healthService = inject(HealthService);
 
   readonly logWorkoutForm = viewChild.required(LogWorkoutFormComponent);
 
@@ -242,7 +241,6 @@ export class LogWorkoutDataComponent {
       this.logsWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
         next: () => {
           this.pendingSet.set(null);
-          this.healthService.scheduleDelayedPing();
         },
         error: async (error) => {
           this.pendingSet.set(null);

@@ -1,9 +1,9 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { AppService, HealthService, StartupService } from './shared/services';
+import { AppService, StartupService } from './shared/services';
 
 @Component({
   selector: 'app-root',
@@ -24,29 +24,12 @@ import { AppService, HealthService, StartupService } from './shared/services';
 export class AppComponent {
   private readonly SUPPORTED_LANGUAGES = ['de', 'en'] as const;
   private readonly DEFAULT_LANGAUGE = 'de';
-  private readonly startupService = inject(StartupService);
 
+  private readonly startupService = inject(StartupService);
   private readonly appService = inject(AppService);
   private readonly translate = inject(TranslateService);
 
-  private readonly healthService = inject(HealthService);
-
-  @HostListener('document:visibilitychange')
-  onVisibilityChange(): void {
-    if (document.visibilityState === 'visible') {
-      this.healthService.pingToRefresh();
-    }
-  }
-
-  @HostListener('window:pageshow', ['$event'])
-  onPageShow(event: PageTransitionEvent): void {
-    if (event.persisted) {
-      this.healthService.pingToRefresh();
-    }
-  }
-
   constructor() {
-    this.healthService.pingToRefresh();
     this.appService.getVersionUpdates();
     this.appService.updateUserData();
     this.appService.preventBrowserSwipeBack();
