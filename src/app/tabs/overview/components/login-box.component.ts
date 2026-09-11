@@ -1,12 +1,20 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+} from '@ionic/angular/standalone';
 
 import { LoginForm } from '../forms';
+
+const IONIC_COMPONENTS = [IonCard, IonCardHeader, IonCardContent, IonCardTitle, IonCardSubtitle];
 
 @Component({
   selector: 'app-login-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, LoginForm],
+  imports: [...IONIC_COMPONENTS, LoginForm],
   template: `
     <ion-card>
       <ion-card-header>

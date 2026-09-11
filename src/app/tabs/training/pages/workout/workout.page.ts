@@ -8,7 +8,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LoadingController, ModalController } from '@ionic/angular';
 import {
   IonBackButton,
   IonButton,
@@ -25,6 +24,8 @@ import {
   IonSkeletonText,
   IonTitle,
   IonToolbar,
+  LoadingController,
+  ModalController,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

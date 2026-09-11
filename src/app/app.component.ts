@@ -1,7 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { bicycleOutline, calendarOutline, ellipsisHorizontal, person } from 'ionicons/icons';
+import {
+  add,
+  bicycle,
+  bicycleOutline,
+  calendar,
+  calendarOutline,
+  ellipsisHorizontal,
+  ellipsisVertical,
+  listOutline,
+  person,
+  personOutline,
+} from 'ionicons/icons';
 
 import { TranslateService } from '@ngx-translate/core';
 
@@ -10,10 +21,16 @@ import { AppService, StartupService } from './shared/services';
 
 export const registerAppIcons = (): void => {
   addIcons({
+    add,
+    bicycle,
     bicycleOutline,
+    calendar,
     calendarOutline,
     ellipsisHorizontal,
+    ellipsisVertical,
+    listOutline,
     person,
+    personOutline,
   });
 };
 

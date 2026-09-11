@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoadingController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -14,6 +13,7 @@ import {
   IonSelectOption,
   IonTitle,
   IonToolbar,
+  LoadingController,
 } from '@ionic/angular/standalone';
 import type { OverlayEventDetail } from '@ionic/core';
 

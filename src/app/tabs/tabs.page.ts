@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonIcon, IonLabel, IonTabBar, IonTabButton, IonTabs } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AuthService } from '../shared/services';
 
+const IONIC_COMPONENTS = [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel];
+
 @Component({
   selector: 'app-tabs',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, TranslateModule],
+  imports: [...IONIC_COMPONENTS, TranslateModule],
   template: `
     <ion-tabs (ionTabsDidChange)="setCurrentTab($event.tab)">
       <ion-tab-bar slot="bottom">

@@ -1,14 +1,22 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+} from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { UserDoc } from '../../../shared/models';
 
+const IONIC_COMPONENTS = [IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle];
+
 @Component({
   selector: 'app-hello-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, TranslateModule],
+  imports: [...IONIC_COMPONENTS, TranslateModule],
   styles: `
     ion-card {
       margin: 16px;

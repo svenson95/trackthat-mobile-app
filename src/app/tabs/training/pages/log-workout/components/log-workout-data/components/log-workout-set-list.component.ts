@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
 import {
   IonItem,
   IonItemDivider,
@@ -10,6 +9,7 @@ import {
   IonLabel,
   IonList,
   IonSkeletonText,
+  LoadingController,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

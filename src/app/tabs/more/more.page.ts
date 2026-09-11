@@ -1,6 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonicModule, LoadingController } from '@ionic/angular';
+import {
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+  IonList,
+  IonSelect,
+  IonSelectOption,
+  IonTitle,
+  IonToolbar,
+  LoadingController,
+} from '@ionic/angular/standalone';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -9,10 +22,24 @@ import { AuthService, UserService } from '../../shared/services';
 
 import { UsersService } from './services';
 
+const IONIC_COMPONENTS = [
+  IonContent,
+  IonHeader,
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+  IonList,
+  IonSelect,
+  IonSelectOption,
+  IonTitle,
+  IonToolbar,
+];
+
 @Component({
   selector: 'app-more-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, ContentContainerComponent, TranslateModule],
+  imports: [...IONIC_COMPONENTS, ContentContainerComponent, TranslateModule],
   providers: [UsersService],
   styles: `
     li:not(:last-child) .list-item {

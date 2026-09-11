@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -8,11 +8,13 @@ import { AuthService, UserService } from '../../shared/services';
 
 import { HelloBoxComponent, LoginBoxComponent } from './components';
 
+const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
+
 @Component({
   selector: 'app-overview-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    IonicModule,
+    ...IONIC_COMPONENTS,
     TranslateModule,
     ContentContainerComponent,
     LoginBoxComponent,

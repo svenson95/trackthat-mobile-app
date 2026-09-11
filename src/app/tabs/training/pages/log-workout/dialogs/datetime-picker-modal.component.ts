@@ -1,8 +1,12 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angular/core';
-import type { DatetimeCustomEvent } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
-import { IonButton, IonButtons, IonDatetime } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonDatetime,
+  ModalController,
+  type DatetimeCustomEvent,
+} from '@ionic/angular/standalone';
 
 type PickerKind = 'date' | 'time';
 

@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ContentContainerComponent } from '../../shared/components';
 
+const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
+
 @Component({
   selector: 'app-eat-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonicModule, TranslateModule, ContentContainerComponent],
+  imports: [...IONIC_COMPONENTS, TranslateModule, ContentContainerComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>

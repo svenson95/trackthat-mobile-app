@@ -1,7 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -11,6 +10,7 @@ import {
   IonItem,
   IonTitle,
   IonToolbar,
+  ModalController,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule } from '@ngx-translate/core';

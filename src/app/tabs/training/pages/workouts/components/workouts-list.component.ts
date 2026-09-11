@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LoadingController, ModalController, type ItemReorderEventDetail } from '@ionic/angular';
 import {
   IonIcon,
   IonItem,
@@ -11,6 +10,9 @@ import {
   IonList,
   IonReorder,
   IonReorderGroup,
+  LoadingController,
+  ModalController,
+  type ItemReorderEventDetail,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

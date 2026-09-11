@@ -9,11 +9,6 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import {
   AlertController,
-  LoadingController,
-  ModalController,
-  type ItemReorderEventDetail,
-} from '@ionic/angular';
-import {
   IonIcon,
   IonItem,
   IonItemOption,
@@ -23,6 +18,9 @@ import {
   IonList,
   IonReorder,
   IonReorderGroup,
+  LoadingController,
+  ModalController,
+  type ItemReorderEventDetail,
 } from '@ionic/angular/standalone';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
