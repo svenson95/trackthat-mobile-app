@@ -126,7 +126,11 @@ const ION_COMPONENTS = [
                     >
                       <ion-label>
                         <h3>#{{ idx + 1 }}</h3>
-                        <h3>{{ set.reps }}x {{ set.load }} kg</h3>
+                        <h3 class="set-values">
+                          <span>{{ set.reps }} x</span>
+                          <span>{{ set.load }} kg</span>
+                        </h3>
+                        <h3 class="set-note">{{ set.note }}</h3>
                         <h3>{{ set.time }}</h3>
                       </ion-label>
                     </ion-item>
