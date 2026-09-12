@@ -1,89 +1,74 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { IonBackdrop } from '@ionic/angular/standalone';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { IonToast } from '@ionic/angular/standalone';
 
 import { ServerStartupService } from '../services';
 
 @Component({
   selector: 'app-server-startup-overlay',
   standalone: true,
-  imports: [IonBackdrop],
+  imports: [IonToast],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .server-startup-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 10000;
+    ion-toast.server-startup-toast {
+      --background: var(--ion-item-background);
+      --color: var(--ion-text-color);
+      --border-radius: 0 0 var(--app-radius-1) var(--app-radius-1);
+      --box-shadow: 0 6px 24px rgb(0 0 0 / 30%);
+    }
 
-      display: flex;
+    ion-toast.server-startup-toast::part(container) {
+      display: grid;
+      grid-template-columns: 12px 1fr;
       align-items: center;
-      justify-content: center;
+      padding-inline: 15px;
+      border-top: 4px solid var(--ion-color-primary);
     }
 
-    ion-backdrop {
-      background: #000;
-      opacity: 0.35;
-    }
+    ion-toast.server-startup-toast::part(container)::before,
+    ion-toast.server-startup-toast::part(container)::after {
+      grid-column: 1;
+      grid-row: 1;
+      justify-self: center;
 
-    .server-startup-card {
-      position: relative;
-      z-index: 3;
-
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      max-width: calc(100% - 32px);
-      padding: 18px 24px;
-
-      background: var(--ion-background-color);
-      border-radius: 12px;
-
-      box-shadow: 0 4px 20px rgb(0 0 0 / 20%);
-
-      font-weight: 500;
-    }
-
-    .status-dot {
-      flex: 0 0 auto;
-
-      width: 10px;
-      height: 10px;
-
+      content: '';
       border-radius: 50%;
     }
 
-    .status-dot--starting,
-    .status-dot--failed {
+    ion-toast.server-startup-toast::part(container)::after {
+      width: 12px;
+      height: 12px;
+    }
+
+    ion-toast.server-startup-toast--starting::part(container)::after {
+      background: #ccc;
+    }
+
+    ion-toast.server-startup-toast--failed::part(container)::after {
       background: var(--ion-color-danger);
     }
 
-    .status-dot--starting {
-      animation: status-pulse 1.5s ease-in-out infinite;
-    }
-
-    .status-dot--started {
+    ion-toast.server-startup-toast--started::part(container)::after {
       background: var(--ion-color-success);
     }
 
-    .loading-dots {
-      display: inline-flex;
-      width: 1.2em;
+    ion-toast.server-startup-toast--starting::part(container)::after {
+      animation: status-pulse 1.5s ease-in-out infinite;
     }
 
-    .loading-dot {
-      opacity: 0;
+    ion-toast.server-startup-toast::part(message) {
+      grid-column: 2;
+
+      margin: 0;
+      text-align: left;
+      white-space: pre-line;
+      font-weight: 500;
     }
 
-    .loading-dot:nth-child(1) {
-      animation: loading-dot-1 1.6s infinite;
-    }
-
-    .loading-dot:nth-child(2) {
-      animation: loading-dot-2 1.6s infinite;
-    }
-
-    .loading-dot:nth-child(3) {
-      animation: loading-dot-3 1.6s infinite;
+    ion-toast.server-startup-toast--starting::part(message)::after {
+      display: inline-block;
+      width: 1.5em;
+      content: '';
+      animation: loading-dots 1.6s steps(1, end) infinite;
     }
 
     @keyframes status-pulse {
@@ -97,94 +82,57 @@ import { ServerStartupService } from '../services';
       }
     }
 
-    @keyframes loading-dot-1 {
+    @keyframes loading-dots {
       0%,
-      10% {
-        opacity: 0;
-      }
-
-      15%,
-      75% {
-        opacity: 1;
-      }
-
-      80%,
       100% {
-        opacity: 0;
-      }
-    }
-
-    @keyframes loading-dot-2 {
-      0%,
-      30% {
-        opacity: 0;
+        content: '';
       }
 
-      35%,
-      75% {
-        opacity: 1;
+      25% {
+        content: '.';
       }
 
-      80%,
-      100% {
-        opacity: 0;
-      }
-    }
-
-    @keyframes loading-dot-3 {
-      0%,
       50% {
-        opacity: 0;
+        content: '..';
       }
 
-      55%,
       75% {
-        opacity: 1;
-      }
-
-      80%,
-      100% {
-        opacity: 0;
+        content: '...';
       }
     }
   `,
   template: `
-    @if (serverStartupService.status() !== 'hidden') {
-      <div class="server-startup-overlay">
-        <ion-backdrop [tappable]="false" />
-
-        <div class="server-startup-card" role="status" aria-live="polite">
-          <span
-            class="status-dot"
-            [class.status-dot--starting]="serverStartupService.status() === 'starting'"
-            [class.status-dot--started]="serverStartupService.status() === 'started'"
-            [class.status-dot--failed]="serverStartupService.status() === 'failed'"
-          ></span>
-
-          @switch (serverStartupService.status()) {
-            @case ('starting') {
-              <span>
-                Server wird gestartet<span class="loading-dots" aria-hidden="true">
-                  <span class="loading-dot">.</span>
-                  <span class="loading-dot">.</span>
-                  <span class="loading-dot">.</span>
-                </span>
-              </span>
-            }
-
-            @case ('started') {
-              <span>Server gestartet</span>
-            }
-
-            @case ('failed') {
-              <span>Server konnte nicht erreicht werden</span>
-            }
-          }
-        </div>
-      </div>
-    }
+    <ion-toast
+      class="server-startup-toast"
+      [class.server-startup-toast--starting]="serverStartupService.status() === 'starting'"
+      [class.server-startup-toast--started]="serverStartupService.status() === 'started'"
+      [class.server-startup-toast--failed]="serverStartupService.status() === 'failed'"
+      position="top"
+      [isOpen]="isVisible()"
+      [message]="message()"
+    />
   `,
 })
 export class ServerStartupOverlayComponent {
   protected readonly serverStartupService = inject(ServerStartupService);
+
+  protected readonly isVisible = computed<boolean>(
+    () => this.serverStartupService.status() !== 'hidden',
+  );
+
+  protected readonly message = computed<string>(() => {
+    switch (this.serverStartupService.status()) {
+      case 'starting':
+        return 'Verbindung wird hergestellt';
+
+      case 'started':
+        return 'Verbindung hergestellt';
+
+      case 'failed':
+        return 'Verbindung konnte nicht hergestellt werden';
+
+      case 'hidden':
+        return '';
+    }
+  });
 }
