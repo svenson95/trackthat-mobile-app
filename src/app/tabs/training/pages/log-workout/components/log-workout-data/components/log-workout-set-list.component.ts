@@ -26,6 +26,12 @@ export type ExerciseSetView =
       set: WorkoutSet;
     }
   | {
+      type: 'placeholder';
+      load: number | null;
+      reps: number | null;
+      time: string;
+    }
+  | {
       type: 'skeleton';
       id: string;
       exercise: string;
@@ -59,14 +65,15 @@ const ION_COMPONENTS = [
       flex-direction: column;
       width: 100%;
       gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
     ion-item-option.delete-set {
       font-size: 12px;
     }
 
-    ion-item-divider.is-selected-exercise {
-      margin-bottom: 1rem;
+    .placeholder-log-set ion-label {
+      color: grey;
     }
   `,
   template: `
@@ -80,7 +87,7 @@ const ION_COMPONENTS = [
           <app-exercise-item [exercise]="exercise().name" />
         </ion-item-divider>
 
-        <div class="item-container">
+        <ion-list class="item-container">
           @for (item of skeletonSets(); track item) {
             <ion-item class="log-set skeleton-log-set" [lines]="$last ? 'none' : 'inset'">
               <ion-label>
@@ -91,7 +98,7 @@ const ION_COMPONENTS = [
               </ion-label>
             </ion-item>
           }
-        </div>
+        </ion-list>
       </ion-item-group>
     } @else {
       @let exerciseGroup = exercise();
@@ -101,24 +108,15 @@ const ION_COMPONENTS = [
           <app-exercise-item [exercise]="exerciseGroup.name" />
         </ion-item-divider>
 
-        @if (exerciseGroup.sets.length > 0) {
-          <ion-list class="item-container">
-            @for (
-              item of exerciseGroup.sets;
-              track item.type === 'set' ? item.set.itemId : item.id;
-              let idx = $index;
-              let isLast = $last
-            ) {
-              @if (item.type === 'skeleton') {
-                <ion-item class="log-set skeleton-log-set" [lines]="isLast ? 'none' : 'inset'">
-                  <ion-label>
-                    <ion-skeleton-text animated class="set-index-skeleton" />
-                    <ion-skeleton-text animated class="set-value-skeleton" />
-                    <ion-skeleton-text animated class="set-time-skeleton" />
-                    <ion-skeleton-text animated class="set-break-skeleton" />
-                  </ion-label>
-                </ion-item>
-              } @else {
+        <ion-list class="item-container">
+          @for (
+            item of exerciseGroup.sets;
+            track trackSet(item);
+            let idx = $index;
+            let isLast = $last
+          ) {
+            @switch (item.type) {
+              @case ('set') {
                 <ion-item-sliding #slidingItem [disabled]="!isEditing()">
                   <ion-item
                     button
@@ -129,11 +127,13 @@ const ION_COMPONENTS = [
                   >
                     <ion-label>
                       <h3>#{{ idx + 1 }}</h3>
-                      <h3>{{ item.set.reps }}x {{ item.set.load }} kg</h3>
-                      <h3>{{ item.set.time }}</h3>
+                      <h3 class="set-values">
+                        <span>{{ item.set.reps }} x</span>
+                        <span>{{ item.set.load }} kg</span>
+                      </h3>
+                      <h3>{{ item.set.time.slice(0, 5) }}</h3>
                     </ion-label>
                   </ion-item>
-
                   <ion-item-options side="end">
                     <ion-item-option
                       class="delete-set"
@@ -145,9 +145,33 @@ const ION_COMPONENTS = [
                   </ion-item-options>
                 </ion-item-sliding>
               }
+
+              @case ('placeholder') {
+                <ion-item class="log-set placeholder-log-set" [lines]="isLast ? 'none' : 'inset'">
+                  <ion-label>
+                    <h3>#{{ idx + 1 }}</h3>
+                    <h3 class="set-values">
+                      <span>{{ item.reps ?? '' }} x</span>
+                      <span>{{ item.load ?? '' }} kg</span>
+                    </h3>
+                    <h3>{{ item.time.slice(0, 5) }}</h3>
+                  </ion-label>
+                </ion-item>
+              }
+
+              @case ('skeleton') {
+                <ion-item class="log-set skeleton-log-set" [lines]="isLast ? 'none' : 'inset'">
+                  <ion-label>
+                    <ion-skeleton-text animated class="set-index-skeleton" />
+                    <ion-skeleton-text animated class="set-value-skeleton" />
+                    <ion-skeleton-text animated class="set-time-skeleton" />
+                    <ion-skeleton-text animated class="set-break-skeleton" />
+                  </ion-label>
+                </ion-item>
+              }
             }
-          </ion-list>
-        }
+          }
+        </ion-list>
       </ion-item-group>
     }
   `,
@@ -170,6 +194,19 @@ export class LogWorkoutSetListComponent {
   readonly isLoading = computed<boolean>(() =>
     this.logsWorkoutService.logWorkoutResource.isLoading(),
   );
+
+  trackSet(item: ExerciseSetView): string {
+    switch (item.type) {
+      case 'set':
+        return `set-${item.set.itemId}`;
+
+      case 'placeholder':
+        return 'placeholder';
+
+      case 'skeleton':
+        return `skeleton-${item.id}`;
+    }
+  }
 
   async deleteItem(
     item: ExerciseSetView,

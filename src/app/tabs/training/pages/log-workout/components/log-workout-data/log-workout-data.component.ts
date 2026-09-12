@@ -58,32 +58,28 @@ const ION_COMPONENTS = [
       gap: 0.5rem;
     }
 
-    .sticky-form {
-      position: sticky;
-      top: 0.5rem;
-      z-index: 100;
-
+    app-log-workout-form {
+      display: block;
       width: 100%;
-      padding-bottom: 0.5rem;
-
-      background: var(--ion-color-base);
-
-      isolation: isolate;
-    }
-
-    app-log-workout-set-list {
-      position: relative;
-      z-index: 0;
     }
 
     .item-container ion-label {
       color: grey;
     }
+
+    :host ::ng-deep {
+      .set-values {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(80px, 1fr));
+
+        span {
+          text-align: right;
+        }
+      }
+    }
   `,
   template: `
-    <div class="sticky-form">
-      <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
-    </div>
+    <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
 
     @if (exerciseView(); as exerciseView) {
       <app-log-workout-set-list
@@ -135,7 +131,10 @@ const ION_COMPONENTS = [
               >
                 <ion-label>
                   <h3>#{{ idx + 1 }}</h3>
-                  <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                  <h3 class="set-values">
+                    <span>{{ item.reps }} x</span>
+                    <span>{{ item.load }} kg</span>
+                  </h3>
                   <h3>{{ item.time.slice(0, 5) }}</h3>
                 </ion-label>
               </ion-item>
@@ -165,7 +164,7 @@ export class LogWorkoutDataComponent {
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
 
-  readonly logWorkoutForm = viewChild.required(LogWorkoutFormComponent);
+  readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
   readonly exerciseHistory = this.logsWorkoutService.exerciseHistoryResource.value;
 
@@ -213,6 +212,22 @@ export class LogWorkoutDataComponent {
         exercise: pendingSet.exercise,
         time: pendingSet.time,
       });
+
+      return {
+        name: exercise,
+        sets,
+      };
+    }
+
+    const form = this.logWorkoutForm();
+
+    if (form) {
+      sets.push({
+        type: 'placeholder',
+        load: form.formValueLoad(),
+        reps: form.formValueReps(),
+        time: form.formValueTime(),
+      });
     }
 
     return {
@@ -257,20 +272,20 @@ export class LogWorkoutDataComponent {
     const logId = this.logsWorkoutService.logId();
     const userId = this.userService.userData()?.id;
     const exercise = this.exercise();
+    const form = this.logWorkoutForm();
 
-    if (!userId || !exercise) {
+    if (!userId || !exercise || !form) {
       console.error('Missing required data for addSet', {
         logId,
         userId,
         exercise,
+        hasForm: !!form,
       });
 
       return;
     }
 
-    const time = this.logWorkoutForm().timeManuallyChanged()
-      ? this.logWorkoutForm().formValueTime()
-      : this.getCurrentTime();
+    const time = form.timeManuallyChanged() ? form.formValueTime() : this.getCurrentTime();
 
     const set: WorkoutSet = {
       load: formValue.load,

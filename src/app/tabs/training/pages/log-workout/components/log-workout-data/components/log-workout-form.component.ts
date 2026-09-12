@@ -266,6 +266,14 @@ export class LogWorkoutFormComponent {
     note: this.fb.control<string | null>(null),
   });
 
+  readonly formValueLoad = toSignal(this.form.controls.load.valueChanges, {
+    initialValue: this.form.controls.load.value,
+  });
+
+  readonly formValueReps = toSignal(this.form.controls.reps.valueChanges, {
+    initialValue: this.form.controls.reps.value,
+  });
+
   readonly formValueTime = toSignal(this.form.controls.time.valueChanges, {
     initialValue: this.form.controls.time.value,
   });
