@@ -119,6 +119,7 @@ ion-alert {
 .item.sc-ion-label-md-h,
 .item .sc-ion-label-md-h {
   color: black;
+  margin-block: 0.5rem;
 
   @media (prefers-color-scheme: dark) {
     color: white;
