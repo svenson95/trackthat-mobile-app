@@ -1,6 +1,15 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { IonToast } from '@ionic/angular/standalone';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { AnimationController, IonToast } from '@ionic/angular/standalone';
 
+import type { Animation } from '@ionic/angular';
 import { ServerStartupService } from '../services';
 
 @Component({
@@ -10,10 +19,10 @@ import { ServerStartupService } from '../services';
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     ion-toast.server-startup-toast {
-      --background: var(--ion-item-background);
+      --background: var(--ion-background-color);
       --color: var(--ion-text-color);
       --border-radius: 0 0 var(--app-radius-1) var(--app-radius-1);
-      --box-shadow: 0 6px 24px rgb(0 0 0 / 30%);
+      --box-shadow: 0 6px 24px rgb(0 0 0 / 25%);
     }
 
     ion-toast.server-startup-toast::part(container) {
@@ -41,6 +50,7 @@ import { ServerStartupService } from '../services';
 
     ion-toast.server-startup-toast--starting::part(container)::after {
       background: #ccc;
+      animation: status-pulse 1.5s ease-in-out infinite;
     }
 
     ion-toast.server-startup-toast--failed::part(container)::after {
@@ -49,10 +59,6 @@ import { ServerStartupService } from '../services';
 
     ion-toast.server-startup-toast--started::part(container)::after {
       background: var(--ion-color-success);
-    }
-
-    ion-toast.server-startup-toast--starting::part(container)::after {
-      animation: status-pulse 1.5s ease-in-out infinite;
     }
 
     ion-toast.server-startup-toast::part(message) {
@@ -104,24 +110,29 @@ import { ServerStartupService } from '../services';
   template: `
     <ion-toast
       class="server-startup-toast"
-      [class.server-startup-toast--starting]="serverStartupService.status() === 'starting'"
-      [class.server-startup-toast--started]="serverStartupService.status() === 'started'"
-      [class.server-startup-toast--failed]="serverStartupService.status() === 'failed'"
+      [class.server-startup-toast--starting]="displayStatus() === 'starting'"
+      [class.server-startup-toast--started]="displayStatus() === 'started'"
+      [class.server-startup-toast--failed]="displayStatus() === 'failed'"
       position="top"
       [isOpen]="isVisible()"
+      [leaveAnimation]="leaveAnimation"
       [message]="message()"
     />
   `,
 })
 export class ServerStartupOverlayComponent {
-  protected readonly serverStartupService = inject(ServerStartupService);
+  private readonly serverStartupService = inject(ServerStartupService);
+  private readonly animationController = inject(AnimationController);
 
-  protected readonly isVisible = computed<boolean>(
-    () => this.serverStartupService.status() !== 'hidden',
-  );
+  private readonly SUCCESS_HOLD_DURATION = 700;
+  private readonly LEAVE_ANIMATION_DURATION = 420;
+
+  protected readonly displayStatus = signal(this.serverStartupService.status());
+
+  protected readonly isVisible = computed<boolean>(() => this.displayStatus() !== 'hidden');
 
   protected readonly message = computed<string>(() => {
-    switch (this.serverStartupService.status()) {
+    switch (this.displayStatus()) {
       case 'starting':
         return 'Verbindung wird hergestellt';
 
@@ -134,5 +145,35 @@ export class ServerStartupOverlayComponent {
       case 'hidden':
         return '';
     }
+  });
+
+  protected readonly leaveAnimation = (baseElement: HTMLElement): Animation =>
+    this.animationController
+      .create()
+      .addElement(baseElement)
+      .duration(this.LEAVE_ANIMATION_DURATION)
+      .easing('cubic-bezier(0.32, 0.72, 0, 1)')
+      .fromTo('transform', 'translateY(0)', 'translateY(-120px)');
+
+  private readonly displayStatusEffect = effect((onCleanup) => {
+    const status = this.serverStartupService.status();
+
+    if (status !== 'hidden') {
+      this.displayStatus.set(status);
+      return;
+    }
+
+    const currentDisplayStatus = untracked(() => this.displayStatus());
+
+    if (currentDisplayStatus !== 'started') {
+      this.displayStatus.set('hidden');
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      this.displayStatus.set('hidden');
+    }, this.SUCCESS_HOLD_DURATION);
+
+    onCleanup(() => clearTimeout(timeout));
   });
 }
