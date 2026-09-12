@@ -116,14 +116,9 @@ ion-alert {
   }
 }
 
-.item.sc-ion-label-md-h,
-.item .sc-ion-label-md-h {
-  color: black;
+.item.sc-ion-label-ios-h,
+.item .sc-ion-label-ios-h {
   margin-block: 0.5rem;
-
-  @media (prefers-color-scheme: dark) {
-    color: white;
-  }
 }
 
 // TODO refactor: remove seperate ion-item-divider element in log-workout-data (other one in log-workout-set-list)
