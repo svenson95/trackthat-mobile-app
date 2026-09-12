@@ -26,6 +26,11 @@ export interface LogFood extends Log {
   // kcal etc.
 }
 
+export type ExerciseWorkoutHistoryDTO = {
+  workouts: GetLogWorkoutDTO[];
+  hasMore: boolean;
+};
+
 export interface LogWorkoutDoc extends LogWorkout {
   readonly id: LogWorkoutId;
 }

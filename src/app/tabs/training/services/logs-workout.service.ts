@@ -1,11 +1,12 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { type Observable, tap } from 'rxjs';
+import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import type {
   DeleteLogWorkoutBody,
   DeleteLogWorkoutResponse,
+  ExerciseWorkoutHistoryDTO,
   GetLogWorkoutDTO,
   PostLogWorkoutResponse,
   WorkoutSet,
@@ -15,16 +16,23 @@ import { HelperService, UserService } from '../../../shared/services';
 @Injectable()
 export class LogsWorkoutService {
   private readonly apiUrl = environment.api + 'logs-workout';
+
   private readonly http = inject(HttpClient);
   private readonly userService = inject(UserService);
   private readonly helperService = inject(HelperService);
+
+  private readonly INITIAL_HISTORY_LIMIT = 2;
+  private readonly LOAD_MORE_HISTORY_LIMIT = 1;
 
   readonly exercise = signal<string | null>(null);
 
   readonly logWorkoutResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
     const date = Math.floor(Date.now() / 1000);
     const userId = this.userService.userData()?.id;
-    if (!userId) return undefined;
+
+    if (!userId) {
+      return undefined;
+    }
 
     return {
       url: `${this.apiUrl}/get/latest-workout/${date}/${userId}`,
@@ -32,14 +40,21 @@ export class LogsWorkoutService {
     };
   });
 
-  readonly latestSetResource = httpResource<GetLogWorkoutDTO | undefined>(() => {
+  readonly exerciseHistoryResource = httpResource<ExerciseWorkoutHistoryDTO | undefined>(() => {
     const exercise = this.exercise();
     const userId = this.userService.userData()?.id;
-    if (!userId) return undefined;
+
+    if (!exercise || !userId) {
+      return undefined;
+    }
 
     return {
-      url: `${this.apiUrl}/get/latest-log/${exercise}/${userId}`,
+      url: `${this.apiUrl}/get/exercise-history/${userId}`,
       method: 'GET',
+      params: {
+        exercise,
+        limit: this.INITIAL_HISTORY_LIMIT,
+      },
     };
   });
 
@@ -51,7 +66,10 @@ export class LogsWorkoutService {
   constructor() {
     effect(async () => {
       const error = this.logWorkoutResource.error();
-      if (!error) return;
+
+      if (!error) {
+        return;
+      }
 
       await this.helperService.showError('tabs.training.log-workout.actions.get-error');
     });
@@ -59,7 +77,7 @@ export class LogsWorkoutService {
 
   addLogWorkout(date: number, set: WorkoutSet, userId: string): Observable<PostLogWorkoutResponse> {
     return this.http
-      .post<PostLogWorkoutResponse>(this.apiUrl + `/add/set/${date}/${userId}`, set)
+      .post<PostLogWorkoutResponse>(`${this.apiUrl}/add/set/${date}/${userId}`, set)
       .pipe(
         tap((createdLogWorkout) => {
           this.logWorkoutResource.set(createdLogWorkout);
@@ -81,5 +99,47 @@ export class LogsWorkoutService {
           this.logWorkoutResource.set(updatedLog);
         }),
       );
+  }
+
+  loadMoreExerciseHistory(): Observable<ExerciseWorkoutHistoryDTO> | undefined {
+    const exercise = this.exercise();
+    const userId = this.userService.userData()?.id;
+    const history = this.exerciseHistoryResource.value();
+
+    if (!exercise || !userId || !history?.hasMore) {
+      return undefined;
+    }
+
+    const oldestWorkout = history.workouts[history.workouts.length - 1];
+
+    if (!oldestWorkout) {
+      return undefined;
+    }
+
+    return this.http
+      .get<ExerciseWorkoutHistoryDTO>(`${this.apiUrl}/get/exercise-history/${userId}`, {
+        params: {
+          exercise,
+          before: oldestWorkout.date,
+          limit: this.LOAD_MORE_HISTORY_LIMIT,
+        },
+      })
+      .pipe(
+        tap((response) => {
+          this.exerciseHistoryResource.set({
+            workouts: [...history.workouts, ...response.workouts],
+            hasMore: response.hasMore,
+          });
+        }),
+      );
+  }
+
+  appendExerciseHistory(response: ExerciseWorkoutHistoryDTO): void {
+    const current = this.exerciseHistoryResource.value();
+
+    this.exerciseHistoryResource.set({
+      workouts: [...(current?.workouts ?? []), ...response.workouts],
+      hasMore: response.hasMore,
+    });
   }
 }

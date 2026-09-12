@@ -9,13 +9,16 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  IonButton,
   IonItem,
   IonItemDivider,
   IonItemGroup,
   IonLabel,
   IonList,
   IonSkeletonText,
+  IonSpinner,
 } from '@ionic/angular/standalone';
+import { finalize } from 'rxjs';
 
 import type { WorkoutSet } from '../../../../../../shared/models';
 import { HelperService, UserService } from '../../../../../../shared/services';
@@ -29,7 +32,16 @@ import {
   type LogWorkoutFormValue,
 } from '../../components';
 
-const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel, IonSkeletonText];
+const ION_COMPONENTS = [
+  IonButton,
+  IonItem,
+  IonItemDivider,
+  IonItemGroup,
+  IonLabel,
+  IonList,
+  IonSkeletonText,
+  IonSpinner,
+];
 
 @Component({
   selector: 'app-log-workout-data',
@@ -81,52 +93,66 @@ const ION_COMPONENTS = [IonItemDivider, IonItemGroup, IonList, IonItem, IonLabel
       />
     }
 
-    @let latest = latestSet();
+    @if (isExerciseHistoryLoading()) {
+      @for (historySkeleton of [1, 2]; track historySkeleton) {
+        <ion-item-group class="exercise-item">
+          <ion-item-divider>
+            <ion-label>
+              <ion-skeleton-text animated style="width: 7rem" />
+            </ion-label>
+          </ion-item-divider>
 
-    @if (isLatestSetLoading()) {
-      <ion-item-group class="exercise-item">
-        <ion-item-divider>
-          <ion-label>Letztes Training</ion-label>
-        </ion-item-divider>
+          <div class="item-container">
+            @for (item of skeletonSets; track item) {
+              <ion-item class="log-set skeleton-log-set" lines="none">
+                <ion-label>
+                  <ion-skeleton-text animated class="set-index-skeleton" />
+                  <ion-skeleton-text animated class="set-value-skeleton" />
+                  <ion-skeleton-text animated class="set-time-skeleton" />
+                </ion-label>
+              </ion-item>
+            }
+          </div>
+        </ion-item-group>
+      }
+    } @else if (exerciseHistory(); as history) {
+      @for (workout of history.workouts; track workout.logId) {
+        <ion-item-group class="exercise-item">
+          <ion-item-divider>
+            <ion-label>
+              {{ workout.date * 1000 | date: 'dd.MM.yy' }}
+            </ion-label>
+          </ion-item-divider>
 
-        <div class="item-container">
-          @for (item of skeletonSets; track item) {
-            <ion-item class="log-set skeleton-log-set" lines="none">
-              <ion-label>
-                <ion-skeleton-text animated class="set-index-skeleton" />
-                <ion-skeleton-text animated class="set-value-skeleton" />
-                <ion-skeleton-text animated class="set-time-skeleton" />
-              </ion-label>
-            </ion-item>
+          <ion-list class="item-container">
+            @for (item of workout.sets; track item.itemId; let idx = $index; let isLast = $last) {
+              <ion-item
+                button
+                [detail]="false"
+                class="log-set ion-activatable"
+                [lines]="isLast ? 'none' : 'inset'"
+                (click)="setData(item)"
+              >
+                <ion-label>
+                  <h3>#{{ idx + 1 }}</h3>
+                  <h3>{{ item.reps }}x {{ item.load }} kg</h3>
+                  <h3>{{ item.time.slice(0, 5) }}</h3>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-list>
+        </ion-item-group>
+      }
+
+      @if (history.hasMore) {
+        <ion-button fill="clear" [disabled]="isLoadingMoreHistory()" (click)="loadMoreHistory()">
+          @if (isLoadingMoreHistory()) {
+            <ion-spinner name="crescent" />
+          } @else {
+            Weitere laden
           }
-        </div>
-      </ion-item-group>
-    } @else if (latest && latest.sets.length > 0) {
-      <ion-item-group class="exercise-item">
-        <ion-item-divider>
-          <ion-label>Letztes Training</ion-label>
-        </ion-item-divider>
-
-        <ion-list class="item-container">
-          @for (item of latest.sets; track item.itemId; let idx = $index; let isLast = $last) {
-            <ion-item
-              button
-              [detail]="false"
-              class="log-set ion-activatable"
-              [lines]="isLast ? 'none' : 'inset'"
-              (click)="setData(item)"
-            >
-              <ion-label>
-                <h3>#{{ idx + 1 }}</h3>
-                <h3>{{ item.reps }}x {{ item.load }} kg</h3>
-                <h3>
-                  {{ latest.date * 1000 | date: 'dd.MM.yy' }}
-                </h3>
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
-      </ion-item-group>
+        </ion-button>
+      }
     }
   `,
 })
@@ -141,7 +167,17 @@ export class LogWorkoutDataComponent {
 
   readonly logWorkoutForm = viewChild.required(LogWorkoutFormComponent);
 
-  readonly latestSet = this.logsWorkoutService.latestSetResource.value;
+  readonly exerciseHistory = this.logsWorkoutService.exerciseHistoryResource.value;
+
+  readonly isExerciseHistoryLoading = computed(() =>
+    this.logsWorkoutService.exerciseHistoryResource.isLoading(),
+  );
+
+  readonly isLoadingMoreHistory = signal(false);
+
+  readonly canLoadMoreHistory = computed(
+    () => !this.isLoadingMoreHistory() && (this.exerciseHistory()?.hasMore ?? false),
+  );
 
   readonly skeletonSets = [1, 2];
 
@@ -152,10 +188,6 @@ export class LogWorkoutDataComponent {
   } | null>(null);
 
   readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
-
-  readonly isLatestSetLoading = computed<boolean>(() =>
-    this.logsWorkoutService.latestSetResource.isLoading(),
-  );
 
   readonly exerciseView = computed<ExerciseView | undefined>(() => {
     const exercise = this.exercise();
@@ -188,6 +220,34 @@ export class LogWorkoutDataComponent {
       sets,
     };
   });
+
+  loadMoreHistory(): void {
+    if (!this.canLoadMoreHistory()) {
+      return;
+    }
+
+    const request = this.logsWorkoutService.loadMoreExerciseHistory();
+
+    if (!request) {
+      return;
+    }
+
+    this.isLoadingMoreHistory.set(true);
+
+    request
+      .pipe(
+        finalize(() => {
+          this.isLoadingMoreHistory.set(false);
+        }),
+      )
+      .subscribe({
+        error: async (error) => {
+          console.error('Could not load exercise history', error);
+
+          await this.helperService.showError('tabs.training.log-workout.actions.get-error');
+        },
+      });
+  }
 
   addSet(formValue: LogWorkoutFormValue): void {
     if (this.isAddingSet()) {
