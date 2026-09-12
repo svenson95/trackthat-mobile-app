@@ -139,9 +139,9 @@ ion-alert {
     ion-label {
       display: flex;
       justify-content: space-between;
-      margin-top: 2px;
-      margin-bottom: 2px;
+      margin-block: 8px;
       margin-inline-end: 0;
+      align-items: center;
 
       h3 {
         margin-bottom: 0;
@@ -197,4 +197,19 @@ ion-alert {
   width: 14%;
   height: 0.875rem;
   border-radius: 999px;
+}
+
+h3.set-note {
+  width: 80px;
+  font-size: 10px;
+  align-content: center;
+}
+
+.set-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(60px, 1fr));
+
+  span {
+    text-align: right;
+  }
 }

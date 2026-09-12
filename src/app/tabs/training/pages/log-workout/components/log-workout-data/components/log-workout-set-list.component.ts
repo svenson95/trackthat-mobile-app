@@ -29,6 +29,7 @@ export type ExerciseSetView =
       type: 'placeholder';
       load: number | null;
       reps: number | null;
+      note: string | null;
       time: string;
     }
   | {
@@ -131,6 +132,7 @@ const ION_COMPONENTS = [
                         <span>{{ item.set.reps }} x</span>
                         <span>{{ item.set.load }} kg</span>
                       </h3>
+                      <h3 class="set-note">{{ item.set.note }}</h3>
                       <h3>{{ item.set.time.slice(0, 5) }}</h3>
                     </ion-label>
                   </ion-item>
@@ -154,6 +156,7 @@ const ION_COMPONENTS = [
                       <span>{{ item.reps ?? '' }} x</span>
                       <span>{{ item.load ?? '' }} kg</span>
                     </h3>
+                    <h3 class="set-note">{{ item.note }}</h3>
                     <h3>{{ item.time.slice(0, 5) }}</h3>
                   </ion-label>
                 </ion-item>

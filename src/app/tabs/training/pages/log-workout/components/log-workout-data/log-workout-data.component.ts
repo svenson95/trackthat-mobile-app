@@ -66,17 +66,6 @@ const ION_COMPONENTS = [
     .item-container ion-label {
       color: grey;
     }
-
-    :host ::ng-deep {
-      .set-values {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(80px, 1fr));
-
-        span {
-          text-align: right;
-        }
-      }
-    }
   `,
   template: `
     <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
@@ -121,21 +110,22 @@ const ION_COMPONENTS = [
           </ion-item-divider>
 
           <ion-list class="item-container">
-            @for (item of workout.sets; track item.itemId; let idx = $index; let isLast = $last) {
+            @for (set of workout.sets; track set.itemId; let idx = $index; let isLast = $last) {
               <ion-item
                 button
                 [detail]="false"
                 class="log-set ion-activatable"
                 [lines]="isLast ? 'none' : 'inset'"
-                (click)="setData(item)"
+                (click)="setData(set)"
               >
                 <ion-label>
                   <h3>#{{ idx + 1 }}</h3>
                   <h3 class="set-values">
-                    <span>{{ item.reps }} x</span>
-                    <span>{{ item.load }} kg</span>
+                    <span>{{ set.reps }} x</span>
+                    <span>{{ set.load }} kg</span>
                   </h3>
-                  <h3>{{ item.time.slice(0, 5) }}</h3>
+                  <h3 class="set-note">{{ set.note }}</h3>
+                  <h3>{{ set.time.slice(0, 5) }}</h3>
                 </ion-label>
               </ion-item>
             }
@@ -226,6 +216,7 @@ export class LogWorkoutDataComponent {
         type: 'placeholder',
         load: form.formValueLoad(),
         reps: form.formValueReps(),
+        note: form.formValueNote(),
         time: form.formValueTime(),
       });
     }

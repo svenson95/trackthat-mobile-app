@@ -274,6 +274,10 @@ export class LogWorkoutFormComponent {
     initialValue: this.form.controls.reps.value,
   });
 
+  readonly formValueNote = toSignal(this.form.controls.note.valueChanges, {
+    initialValue: this.form.controls.note.value,
+  });
+
   readonly formValueTime = toSignal(this.form.controls.time.valueChanges, {
     initialValue: this.form.controls.time.value,
   });
