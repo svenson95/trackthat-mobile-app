@@ -92,7 +92,7 @@ const ION_COMPONENTS = [
     }
   `,
   template: `
-    <ion-header>
+    <ion-header [translucent]="true">
       <ion-toolbar>
         <ion-buttons slot="start">
           @if (isEditing()) {
@@ -132,6 +132,12 @@ const ION_COMPONENTS = [
     </ion-header>
 
     <ion-content [fullscreen]="true" color="light">
+      <ion-header collapse="condense">
+        <ion-toolbar color="light">
+          <ion-title size="large">{{ titleTrimmed() }}</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
       <app-content-container>
         @if (isLoading()) {
           <ion-list inset="true" class="workout-skeleton-list">
@@ -254,11 +260,7 @@ export class WorkoutPage {
   });
 
   readonly titleTrimmed = computed<string>(() => {
-    const MAX = 20;
-    if (this.isLoading()) return '';
-
-    const name = this.workout()?.name ?? '';
-    return name.length > MAX ? `${name.slice(0, MAX - 2)}...` : name;
+    return this.workout()?.name ?? '';
   });
 
   presentPopover(ev: Event): void {

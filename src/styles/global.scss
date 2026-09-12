@@ -51,6 +51,12 @@ ion-card {
   box-shadow: none;
 }
 
+ion-title.title-large {
+  font-size: 22px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 ion-input {
   --border-radius: var(--app-radius-1);
 
