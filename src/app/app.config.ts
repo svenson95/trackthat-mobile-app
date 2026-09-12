@@ -31,7 +31,9 @@ const HTTP_PROVIDERS = [
 ];
 
 const IONIC_PROVIDERS = [
-  provideIonicAngular(),
+  provideIonicAngular({
+    mode: 'ios',
+  }),
   {
     provide: RouteReuseStrategy,
     useClass: IonicRouteStrategy,
