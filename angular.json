@@ -98,7 +98,7 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "::development",
-            "setupFiles": ["src/testing/setup.ts"]
+            "reporters": ["./src/testing/grouped-reporter.ts"]
           }
         },
         "lint": {
