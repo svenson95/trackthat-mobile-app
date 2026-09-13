@@ -16,6 +16,9 @@ import {
   restaurant,
   restaurantOutline,
 } from 'ionicons/icons';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { provideTestTranslations } from '../../testing/translate-testing.provider';
 
 import { appRoutes } from '../app.routes';
 
@@ -42,7 +45,11 @@ describe('TabsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [TabsPage],
-      providers: [provideRouter(appRoutes), provideHttpClient(withXhr())],
+      providers: [
+        provideTestTranslations(),
+        provideRouter(appRoutes),
+        provideHttpClient(withXhr()),
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

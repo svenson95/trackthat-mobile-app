@@ -4,6 +4,9 @@ import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { provideTestTranslations } from '../testing/translate-testing.provider';
 
 import { appRoutes } from './app.routes';
 import { AppService } from './shared/services';
@@ -18,6 +21,7 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
+        provideTestTranslations(),
         provideRouter(appRoutes),
         provideHttpClient(withXhr()),
         AppService,
