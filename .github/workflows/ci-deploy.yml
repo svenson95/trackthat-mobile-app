@@ -39,7 +39,7 @@ jobs:
         uses: cypress-io/github-action@v7
         with:
           install: false
-          start: ionic serve
+          start: npm start
           wait-on: 'http://localhost:8100'
           browser: chrome
 
