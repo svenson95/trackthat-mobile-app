@@ -1,48 +1,31 @@
-import angularEslint from '@angular-eslint/eslint-plugin';
-import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
-import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import prettier from 'eslint-plugin-prettier';
-import { defineConfig, globalIgnores } from 'eslint/config';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import eslint from '@eslint/js';
+import angular from 'angular-eslint';
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import { defineConfig } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+export default defineConfig(
+  {
+    ignores: ['projects/**/*'],
+  },
 
-export default defineConfig([
-  globalIgnores(['projects/**/*']),
   {
     files: ['**/*.ts'],
+    ignores: ['cypress/**/*.ts', 'cypress.config.ts'],
 
-    extends: compat.extends(
-      'plugin:@angular-eslint/recommended',
-      'plugin:@angular-eslint/template/process-inline-templates',
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:prettier/recommended',
-    ),
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommended,
+      ...angular.configs.tsRecommended,
+      prettierRecommended,
+    ],
 
-    plugins: {
-      '@typescript-eslint': typescriptEslint,
-      prettier,
-      '@angular-eslint': angularEslint,
-    },
+    processor: angular.processInlineTemplates,
 
     languageOptions: {
-      parser: tsParser,
-      ecmaVersion: 5,
-      sourceType: 'script',
-
       parserOptions: {
-        project: ['tsconfig.json'],
-        createDefaultProgram: true,
+        project: ['./tsconfig.app.json', './tsconfig.spec.json'],
+        tsconfigRootDir: import.meta.dirname,
       },
     },
 
@@ -110,13 +93,34 @@ export default defineConfig([
       '@angular-eslint/prefer-on-push-component-change-detection': 'warn',
     },
   },
+
   {
-    files: ['**/*.html'],
-    extends: compat.extends('plugin:@angular-eslint/template/recommended'),
+    files: ['src/app/**/*.html'],
+
+    extends: [...angular.configs.templateRecommended, prettierRecommended],
 
     rules: {
       '@angular-eslint/template/eqeqeq': 'error',
       '@angular-eslint/template/no-negated-async': 'warn',
     },
   },
-]);
+
+  {
+    files: ['cypress/**/*.ts', 'cypress.config.ts'],
+
+    extends: [eslint.configs.recommended, ...tseslint.configs.recommended, prettierRecommended],
+
+    languageOptions: {
+      parserOptions: {
+        project: ['./cypress/tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+
+    rules: {
+      'prettier/prettier': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'error',
+    },
+  },
+);

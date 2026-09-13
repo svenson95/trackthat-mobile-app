@@ -1,7 +1,11 @@
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { ContentContainerComponent } from '../../components';
+import { provideTestTranslations } from '../../../testing/translate-testing.provider';
+
+import { ContentContainerComponent } from '../../shared/components';
+
 import { EatPage } from './eat.page';
 
 describe('EatPage', () => {
@@ -11,6 +15,7 @@ describe('EatPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [EatPage, ContentContainerComponent],
+      providers: [provideTestTranslations()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EatPage);

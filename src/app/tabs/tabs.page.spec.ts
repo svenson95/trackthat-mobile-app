@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
@@ -16,6 +16,9 @@ import {
   restaurant,
   restaurantOutline,
 } from 'ionicons/icons';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { provideTestTranslations } from '../../testing/translate-testing.provider';
 
 import { appRoutes } from '../app.routes';
 
@@ -42,7 +45,11 @@ describe('TabsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [TabsPage],
-      providers: [provideRouter(appRoutes), provideHttpClient()],
+      providers: [
+        provideTestTranslations(),
+        provideRouter(appRoutes),
+        provideHttpClient(withXhr()),
+      ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

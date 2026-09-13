@@ -17,7 +17,7 @@ import {
   IonList,
   IonSkeletonText,
   IonSpinner,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import { finalize } from 'rxjs';
 
 import type { WorkoutSet } from '../../../../../../shared/models';

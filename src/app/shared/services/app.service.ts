@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import type { VersionEvent } from '@angular/service-worker';
 import { SwUpdate } from '@angular/service-worker';
-import { AlertController } from '@ionic/angular/standalone';
+import { AlertController } from '@ionic/angular';
 
 import { AuthService } from './auth/auth.service';
 import { HelperService } from './helper.service';

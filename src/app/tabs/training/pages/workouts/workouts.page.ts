@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import type { RefresherCustomEvent } from '@ionic/angular';
 import {
   IonButton,
   IonButtons,
@@ -23,8 +24,7 @@ import {
   IonTitle,
   IonToolbar,
   LoadingController,
-} from '@ionic/angular/standalone';
-import type { RefresherCustomEvent } from '@ionic/core';
+} from '@ionic/angular';
 import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

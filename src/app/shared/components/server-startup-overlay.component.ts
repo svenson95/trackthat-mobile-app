@@ -7,7 +7,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { AnimationController, IonToast } from '@ionic/angular/standalone';
+import { AnimationController, IonToast } from '@ionic/angular';
 
 import type { Animation } from '@ionic/angular';
 import { ServerStartupService } from '../services';

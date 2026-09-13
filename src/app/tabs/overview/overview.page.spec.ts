@@ -1,11 +1,14 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { addIcons } from 'ionicons';
 import { logoGoogle } from 'ionicons/icons';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { ContentContainerComponent } from '../../components';
-import '../../test-mocks/google.mock';
+import '../../../testing/mocks/google.mock';
+import { provideTestTranslations } from '../../../testing/translate-testing.provider';
+
+import { ContentContainerComponent } from '../../shared/components';
 
 import { OverviewPage } from './overview.page';
 
@@ -20,7 +23,7 @@ describe('OverviewPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ContentContainerComponent, OverviewPage],
-      providers: [provideHttpClient()],
+      providers: [provideTestTranslations(), provideHttpClient(withXhr())],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverviewPage);

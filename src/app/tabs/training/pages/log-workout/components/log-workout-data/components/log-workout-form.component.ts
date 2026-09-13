@@ -11,7 +11,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/angular/standalone';
+import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 

@@ -21,7 +21,7 @@ import {
   LoadingController,
   ModalController,
   type ItemReorderEventDetail,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 

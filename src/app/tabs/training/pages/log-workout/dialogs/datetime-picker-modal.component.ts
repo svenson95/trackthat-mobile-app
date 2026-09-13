@@ -6,7 +6,7 @@ import {
   IonDatetime,
   ModalController,
   type DatetimeCustomEvent,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 type PickerKind = 'date' | 'time';
 
