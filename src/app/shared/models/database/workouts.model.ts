@@ -34,12 +34,7 @@ export interface ListItemExercise extends ListItem {
 }
 
 export type ExerciseEquipment =
-  | 'dumbbell'
-  | 'barbell'
-  | 'multipress'
-  | 'cable-tower'
-  | 'machine'
-  | 'bodyweight';
+  'dumbbell' | 'barbell' | 'multipress' | 'cable-tower' | 'machine' | 'bodyweight';
 export type ExerciseVariant =
   // benchpress
   | 'flat'

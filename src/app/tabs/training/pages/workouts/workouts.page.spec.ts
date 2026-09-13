@@ -1,10 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { addIcons } from 'ionicons';
 import { add, ellipsisHorizontal, ellipsisVertical } from 'ionicons/icons';
 
-import { ContentContainerComponent } from '../../../../components';
+import { ContentContainerComponent } from '../../../../shared/components';
 import { USER_MOCK } from '../../../../test-mocks/user.mock';
 
 import { WorkoutsPage } from './workouts.page';
@@ -23,7 +23,7 @@ describe('WorkoutsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ContentContainerComponent, WorkoutsPage],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(withXhr())],
     }).compileComponents();
 
     fixture = TestBed.createComponent(WorkoutsPage);

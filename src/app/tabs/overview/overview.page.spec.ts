@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
 import { addIcons } from 'ionicons';
@@ -20,7 +20,7 @@ describe('OverviewPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [ContentContainerComponent, OverviewPage],
-      providers: [provideHttpClient()],
+      providers: [provideHttpClient(withXhr())],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OverviewPage);

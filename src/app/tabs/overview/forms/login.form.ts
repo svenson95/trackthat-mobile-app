@@ -1,6 +1,6 @@
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { IonSpinner } from '@ionic/angular/standalone';
+import { IonSpinner } from '@ionic/angular';
 
 import { AuthService } from '../../../shared/services';
 import { GoogleAuthService } from '../services';

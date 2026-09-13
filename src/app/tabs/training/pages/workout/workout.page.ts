@@ -26,7 +26,7 @@ import {
   IonToolbar,
   LoadingController,
   ModalController,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 

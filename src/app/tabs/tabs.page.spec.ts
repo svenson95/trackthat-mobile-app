@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import type { ComponentFixture } from '@angular/core/testing';
 import { TestBed } from '@angular/core/testing';
@@ -42,7 +42,7 @@ describe('TabsPage', () => {
 
     await TestBed.configureTestingModule({
       imports: [TabsPage],
-      providers: [provideRouter(appRoutes), provideHttpClient()],
+      providers: [provideRouter(appRoutes), provideHttpClient(withXhr())],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 

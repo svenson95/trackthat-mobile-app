@@ -14,7 +14,7 @@ import {
   IonTitle,
   IonToolbar,
   LoadingController,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

@@ -1,6 +1,6 @@
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
-import { IonLabel } from '@ionic/angular/standalone';
+import { IonLabel } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 

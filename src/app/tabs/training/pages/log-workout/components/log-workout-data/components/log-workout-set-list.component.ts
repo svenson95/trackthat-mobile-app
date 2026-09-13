@@ -10,7 +10,7 @@ import {
   IonList,
   IonSkeletonText,
   LoadingController,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 

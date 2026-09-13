@@ -5,7 +5,7 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 
 import { LoginForm } from '../forms';
 
