@@ -1,4 +1,5 @@
 name: CI and Deploy
+
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -11,40 +12,39 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
+          cache: npm
 
       - name: Install Dependencies
         run: npm ci
 
-      # - name: Run Unit Tests
-      #   run: npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox
-      #   env:
-      #     CHROME_BIN: google-chrome-stable
+      - name: Run Lint
+        run: npm run lint
 
-      # - name: Run Cypress E2E Tests
-      #   uses: cypress-io/github-action@v6
-      #   with:
-      #     build: npm run build
-      #     start: npm run start
-      #     wait-on: 'http://localhost:8100'
-      #     browser: chrome
+      - name: Run Unit, Component and Integration Tests
+        run: npm run test:ci
+
+      - name: Build Application
+        run: npm run build
 
   deploy:
     runs-on: ubuntu-latest
     needs: test
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
