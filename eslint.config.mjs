@@ -11,6 +11,7 @@ export default defineConfig(
 
   {
     files: ['**/*.ts'],
+    ignores: ['cypress/**/*.ts', 'cypress.config.ts'],
 
     extends: [
       eslint.configs.recommended,
@@ -101,6 +102,25 @@ export default defineConfig(
     rules: {
       '@angular-eslint/template/eqeqeq': 'error',
       '@angular-eslint/template/no-negated-async': 'warn',
+    },
+  },
+
+  {
+    files: ['cypress/**/*.ts', 'cypress.config.ts'],
+
+    extends: [eslint.configs.recommended, ...tseslint.configs.recommended, prettierRecommended],
+
+    languageOptions: {
+      parserOptions: {
+        project: ['./cypress/tsconfig.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+
+    rules: {
+      'prettier/prettier': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'error',
     },
   },
 );

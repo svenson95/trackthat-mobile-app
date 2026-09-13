@@ -25,5 +25,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "exclude": ["src/**/*.spec.ts"] // fix: https://github.com/cypress-io/cypress/issues/7552
+  "exclude": ["src/**/*.spec.ts", "cypress", "cypress.config.ts"]
 }

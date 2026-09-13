@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import chalk from 'chalk';
 
 import type { Reporter, TestCase, TestModule, TestSuite } from 'vitest/node';
@@ -24,7 +25,7 @@ const FEATURE_SECTIONS = [
 const TEST_GROUPS = [
   {
     name: 'GLOBAL',
-    matches: (path: string) =>
+    matches: (path: string): boolean =>
       path.includes('/app.component.spec.') ||
       path.includes('/app.config.spec.') ||
       path.includes('/app.routes.spec.'),

@@ -35,6 +35,14 @@ jobs:
       - name: Build Application
         run: npm run build
 
+      - name: Run E2E Tests
+        uses: cypress-io/github-action@v7
+        with:
+          install: false
+          start: ionic serve
+          wait-on: 'http://localhost:8100'
+          browser: chrome
+
   deploy:
     runs-on: ubuntu-latest
     needs: test
