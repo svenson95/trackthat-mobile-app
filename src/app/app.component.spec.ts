@@ -1,17 +1,15 @@
 import { provideHttpClient, withXhr } from '@angular/common/http';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import type { ComponentFixture } from '@angular/core/testing';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { provideTestTranslations } from '../testing/translate-testing.provider';
-
-import { appRoutes } from './app.routes';
-import { AppService } from './shared/services';
+import { AppService } from './core';
 
 import { AppComponent } from './app.component';
+import { appRoutes } from './app.routes';
 
 describe('AppComponent', () => {
   let component: AppComponent;

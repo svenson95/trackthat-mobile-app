@@ -1,12 +1,6 @@
 import type { Routes } from '@angular/router';
 
-import { AuthGuard } from './shared/services';
-import { LogsWorkoutService as LogsPageLogsWorkoutService } from './tabs/logs/services';
-import { TabsPage } from './tabs/tabs.page';
-import {
-  LogsWorkoutService as TrainingPageLogsWorkoutService,
-  WorkoutsService,
-} from './tabs/training/services';
+import { TabsPage } from './core';
 
 export const appRoutes: Routes = [
   {
@@ -15,57 +9,21 @@ export const appRoutes: Routes = [
     children: [
       {
         path: 'training',
-        canActivate: [AuthGuard],
-        providers: [WorkoutsService],
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./tabs/training/pages/workouts/workouts.page').then((m) => m.WorkoutsPage),
-          },
-          {
-            path: ':workoutId',
-            loadComponent: () =>
-              import('./tabs/training/pages/workout/workout.page').then((m) => m.WorkoutPage),
-          },
-          {
-            path: ':workoutId/:itemId/:exercise/log',
-            loadComponent: () =>
-              import('./tabs/training/pages/log-workout/log-workout.page').then(
-                (m) => m.LogWorkoutPage,
-              ),
-            providers: [TrainingPageLogsWorkoutService],
-            children: [
-              {
-                path: ':logId',
-                loadComponent: () =>
-                  import('./tabs/training/pages/log-workout/log-workout.page').then(
-                    (m) => m.LogWorkoutPage,
-                  ),
-              },
-            ],
-          },
-        ],
+        loadChildren: () =>
+          import('./features/training/training.routes').then((m) => m.TRAINING_ROUTES),
       },
-      // {
-      //   path: 'eat',
-      //   canActivate: [AuthGuard],
-      //   loadComponent: () => import('./tabs/eat/eat.page').then((m) => m.EatPage),
-      // },
       {
         path: 'overview',
-        loadComponent: () => import('./tabs/overview/overview.page').then((m) => m.OverviewPage),
+        loadChildren: () =>
+          import('./features/overview/overview.routes').then((m) => m.OVERVIEW_ROUTES),
       },
       {
         path: 'logs',
-        canActivate: [AuthGuard],
-        providers: [LogsPageLogsWorkoutService],
-        loadComponent: () => import('./tabs/logs/logs.page').then((m) => m.LogsPage),
+        loadChildren: () => import('./features/logs/logs.routes').then((m) => m.LOGS_ROUTES),
       },
       {
         path: 'more',
-        canActivate: [AuthGuard],
-        loadComponent: () => import('./tabs/more/more.page').then((m) => m.MorePage),
+        loadChildren: () => import('./features/more/more.routes').then((m) => m.MORE_ROUTES),
       },
       {
         path: '',

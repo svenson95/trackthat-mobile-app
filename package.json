@@ -11,7 +11,8 @@
     "test": "ng test",
     "test:ci": "ng test --no-watch --no-progress",
     "e2e": "cypress open --e2e",
-    "e2e:run": "cypress run --e2e"
+    "e2e:run": "cypress run --e2e",
+    "get-tree": "tree -I \"node_modules|.git|.vscode|.angular|www\""
   },
   "private": true,
   "dependencies": {
