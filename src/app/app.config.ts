@@ -4,8 +4,7 @@ import {
   withInterceptorsFromDi,
   withXhr,
 } from '@angular/common/http';
-import type { ApplicationConfig } from '@angular/core';
-import { inject, isDevMode, provideAppInitializer } from '@angular/core';
+import { inject, isDevMode, provideAppInitializer, type ApplicationConfig } from '@angular/core';
 import {
   PreloadAllModules,
   provideRouter,
@@ -18,8 +17,7 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { serverStartupInterceptor } from './shared/interceptors';
-import { StartupService } from './shared/services';
+import { serverStartupInterceptor, StartupService } from './core';
 
 import { appRoutes } from './app.routes';
 

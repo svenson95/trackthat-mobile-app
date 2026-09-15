@@ -1,4 +1,3 @@
 export * from './content-container/content-container.component';
-export * from './exercise-item.component';
-export * from './server-startup-overlay.component';
-export * from './text-input.dialog';
+export * from './exercise-item/exercise-item.component';
+export * from './text-input/text-input.dialog';

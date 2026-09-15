@@ -17,8 +17,7 @@ import {
 
 import { TranslateService } from '@ngx-translate/core';
 
-import { ServerStartupOverlayComponent } from './shared/components';
-import { AppService, StartupService } from './shared/services';
+import { AppService, ServerStartupOverlayComponent, StartupService } from './core';
 
 export const registerAppIcons = (): void => {
   addIcons({
