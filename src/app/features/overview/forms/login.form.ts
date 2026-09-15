@@ -1,5 +1,10 @@
-import type { AfterViewInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+  type AfterViewInit,
+} from '@angular/core';
 import { IonSpinner } from '@ionic/angular';
 
 import { AuthService } from '../../../core';
@@ -27,7 +32,11 @@ import { GoogleAuthService } from '../services';
   `,
   template: `
     @if (!isLoading()) {
-      <button id="google-button"></button>
+      @if (isNativeIos) {
+        <button type="button" (click)="loginWithGoogle()">Mit Google anmelden</button>
+      } @else {
+        <div id="google-button"></div>
+      }
     }
 
     @if (isGoogleInitializing() || isLoading()) {
@@ -44,9 +53,10 @@ export class LoginForm implements AfterViewInit {
   private readonly googleAuthService = inject(GoogleAuthService);
 
   readonly isLoading = this.authService.isLoading;
+  readonly isNativeIos = this.googleAuthService.isNativeIos;
 
-  readonly isGoogleReady = signal(false);
-  readonly isGoogleInitializing = signal(true);
+  readonly isGoogleReady = signal<boolean>(false);
+  readonly isGoogleInitializing = signal<boolean>(true);
 
   async ngAfterViewInit(): Promise<void> {
     try {
@@ -60,8 +70,11 @@ export class LoginForm implements AfterViewInit {
     }
   }
 
-  loginWithGoogle(): void {
-    if (!this.isGoogleReady()) return;
-    this.googleAuthService.prompt();
+  async loginWithGoogle(): Promise<void> {
+    if (!this.isGoogleReady()) {
+      return;
+    }
+
+    await this.googleAuthService.login();
   }
 }
