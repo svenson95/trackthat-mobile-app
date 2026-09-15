@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { finalize, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { UserService } from '../database';
@@ -27,7 +27,9 @@ export class AuthService {
 
   putAuthWithGoogle(token: GoogleJWT): Observable<GetAuthResponse> {
     this.isLoading.set(true);
+
     const body: GetAuthBody = { token };
+
     return this.http
       .post<GetAuthResponse>(`${this.apiUrl}/google`, body, {
         headers: { 'Content-Type': 'application/json' },
@@ -36,6 +38,8 @@ export class AuthService {
         tap((res) => {
           this.setToken(res.token);
           this.userService.setUser(res.user);
+        }),
+        finalize(() => {
           this.isLoading.set(false);
         }),
       );
