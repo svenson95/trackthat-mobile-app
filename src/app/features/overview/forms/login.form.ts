@@ -22,7 +22,8 @@ import { GoogleAuthService } from '../services';
       gap: 10px;
     }
 
-    #google-button {
+    #google-button,
+    .ios-google-button {
       margin: 1rem auto 0;
     }
 
@@ -33,7 +34,9 @@ import { GoogleAuthService } from '../services';
   template: `
     @if (!isLoading()) {
       @if (isNativeIos) {
-        <button type="button" (click)="loginWithGoogle()">Mit Google anmelden</button>
+        <button class="ios-google-button" type="button" (click)="loginWithGoogle()">
+          Mit Google anmelden
+        </button>
       } @else {
         <div id="google-button"></div>
       }
