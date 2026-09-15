@@ -27,6 +27,10 @@ import { GoogleAuthService } from '../services';
       margin: 1rem auto 0;
     }
 
+    .ios-google-button {
+      padding: 1rem;
+    }
+
     ion-spinner {
       margin: 1rem auto;
     }
