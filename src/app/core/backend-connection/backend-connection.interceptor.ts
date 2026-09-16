@@ -4,9 +4,9 @@ import { finalize, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
-import { ServerStartupService } from '../../core';
+import { BackendConnectionService } from '..';
 
-const SERVER_STARTUP_THRESHOLD = 5_000;
+const BACKEND_CONNECTION_THRESHOLD_MS = 5_000;
 
 const SERVER_UNREACHABLE_STATUS_CODES = new Set([
   0, // Network error / connection refused
@@ -17,8 +17,8 @@ const SERVER_UNREACHABLE_STATUS_CODES = new Set([
 
 let nextRequestId = 0;
 
-export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
-  const serverStartupService = inject(ServerStartupService);
+export const backendConnectionInterceptor: HttpInterceptorFn = (req, next) => {
+  const serverStartupService = inject(BackendConnectionService);
 
   if (!req.url.startsWith(environment.api)) {
     return next(req);
@@ -30,7 +30,7 @@ export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
 
   const slowRequestTimeout = setTimeout(() => {
     serverStartupService.markAsSlow(requestId);
-  }, SERVER_STARTUP_THRESHOLD);
+  }, BACKEND_CONNECTION_THRESHOLD_MS);
 
   let completed = false;
 

@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type ServerStartupStatus = 'hidden' | 'starting' | 'started' | 'failed';
+export type BackendConnectionStatus = 'hidden' | 'connecting' | 'connected' | 'failed';
 
 type TrackedRequest = {
   isSlow: boolean;
@@ -12,8 +12,8 @@ const FAILURE_DISPLAY_DURATION = 2_500;
 @Injectable({
   providedIn: 'root',
 })
-export class ServerStartupService {
-  readonly status = signal<ServerStartupStatus>('hidden');
+export class BackendConnectionService {
+  readonly status = signal<BackendConnectionStatus>('hidden');
 
   private readonly requests = new Map<string, TrackedRequest>();
 
@@ -37,9 +37,9 @@ export class ServerStartupService {
 
     this.clearHideTimeout();
 
-    if (this.status() !== 'starting') {
+    if (this.status() !== 'connecting') {
       this.hasConnectionFailure = false;
-      this.status.set('starting');
+      this.status.set('connecting');
     }
   }
 
@@ -52,8 +52,8 @@ export class ServerStartupService {
 
     this.requests.delete(requestId);
 
-    if (request.isSlow || this.status() === 'starting') {
-      this.showStarted();
+    if (request.isSlow || this.status() === 'connecting') {
+      this.showConnected();
     }
   }
 
@@ -66,14 +66,12 @@ export class ServerStartupService {
 
     this.requests.delete(requestId);
 
-    if (this.status() !== 'starting') {
+    if (this.status() !== 'connecting') {
       return;
     }
 
     if (!connectionFailure) {
-      // Eine HTTP-Antwort wurde empfangen.
-      // Der Server ist also grundsätzlich erreichbar.
-      this.showStarted();
+      this.showConnected();
       return;
     }
 
@@ -89,11 +87,11 @@ export class ServerStartupService {
     this.finishIfNoRequestsRemain();
   }
 
-  private showStarted(): void {
+  private showConnected(): void {
     this.requests.clear();
     this.hasConnectionFailure = false;
 
-    this.status.set('started');
+    this.status.set('connected');
 
     this.scheduleHide(SUCCESS_DISPLAY_DURATION);
   }
@@ -107,7 +105,7 @@ export class ServerStartupService {
   }
 
   private finishIfNoRequestsRemain(): void {
-    if (this.status() !== 'starting' || this.requests.size > 0) {
+    if (this.status() !== 'connecting' || this.requests.size > 0) {
       return;
     }
 

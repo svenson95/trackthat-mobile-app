@@ -1,0 +1,40 @@
+import { inject, Injectable } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SwUpdate } from '@angular/service-worker';
+import { AlertController, type AlertOptions } from '@ionic/angular';
+import { filter } from 'rxjs';
+
+const ALERT_OPTIONS: AlertOptions = {
+  header: 'Update verfügbar',
+  message: 'Eine neue Version der App ist verfügbar',
+  buttons: [
+    {
+      text: 'Später',
+      role: 'cancel',
+    },
+    {
+      text: 'Neu laden',
+      handler: (): void => document.location.reload(),
+    },
+  ],
+};
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AppUpdateService {
+  private readonly swUpdate = inject(SwUpdate);
+  private readonly alertCtrl = inject(AlertController);
+
+  watchForUpdates(): void {
+    this.swUpdate.versionUpdates
+      .pipe(
+        filter((event) => event.type === 'VERSION_READY'),
+        takeUntilDestroyed(),
+      )
+      .subscribe(async () => {
+        const alert = await this.alertCtrl.create(ALERT_OPTIONS);
+        await alert.present();
+      });
+  }
+}

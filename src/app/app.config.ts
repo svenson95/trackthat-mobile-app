@@ -17,25 +17,25 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { serverStartupInterceptor, StartupService } from './core';
+import { AppInitializerService, backendConnectionInterceptor } from './core';
 
 import { appRoutes } from './app.routes';
 
 const APP_INITIALIZER_PROVIDER = provideAppInitializer(() => {
-  inject(StartupService);
+  inject(AppInitializerService);
 });
 
-const ROUTER_PROVIDERS = [
-  provideRouter(appRoutes, withPreloading(PreloadAllModules), withComponentInputBinding()),
-];
+const ROUTER_PROVIDER = provideRouter(
+  appRoutes,
+  withPreloading(PreloadAllModules),
+  withComponentInputBinding(),
+);
 
-const HTTP_PROVIDERS = [
-  provideHttpClient(
-    withXhr(),
-    withInterceptors([serverStartupInterceptor]),
-    withInterceptorsFromDi(),
-  ),
-];
+const HTTP_PROVIDER = provideHttpClient(
+  withXhr(),
+  withInterceptors([backendConnectionInterceptor]),
+  withInterceptorsFromDi(),
+);
 
 const IONIC_PROVIDERS = [
   provideIonicAngular({
@@ -47,30 +47,26 @@ const IONIC_PROVIDERS = [
   },
 ];
 
-const PWA_PROVIDERS = [
-  provideServiceWorker('ngsw-worker.js', {
-    enabled: !isDevMode(),
-    registrationStrategy: 'registerImmediately',
-  }),
-];
+const PWA_PROVIDER = provideServiceWorker('ngsw-worker.js', {
+  enabled: !isDevMode(),
+  registrationStrategy: 'registerImmediately',
+});
 
-const I18N_PROVIDERS = [
-  provideTranslateService({
-    fallbackLang: 'de',
-    loader: provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
-      suffix: '.json',
-    }),
+const I18N_PROVIDER = provideTranslateService({
+  fallbackLang: 'de',
+  loader: provideTranslateHttpLoader({
+    prefix: './assets/i18n/',
+    suffix: '.json',
   }),
-];
+});
 
 export const appConfig: ApplicationConfig = {
   providers: [
     APP_INITIALIZER_PROVIDER,
-    ...ROUTER_PROVIDERS,
-    ...HTTP_PROVIDERS,
+    ROUTER_PROVIDER,
+    HTTP_PROVIDER,
     ...IONIC_PROVIDERS,
-    ...PWA_PROVIDERS,
-    ...I18N_PROVIDERS,
+    PWA_PROVIDER,
+    I18N_PROVIDER,
   ],
 };

@@ -9,22 +9,25 @@ import {
 } from '@angular/core';
 import { AnimationController, IonToast, type Animation } from '@ionic/angular';
 
-import { ServerStartupService } from './server-startup.service';
+import {
+  BackendConnectionService,
+  type BackendConnectionStatus,
+} from './backend-connection.service';
 
 @Component({
-  selector: 'app-server-startup-overlay',
+  selector: 'app-backend-connection-toast',
   standalone: true,
   imports: [IonToast],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    ion-toast.server-startup-toast {
+    ion-toast.backend-connection-toast {
       --background: var(--ion-background-color);
       --color: var(--ion-text-color);
       --border-radius: 0 0 var(--app-radius-1) var(--app-radius-1);
       --box-shadow: 0 6px 24px rgb(0 0 0 / 25%);
     }
 
-    ion-toast.server-startup-toast::part(container) {
+    ion-toast.backend-connection-toast::part(container) {
       display: grid;
       grid-template-columns: 12px 1fr;
       align-items: center;
@@ -32,8 +35,8 @@ import { ServerStartupService } from './server-startup.service';
       border-top: 4px solid var(--ion-color-primary);
     }
 
-    ion-toast.server-startup-toast::part(container)::before,
-    ion-toast.server-startup-toast::part(container)::after {
+    ion-toast.backend-connection-toast::part(container)::before,
+    ion-toast.backend-connection-toast::part(container)::after {
       grid-column: 1;
       grid-row: 1;
       justify-self: center;
@@ -42,25 +45,25 @@ import { ServerStartupService } from './server-startup.service';
       border-radius: 50%;
     }
 
-    ion-toast.server-startup-toast::part(container)::after {
+    ion-toast.backend-connection-toast::part(container)::after {
       width: 12px;
       height: 12px;
     }
 
-    ion-toast.server-startup-toast--starting::part(container)::after {
+    ion-toast.backend-connection-toast--starting::part(container)::after {
       background: #ccc;
       animation: status-pulse 1.5s ease-in-out infinite;
     }
 
-    ion-toast.server-startup-toast--failed::part(container)::after {
+    ion-toast.backend-connection-toast--failed::part(container)::after {
       background: var(--ion-color-danger);
     }
 
-    ion-toast.server-startup-toast--started::part(container)::after {
+    ion-toast.backend-connection-toast--started::part(container)::after {
       background: var(--ion-color-success);
     }
 
-    ion-toast.server-startup-toast::part(message) {
+    ion-toast.backend-connection-toast::part(message) {
       grid-column: 2;
 
       margin: 0;
@@ -69,7 +72,7 @@ import { ServerStartupService } from './server-startup.service';
       font-weight: 500;
     }
 
-    ion-toast.server-startup-toast--starting::part(message)::after {
+    ion-toast.backend-connection-toast--starting::part(message)::after {
       display: inline-block;
       width: 1.5em;
       content: '';
@@ -108,10 +111,10 @@ import { ServerStartupService } from './server-startup.service';
   `,
   template: `
     <ion-toast
-      class="server-startup-toast"
-      [class.server-startup-toast--starting]="displayStatus() === 'starting'"
-      [class.server-startup-toast--started]="displayStatus() === 'started'"
-      [class.server-startup-toast--failed]="displayStatus() === 'failed'"
+      class="backend-connection-toast"
+      [class.backend-connection-toast--starting]="displayStatus() === 'connecting'"
+      [class.backend-connection-toast--started]="displayStatus() === 'connected'"
+      [class.backend-connection-toast--failed]="displayStatus() === 'failed'"
       position="top"
       [isOpen]="isVisible()"
       [leaveAnimation]="leaveAnimation"
@@ -119,27 +122,29 @@ import { ServerStartupService } from './server-startup.service';
     />
   `,
 })
-export class ServerStartupOverlayComponent {
-  private readonly serverStartupService = inject(ServerStartupService);
+export class BackendConnectionToastComponent {
+  private readonly backendConnectionService = inject(BackendConnectionService);
   private readonly animationController = inject(AnimationController);
 
   private readonly SUCCESS_HOLD_DURATION = 700;
   private readonly LEAVE_ANIMATION_DURATION = 420;
 
-  protected readonly displayStatus = signal(this.serverStartupService.status());
+  protected readonly displayStatus = signal<BackendConnectionStatus>(
+    this.backendConnectionService.status(),
+  );
 
   protected readonly isVisible = computed<boolean>(() => this.displayStatus() !== 'hidden');
 
   protected readonly message = computed<string>(() => {
     switch (this.displayStatus()) {
-      case 'starting':
-        return 'Verbindung wird hergestellt';
+      case 'connecting':
+        return 'Verbindung zur Datenbank wird hergestellt';
 
-      case 'started':
+      case 'connected':
         return 'Verbindung hergestellt';
 
       case 'failed':
-        return 'Verbindung konnte nicht hergestellt werden';
+        return 'Verbindung zur Datenbank konnte nicht hergestellt werden';
 
       case 'hidden':
         return '';
@@ -155,7 +160,7 @@ export class ServerStartupOverlayComponent {
       .fromTo('transform', 'translateY(0)', 'translateY(-120px)');
 
   private readonly displayStatusEffect = effect((onCleanup) => {
-    const status = this.serverStartupService.status();
+    const status = this.backendConnectionService.status();
 
     if (status !== 'hidden') {
       this.displayStatus.set(status);
@@ -164,7 +169,7 @@ export class ServerStartupOverlayComponent {
 
     const currentDisplayStatus = untracked(() => this.displayStatus());
 
-    if (currentDisplayStatus !== 'started') {
+    if (currentDisplayStatus !== 'connected') {
       this.displayStatus.set('hidden');
       return;
     }
