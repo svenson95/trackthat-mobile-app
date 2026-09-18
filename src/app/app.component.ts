@@ -15,11 +15,15 @@ import {
   personOutline,
 } from 'ionicons/icons';
 
-import { TranslateService } from '@ngx-translate/core';
+import {
+  AppInitializerService,
+  AppUpdateService,
+  AuthSessionService,
+  BackendConnectionToastComponent,
+  LanguageService,
+} from './core';
 
-import { AppService, ServerStartupOverlayComponent, StartupService } from './core';
-
-export const registerAppIcons = (): void => {
+const registerAppIcons = (): void => {
   addIcons({
     add,
     bicycle,
@@ -38,62 +42,37 @@ export const registerAppIcons = (): void => {
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonApp, IonRouterOutlet, ServerStartupOverlayComponent],
-  providers: [AppService],
-  styles: `
-    :host {
-      position: static;
-    }
-  `,
+  imports: [IonApp, IonRouterOutlet, BackendConnectionToastComponent],
   template: `
     <ion-app>
-      <ion-router-outlet (activate)="onRouteActivated()"></ion-router-outlet>
+      <ion-router-outlet (activate)="onInitialRouteActivated()"></ion-router-outlet>
 
-      <app-server-startup-overlay />
+      <app-backend-connection-toast />
     </ion-app>
   `,
 })
 export class AppComponent {
-  private readonly SUPPORTED_LANGUAGES = ['de', 'en'] as const;
-  private readonly DEFAULT_LANGAUGE = 'de';
+  private readonly appInitializerService = inject(AppInitializerService);
+  private readonly appUpdateService = inject(AppUpdateService);
+  private readonly authSessionService = inject(AuthSessionService);
+  private readonly languageService = inject(LanguageService);
 
-  private readonly startupService = inject(StartupService);
-  private readonly appService = inject(AppService);
-  private readonly translate = inject(TranslateService);
+  private initialRouteActivated = false;
 
   constructor() {
     registerAppIcons();
 
-    this.appService.getVersionUpdates();
-    this.appService.updateUserData();
-    this.appService.preventBrowserSwipeBack();
-
-    this.configureTranslate();
+    this.appUpdateService.watchForUpdates();
+    this.authSessionService.verifySession();
+    this.languageService.initialize();
   }
 
-  onRouteActivated(): void {
-    if (this.startupService.routeActivated) {
+  onInitialRouteActivated(): void {
+    if (this.initialRouteActivated) {
       return;
     }
 
-    this.startupService.routeActivated = true;
-    this.startupService.hideAppInitializer();
-  }
-
-  private configureTranslate(): void {
-    this.translate.addLangs([...this.SUPPORTED_LANGUAGES]);
-    this.translate.setDefaultLang(this.DEFAULT_LANGAUGE);
-
-    this.translate.use(
-      this.getSupportedLang(localStorage.getItem('language')) ??
-        this.getSupportedLang(this.translate.getBrowserLang()) ??
-        this.DEFAULT_LANGAUGE,
-    );
-  }
-
-  private getSupportedLang(lang: string | null | undefined): 'de' | 'en' | undefined {
-    return this.SUPPORTED_LANGUAGES.includes(lang as 'de' | 'en')
-      ? (lang as 'de' | 'en')
-      : undefined;
+    this.initialRouteActivated = true;
+    this.appInitializerService.hideOverlay();
   }
 }

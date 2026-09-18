@@ -4,9 +4,9 @@ import { finalize, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
-import { ServerStartupService } from '../../core';
+import { BackendConnectionService } from './backend-connection.service';
 
-const SERVER_STARTUP_THRESHOLD = 5_000;
+const BACKEND_CONNECTION_THRESHOLD_MS = 5_000;
 
 const SERVER_UNREACHABLE_STATUS_CODES = new Set([
   0, // Network error / connection refused
@@ -17,8 +17,8 @@ const SERVER_UNREACHABLE_STATUS_CODES = new Set([
 
 let nextRequestId = 0;
 
-export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
-  const serverStartupService = inject(ServerStartupService);
+export const backendConnectionInterceptor: HttpInterceptorFn = (req, next) => {
+  const backendConnectionService = inject(BackendConnectionService);
 
   if (!req.url.startsWith(environment.api)) {
     return next(req);
@@ -26,11 +26,11 @@ export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
 
   const requestId = `server-request-${++nextRequestId}`;
 
-  serverStartupService.registerRequest(requestId);
+  backendConnectionService.registerRequest(requestId);
 
   const slowRequestTimeout = setTimeout(() => {
-    serverStartupService.markAsSlow(requestId);
-  }, SERVER_STARTUP_THRESHOLD);
+    backendConnectionService.markAsSlow(requestId);
+  }, BACKEND_CONNECTION_THRESHOLD_MS);
 
   let completed = false;
 
@@ -42,7 +42,7 @@ export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
         }
 
         completed = true;
-        serverStartupService.markAsSuccessful(requestId);
+        backendConnectionService.markAsSuccessful(requestId);
       },
 
       error: (error: unknown) => {
@@ -51,7 +51,7 @@ export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
         const connectionFailure =
           error instanceof HttpErrorResponse && SERVER_UNREACHABLE_STATUS_CODES.has(error.status);
 
-        serverStartupService.markAsFailed(requestId, connectionFailure);
+        backendConnectionService.markAsFailed(requestId, connectionFailure);
       },
     }),
 
@@ -59,7 +59,7 @@ export const serverStartupInterceptor: HttpInterceptorFn = (req, next) => {
       clearTimeout(slowRequestTimeout);
 
       if (!completed) {
-        serverStartupService.unregisterRequest(requestId);
+        backendConnectionService.unregisterRequest(requestId);
       }
     }),
   );

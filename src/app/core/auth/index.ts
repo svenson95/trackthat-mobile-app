@@ -1,3 +1,4 @@
+export * from './auth-session.service';
 export * from './auth.guard';
 export * from './auth.service';
 export * from './models';
