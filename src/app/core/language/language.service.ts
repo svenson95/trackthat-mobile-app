@@ -20,6 +20,7 @@ export class LanguageService {
       this.getSupportedLanguage(this.translateService.getBrowserLang()) ??
       DEFAULT_LANGUAGE;
 
+    document.documentElement.lang = language;
     this.translateService.use(language);
   }
 

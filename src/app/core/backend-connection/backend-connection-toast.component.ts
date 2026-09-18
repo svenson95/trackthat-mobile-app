@@ -14,6 +14,9 @@ import {
   type BackendConnectionStatus,
 } from './backend-connection.service';
 
+const SUCCESS_HOLD_DURATION = 700;
+const LEAVE_ANIMATION_DURATION = 420;
+
 @Component({
   selector: 'app-backend-connection-toast',
   standalone: true,
@@ -50,7 +53,7 @@ import {
       height: 12px;
     }
 
-    ion-toast.backend-connection-toast--starting::part(container)::after {
+    ion-toast.backend-connection-toast--connecting::part(container)::after {
       background: #ccc;
       animation: status-pulse 1.5s ease-in-out infinite;
     }
@@ -59,7 +62,7 @@ import {
       background: var(--ion-color-danger);
     }
 
-    ion-toast.backend-connection-toast--started::part(container)::after {
+    ion-toast.backend-connection-toast--connected::part(container)::after {
       background: var(--ion-color-success);
     }
 
@@ -72,7 +75,7 @@ import {
       font-weight: 500;
     }
 
-    ion-toast.backend-connection-toast--starting::part(message)::after {
+    ion-toast.backend-connection-toast--connecting::part(message)::after {
       display: inline-block;
       width: 1.5em;
       content: '';
@@ -112,8 +115,8 @@ import {
   template: `
     <ion-toast
       class="backend-connection-toast"
-      [class.backend-connection-toast--starting]="displayStatus() === 'connecting'"
-      [class.backend-connection-toast--started]="displayStatus() === 'connected'"
+      [class.backend-connection-toast--connecting]="displayStatus() === 'connecting'"
+      [class.backend-connection-toast--connected]="displayStatus() === 'connected'"
       [class.backend-connection-toast--failed]="displayStatus() === 'failed'"
       position="top"
       [isOpen]="isVisible()"
@@ -125,9 +128,6 @@ import {
 export class BackendConnectionToastComponent {
   private readonly backendConnectionService = inject(BackendConnectionService);
   private readonly animationController = inject(AnimationController);
-
-  private readonly SUCCESS_HOLD_DURATION = 700;
-  private readonly LEAVE_ANIMATION_DURATION = 420;
 
   protected readonly displayStatus = signal<BackendConnectionStatus>(
     this.backendConnectionService.status(),
@@ -155,7 +155,7 @@ export class BackendConnectionToastComponent {
     this.animationController
       .create()
       .addElement(baseElement)
-      .duration(this.LEAVE_ANIMATION_DURATION)
+      .duration(LEAVE_ANIMATION_DURATION)
       .easing('cubic-bezier(0.32, 0.72, 0, 1)')
       .fromTo('transform', 'translateY(0)', 'translateY(-120px)');
 
@@ -176,7 +176,7 @@ export class BackendConnectionToastComponent {
 
     const timeout = setTimeout(() => {
       this.displayStatus.set('hidden');
-    }, this.SUCCESS_HOLD_DURATION);
+    }, SUCCESS_HOLD_DURATION);
 
     onCleanup(() => clearTimeout(timeout));
   });

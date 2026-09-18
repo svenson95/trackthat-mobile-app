@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SwUpdate } from '@angular/service-worker';
 import { AlertController, type AlertOptions } from '@ionic/angular';
@@ -23,17 +23,18 @@ const ALERT_OPTIONS: AlertOptions = {
   providedIn: 'root',
 })
 export class AppUpdateService {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly swUpdate = inject(SwUpdate);
-  private readonly alertCtrl = inject(AlertController);
+  private readonly alertController = inject(AlertController);
 
   watchForUpdates(): void {
     this.swUpdate.versionUpdates
       .pipe(
         filter((event) => event.type === 'VERSION_READY'),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(async () => {
-        const alert = await this.alertCtrl.create(ALERT_OPTIONS);
+        const alert = await this.alertController.create(ALERT_OPTIONS);
         await alert.present();
       });
   }

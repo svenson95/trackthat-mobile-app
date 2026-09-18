@@ -1,9 +1,4 @@
-import {
-  provideHttpClient,
-  withInterceptors,
-  withInterceptorsFromDi,
-  withXhr,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { inject, isDevMode, provideAppInitializer, type ApplicationConfig } from '@angular/core';
 import {
   PreloadAllModules,
@@ -34,7 +29,6 @@ const ROUTER_PROVIDER = provideRouter(
 const HTTP_PROVIDER = provideHttpClient(
   withXhr(),
   withInterceptors([backendConnectionInterceptor]),
-  withInterceptorsFromDi(),
 );
 
 const IONIC_PROVIDERS = [

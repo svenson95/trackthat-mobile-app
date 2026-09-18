@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="de">
   <head>
     <!-- Base -->
     <meta charset="utf-8" />
@@ -32,19 +32,14 @@
       :root {
         --app-loader-color: var(--ion-color-primary);
         --app-loader-track: #e9ecef;
-        --app-initializer-fade-duration: 300ms;
+        --app-init-overlay-fade-duration: 300ms;
 
         @media (prefers-color-scheme: dark) {
           --app-loader-track: #343435;
         }
       }
 
-      .root-component {
-        z-index: 0;
-        position: relative;
-      }
-
-      .app-initializer {
+      .app-init-overlay {
         position: fixed;
         inset: 0;
         display: flex;
@@ -57,17 +52,17 @@
         opacity: 1;
         visibility: visible;
         transition:
-          opacity var(--app-initializer-fade-duration) ease,
-          visibility 0ms linear var(--app-initializer-fade-duration);
+          opacity var(--app-init-overlay-fade-duration) ease,
+          visibility 0ms linear var(--app-init-overlay-fade-duration);
       }
 
-      .app-initializer--hidden {
+      .app-init-overlay--hidden {
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
       }
 
-      .app-initializer-logo {
+      .app-init-overlay-logo {
         width: 128px;
         height: 128px;
         object-fit: contain;
@@ -118,13 +113,13 @@
   </head>
 
   <body>
-    <div id="app-initializer" class="app-initializer">
-      <img class="app-initializer-logo" alt="TrackThat" />
+    <div id="app-init-overlay" class="app-init-overlay">
+      <img class="app-init-overlay-logo" alt="TrackThat" />
       <div class="progress" aria-label="App wird geladen">
         <div class="progress-bar"></div>
       </div>
     </div>
-    <app-root class="root-component"></app-root>
+    <app-root></app-root>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
   </body>
 </html>

@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 
+const FADE_DURATION_MS = 300;
+const MIN_VISIBLE_DURATION_MS = 600;
+
 @Injectable({ providedIn: 'root' })
 export class AppInitializerService {
-  private readonly FADE_DURATION_MS = 300;
-  private readonly MIN_VISIBLE_DURATION_MS = 600;
   private readonly startedAt = performance.now();
-
-  routeActivated = false;
 
   hideOverlay(): void {
     const elapsed = performance.now() - this.startedAt;
-    const remaining = Math.max(0, this.MIN_VISIBLE_DURATION_MS - elapsed);
+    const remaining = Math.max(0, MIN_VISIBLE_DURATION_MS - elapsed);
 
     window.setTimeout(() => {
       requestAnimationFrame(() => {
@@ -22,16 +21,16 @@ export class AppInitializerService {
   }
 
   private removeOverlay(): void {
-    const initializer = document.getElementById('app-initializer');
+    const initializer = document.getElementById('app-init-overlay');
 
     if (!initializer) {
       return;
     }
 
-    initializer.classList.add('app-initializer--hidden');
+    initializer.classList.add('app-init-overlay--hidden');
 
     window.setTimeout(() => {
       initializer.remove();
-    }, this.FADE_DURATION_MS);
+    }, FADE_DURATION_MS);
   }
 }

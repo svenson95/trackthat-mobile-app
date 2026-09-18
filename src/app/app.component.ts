@@ -57,7 +57,7 @@ export class AppComponent {
   private readonly authSessionService = inject(AuthSessionService);
   private readonly languageService = inject(LanguageService);
 
-  private routeActivated = false;
+  private initialRouteActivated = false;
 
   constructor() {
     registerAppIcons();
@@ -68,11 +68,11 @@ export class AppComponent {
   }
 
   onInitialRouteActivated(): void {
-    if (this.routeActivated) {
+    if (this.initialRouteActivated) {
       return;
     }
 
-    this.routeActivated = true;
+    this.initialRouteActivated = true;
     this.appInitializerService.hideOverlay();
   }
 }
