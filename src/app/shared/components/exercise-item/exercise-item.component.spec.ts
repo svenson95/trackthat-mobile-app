@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { provideTranslateService } from '@ngx-translate/core';
 
 import { ExerciseItemComponent } from './exercise-item.component';
 

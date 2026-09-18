@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateService } from '@ngx-translate/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { TranslateService } from '@ngx-translate/core';
 
 import { LanguageService } from './language.service';
 

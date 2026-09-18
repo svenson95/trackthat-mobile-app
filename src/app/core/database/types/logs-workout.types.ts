@@ -1,4 +1,4 @@
-import type { UserId } from './users.model';
+import type { UserId } from './users.types';
 
 export type LogWorkoutId = string; // mongodb doc id
 

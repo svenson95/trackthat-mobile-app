@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { ModalController } from '@ionic/angular';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideTranslateService } from '@ngx-translate/core';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TextInputDialog } from './text-input.dialog';
 

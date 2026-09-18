@@ -1,4 +1,4 @@
-import type { UserDoc } from '../../app/core/database/models/users.model';
+import type { UserDoc } from '../../app/core/database/types/users.types';
 
 export const USER_MOCK: UserDoc = {
   id: '68bac247db73ea806bbfffe3',
