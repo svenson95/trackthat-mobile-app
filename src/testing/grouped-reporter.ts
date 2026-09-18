@@ -31,32 +31,32 @@ const TEST_GROUPS = [
       path.includes('/app.routes.spec.'),
   },
   {
-    name: 'TRAINING',
-    path: '/tabs/training/',
-  },
-  {
-    name: 'LOGS',
-    path: '/tabs/logs/',
-  },
-  {
-    name: 'OVERVIEW',
-    path: '/tabs/overview/',
-  },
-  {
-    name: 'EAT',
-    path: '/tabs/eat/',
-  },
-  {
-    name: 'MORE',
-    path: '/tabs/more/',
-  },
-  {
-    name: 'TABS',
-    path: '/tabs/',
+    name: 'CORE',
+    path: '/core/',
   },
   {
     name: 'SHARED',
     path: '/shared/',
+  },
+  {
+    name: 'TRAINING',
+    path: '/features/training/',
+  },
+  {
+    name: 'LOGS',
+    path: '/features/logs/',
+  },
+  {
+    name: 'OVERVIEW',
+    path: '/features/overview/',
+  },
+  {
+    name: 'EAT',
+    path: '/features/eat/',
+  },
+  {
+    name: 'MORE',
+    path: '/features/more/',
   },
 ];
 
