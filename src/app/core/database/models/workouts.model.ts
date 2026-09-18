@@ -1,5 +1,6 @@
-import type { UnixTimestampMilli } from '../date-helper.model';
 import type { UserId } from './users.model';
+
+type UnixTimestampMilli = number;
 
 export type WorkoutId = string; // mongodb doc id
 export type WorkoutListId = number;

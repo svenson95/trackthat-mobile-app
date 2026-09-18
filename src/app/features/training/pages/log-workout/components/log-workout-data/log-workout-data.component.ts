@@ -20,8 +20,8 @@ import {
 } from '@ionic/angular';
 import { finalize } from 'rxjs';
 
-import { UserService } from '../../../../../../core';
-import { HelperService, type WorkoutSet } from '../../../../../../shared';
+import { UserService, type WorkoutSet } from '../../../../../../core';
+import { HelperService } from '../../../../../../shared';
 
 import { LogsWorkoutService } from '../../../../services';
 import {

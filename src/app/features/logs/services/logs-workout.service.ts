@@ -2,8 +2,8 @@ import { httpResource } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { environment } from '../../../../environments/environment.prod';
+import type { GetLogsWorkoutDTO } from '../../../core';
 import { UserService } from '../../../core';
-import type { GetLogsWorkoutDTO } from '../../../shared';
 
 @Injectable()
 export class LogsWorkoutService {

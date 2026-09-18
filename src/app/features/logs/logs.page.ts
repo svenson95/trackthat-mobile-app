@@ -16,14 +16,9 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
+import type { GetLogsWorkoutDTO, LogWorkoutDoc, WorkoutSet } from '../../core';
 import { UserService } from '../../core';
-import {
-  type GetLogsWorkoutDTO,
-  type LogWorkoutDoc,
-  type WorkoutSet,
-  ContentContainerComponent,
-  ExerciseItemComponent,
-} from '../../shared';
+import { ContentContainerComponent, ExerciseItemComponent } from '../../shared';
 
 import { LogsWorkoutService } from './services';
 

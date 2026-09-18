@@ -3,9 +3,18 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { finalize, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import type { UserDoc } from '../../core';
+
 import { UserService } from '../database';
 
-import type { GetAuthBody, GetAuthResponse, GoogleJWT, JwtToken } from './models';
+type GoogleJWT = string;
+type JwtToken = string;
+
+type GetAuthBody = { token: GoogleJWT };
+type GetAuthResponse = {
+  token: JwtToken;
+  user: UserDoc;
+};
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

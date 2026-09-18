@@ -3,7 +3,6 @@ import { computed, inject, Injectable } from '@angular/core';
 import { map, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import { UserService } from '../../../core';
 import type {
   DeleteWorkoutResponse,
   DeleteWorkoutResult,
@@ -19,7 +18,8 @@ import type {
   Workout,
   WorkoutId,
   WorkoutList,
-} from '../../../shared';
+} from '../../../core';
+import { UserService } from '../../../core';
 
 import { IsEditingService } from './is-editing.service';
 

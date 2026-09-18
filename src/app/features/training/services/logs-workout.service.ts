@@ -3,16 +3,16 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
-import { UserService } from '../../../core';
 import {
-  HelperService,
+  UserService,
   type DeleteLogWorkoutBody,
   type DeleteLogWorkoutResponse,
   type ExerciseWorkoutHistoryDTO,
   type GetLogWorkoutDTO,
   type PostLogWorkoutResponse,
   type WorkoutSet,
-} from '../../../shared';
+} from '../../../core';
+import { HelperService } from '../../../shared';
 
 @Injectable()
 export class LogsWorkoutService {
