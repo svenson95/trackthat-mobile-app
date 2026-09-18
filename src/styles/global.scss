@@ -121,7 +121,7 @@ ion-alert {
   margin-block: 0.5rem;
 }
 
-.page-container {
+.page-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -129,7 +129,7 @@ ion-alert {
 }
 
 // TODO refactor: remove seperate ion-item-divider element in log-workout-data (other one in log-workout-set-list)
-.page-content {
+.item-container {
   display: flex;
   flex-direction: column;
   margin-top: 0.5rem;
