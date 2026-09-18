@@ -30,7 +30,7 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { UserService } from '../../../../core';
-import { ContentContainerComponent, IonicUiService } from '../../../../shared';
+import { IonicUiService } from '../../../../shared';
 
 import { IsEditingService, WorkoutsService } from '../../services';
 
@@ -59,7 +59,6 @@ const ION_COMPONENTS = [
     ...ION_COMPONENTS,
     TranslateModule,
     FormsModule,
-    ContentContainerComponent,
     WorkoutsListComponent,
     AddWorkoutDialog,
   ],
@@ -112,9 +111,9 @@ const ION_COMPONENTS = [
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container>
+      <div class="page-content">
         <app-workouts-list #workoutsComp />
-      </app-content-container>
+      </div>
 
       <app-add-workout-dialog></app-add-workout-dialog>
 

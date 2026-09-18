@@ -32,7 +32,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { ListItem, ListItemExercise, WorkoutDoc } from '../../../../core';
 import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../core';
-import { ContentContainerComponent, IonicUiService, TextInputDialog } from '../../../../shared';
+import { IonicUiService, TextInputDialog } from '../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
 import { IsEditingService, WorkoutsService } from '../../services';
@@ -61,13 +61,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ION_COMPONENTS,
-    FormsModule,
-    TranslateModule,
-    ContentContainerComponent,
-    WorkoutListComponent,
-  ],
+  imports: [...ION_COMPONENTS, FormsModule, TranslateModule, WorkoutListComponent],
   styles: `
     .workout-skeleton-list {
       margin-top: 1rem;
@@ -137,7 +131,7 @@ const ION_COMPONENTS = [
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container>
+      <div class="page-content">
         @if (isLoading()) {
           <ion-list inset="true" class="workout-skeleton-list">
             @for (item of skeletonItems; track $index) {
@@ -163,7 +157,7 @@ const ION_COMPONENTS = [
         } @else if (workout(); as currentWorkout) {
           <app-workout-list [workout]="currentWorkout" (save)="saveEdit($event)" />
         }
-      </app-content-container>
+      </div>
 
       <!-- <app-add-item-dialog></app-add-item-dialog> -->
 

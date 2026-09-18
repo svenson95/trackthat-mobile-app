@@ -4,7 +4,6 @@ import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { AuthService, UserService } from '../../core';
-import { ContentContainerComponent } from '../../shared';
 
 import { HelloBoxComponent, LoginBoxComponent } from './components';
 
@@ -13,13 +12,7 @@ const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
 @Component({
   selector: 'app-overview-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...IONIC_COMPONENTS,
-    TranslateModule,
-    ContentContainerComponent,
-    LoginBoxComponent,
-    HelloBoxComponent,
-  ],
+  imports: [...IONIC_COMPONENTS, TranslateModule, LoginBoxComponent, HelloBoxComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -34,14 +27,14 @@ const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container>
+      <div class="page-content">
         @let user = userData();
         @if (isLoggedIn() && user) {
           <app-hello-box [user]="user" />
         } @else {
           <app-login-box />
         }
-      </app-content-container>
+      </div>
     </ion-content>
   `,
 })

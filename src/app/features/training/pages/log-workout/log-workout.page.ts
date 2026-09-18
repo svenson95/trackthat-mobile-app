@@ -29,7 +29,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent, IonicUiService } from '../../../../shared';
+import { IonicUiService } from '../../../../shared';
 
 import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
 
@@ -52,13 +52,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-log-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ...ION_COMPONENTS,
-    FormsModule,
-    TranslateModule,
-    ContentContainerComponent,
-    LogWorkoutDataComponent,
-  ],
+  imports: [...ION_COMPONENTS, FormsModule, TranslateModule, LogWorkoutDataComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -106,9 +100,9 @@ const ION_COMPONENTS = [
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container>
+      <div class="page-content">
         <app-log-workout-data [exercise]="exercise()" [itemId]="itemId()" />
-      </app-content-container>
+      </div>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
