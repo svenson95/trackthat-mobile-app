@@ -21,7 +21,7 @@ import {
 import { finalize } from 'rxjs';
 
 import { UserService, type WorkoutSet } from '../../../../../../core';
-import { HelperService } from '../../../../../../shared';
+import { IonicUiService } from '../../../../../../shared';
 
 import { LogsWorkoutService } from '../../../../services';
 import {
@@ -152,7 +152,7 @@ export class LogWorkoutDataComponent {
 
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly userService = inject(UserService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
@@ -250,7 +250,7 @@ export class LogWorkoutDataComponent {
         error: async (error) => {
           console.error('Could not load exercise history', error);
 
-          await this.helperService.showError('tabs.training.log-workout.actions.get-error');
+          await this.ionicUiService.showError('tabs.training.log-workout.actions.get-error');
         },
       });
   }
@@ -305,7 +305,7 @@ export class LogWorkoutDataComponent {
 
           console.error('Could not add workout set', error);
 
-          await this.helperService.showError('tabs.training.log-workout.actions.add-set.error');
+          await this.ionicUiService.showError('tabs.training.log-workout.actions.add-set.error');
         },
       });
     });

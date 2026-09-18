@@ -15,7 +15,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { WorkoutSet } from '../../../../../../../core';
-import { ExerciseItemComponent, HelperService } from '../../../../../../../shared';
+import { ExerciseItemComponent, IonicUiService } from '../../../../../../../shared';
 
 import { IsEditingService, LogsWorkoutService } from '../../../../../services';
 
@@ -187,7 +187,7 @@ export class LogWorkoutSetListComponent {
   readonly loadingCtrl = inject(LoadingController);
   readonly translate = inject(TranslateService);
 
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly editService = inject(IsEditingService);
   readonly logsWorkoutService = inject(LogsWorkoutService);
 
@@ -243,7 +243,7 @@ export class LogWorkoutSetListComponent {
 
         await loading.dismiss();
 
-        await this.helperService.showError('tabs.training.log-workout.actions.delete-set.error');
+        await this.ionicUiService.showError('tabs.training.log-workout.actions.delete-set.error');
       },
     });
   }

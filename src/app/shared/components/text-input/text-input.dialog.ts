@@ -89,7 +89,9 @@ export class TextInputDialog implements OnInit {
   }
 
   get isValueInvalid(): boolean {
-    return this.value.trim() === this.initialValue || this.isValueTooLong;
+    const trimmedValue = this.value.trim();
+
+    return !trimmedValue || trimmedValue === this.initialValue || this.isValueTooLong;
   }
 
   async ngOnInit(): Promise<void> {

@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { TranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { UserDoc } from './models/users.model';
+import { TranslateService } from '@ngx-translate/core';
+
+import type { UserDoc } from './types/users.types';
 import { UserService } from './user.service';
 
 describe('UserService', () => {

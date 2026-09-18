@@ -1,4 +1,4 @@
-import type { UserId } from './users.model';
+import type { UserId } from './users.types';
 
 type UnixTimestampMilli = number;
 

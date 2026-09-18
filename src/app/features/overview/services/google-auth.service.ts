@@ -4,7 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 
 import { AuthService } from '../../../core';
-import { HelperService } from '../../../shared';
+import { IonicUiService } from '../../../shared';
 
 // https://developers.google.com/identity/gsi/web/reference/js-reference?hl=de
 type GoogleResponse = {
@@ -52,7 +52,7 @@ declare global {
 })
 export class GoogleAuthService {
   private readonly authService = inject(AuthService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
 
   readonly isNativeIos = Capacitor.getPlatform() === 'ios';
 
@@ -106,7 +106,7 @@ export class GoogleAuthService {
       this.authenticate(idToken);
     } catch (error) {
       console.error('Google login failed', error);
-      await this.helperService.showError('tabs.overview.actions.google-auth.error');
+      await this.ionicUiService.showError('tabs.overview.actions.google-auth.error');
     }
   }
 
@@ -145,7 +145,7 @@ export class GoogleAuthService {
     this.authService.putAuthWithGoogle(credential).subscribe({
       error: async (error) => {
         console.error('Google login failed', error);
-        await this.helperService.showError('tabs.overview.actions.google-auth.error');
+        await this.ionicUiService.showError('tabs.overview.actions.google-auth.error');
       },
     });
   }

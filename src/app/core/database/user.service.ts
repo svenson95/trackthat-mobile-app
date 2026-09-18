@@ -2,7 +2,7 @@ import { inject, Injectable, linkedSignal, signal } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import type { UserDoc } from './models/users.model';
+import type { UserDoc } from './types/users.types';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {

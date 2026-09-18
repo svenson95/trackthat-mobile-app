@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core';
 @Injectable({
   providedIn: 'root',
 })
-export class HelperService {
+export class IonicUiService {
   private readonly toastCtrl = inject(ToastController);
   private readonly translate = inject(TranslateService);
 
@@ -18,6 +18,7 @@ export class HelperService {
       color: 'warning',
       position: 'bottom',
     });
+
     await toast.present();
   }
 
@@ -25,6 +26,7 @@ export class HelperService {
     const slidingItems = Array.from(
       host.nativeElement.querySelectorAll('ion-item-sliding'),
     ) as HTMLIonItemSlidingElement[];
+
     await Promise.all(slidingItems.map((item) => item.close()));
   }
 }

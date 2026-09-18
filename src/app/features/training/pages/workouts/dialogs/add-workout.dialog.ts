@@ -20,7 +20,7 @@ import type { OverlayEventDetail } from '@ionic/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { Workout, WorkoutDoc } from '../../../../../core';
-import { HelperService } from '../../../../../shared';
+import { IonicUiService } from '../../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH, WORKOUT_TEMPLATES } from '../../../data';
 import { WorkoutsService } from '../../../services';
@@ -129,7 +129,7 @@ export class AddWorkoutDialog {
   readonly modal = viewChild.required(IonModal);
 
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
 
   readonly INPUT_MAX_LENGTH = WORKOUT_NAME_MAX_LENGTH;
   readonly templates = WORKOUT_TEMPLATES;
@@ -179,13 +179,13 @@ export class AddWorkoutDialog {
           'status' in error &&
           error.status === 409
         ) {
-          await this.helperService.showError(
+          await this.ionicUiService.showError(
             'tabs.training.workouts.actions.add-workout.already-exists',
           );
           return;
         }
 
-        await this.helperService.showError('general.unknown-error');
+        await this.ionicUiService.showError('general.unknown-error');
       },
     });
   }

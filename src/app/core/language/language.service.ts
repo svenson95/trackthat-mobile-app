@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+
 import { TranslateService } from '@ngx-translate/core';
 
 const SUPPORTED_LANGUAGES = ['de', 'en'] as const;
