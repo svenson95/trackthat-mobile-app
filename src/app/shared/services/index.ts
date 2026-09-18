@@ -1,1 +1,1 @@
-export * from './helper.service';
+export * from './ionic-ui.service';

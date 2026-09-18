@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { HelperService } from '../../../shared';
+import { IonicUiService } from '../../../shared';
 
 import type { GetAuthResponse, JwtToken } from '../service/auth.service';
 import { AuthService } from '../service/auth.service';
@@ -44,7 +44,7 @@ describe('AuthSessionService', () => {
           useValue: authServiceMock,
         },
         {
-          provide: HelperService,
+          provide: IonicUiService,
           useValue: helperServiceMock,
         },
         {

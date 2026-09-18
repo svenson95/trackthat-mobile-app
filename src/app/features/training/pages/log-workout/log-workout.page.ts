@@ -29,7 +29,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent, HelperService } from '../../../../shared';
+import { ContentContainerComponent, IonicUiService } from '../../../../shared';
 
 import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
 
@@ -130,7 +130,7 @@ export class LogWorkoutPage {
 
   private readonly logsWorkoutService = inject(LogsWorkoutService);
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly editService = inject(IsEditingService);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly location = inject(Location);
@@ -181,7 +181,7 @@ export class LogWorkoutPage {
   }
 
   async abortEditing(): Promise<void> {
-    await this.helperService.closeSlidingItems(this.host);
+    await this.ionicUiService.closeSlidingItems(this.host);
     this.editService.setIsEditing(false);
   }
 }

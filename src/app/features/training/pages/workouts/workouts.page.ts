@@ -30,7 +30,7 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { UserService } from '../../../../core';
-import { ContentContainerComponent, HelperService } from '../../../../shared';
+import { ContentContainerComponent, IonicUiService } from '../../../../shared';
 
 import { IsEditingService, WorkoutsService } from '../../services';
 
@@ -133,7 +133,7 @@ const ION_COMPONENTS = [
 export class WorkoutsPage {
   private readonly injector = inject(Injector);
   private readonly loadingCtrl = inject(LoadingController);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly translate = inject(TranslateService);
   private readonly host = inject(ElementRef<HTMLElement>);
 
@@ -195,7 +195,7 @@ export class WorkoutsPage {
 
   async abortEditing(): Promise<void> {
     await this.workoutsComp().workoutsList().closeSlidingItems();
-    await this.helperService.closeSlidingItems(this.host);
+    await this.ionicUiService.closeSlidingItems(this.host);
     this.editService.setIsEditing(false);
     this.editService.setEditedWorkouts(null);
   }
@@ -213,18 +213,18 @@ export class WorkoutsPage {
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
       next: async () => {
-        await this.helperService.closeSlidingItems(this.host);
+        await this.ionicUiService.closeSlidingItems(this.host);
         await loading.dismiss();
         this.editService.setIsEditing(false);
         this.editService.setEditedWorkouts(null);
       },
       error: async (err) => {
         console.error('Unexpected fail during update user.workoutIds', err);
-        await this.helperService.closeSlidingItems(this.host);
+        await this.ionicUiService.closeSlidingItems(this.host);
         await loading.dismiss();
         this.editService.setIsEditing(false);
         this.editService.setEditedWorkouts(null);
-        await this.helperService.showError('tabs.training.workouts.actions.update-list.error');
+        await this.ionicUiService.showError('tabs.training.workouts.actions.update-list.error');
       },
     });
   }

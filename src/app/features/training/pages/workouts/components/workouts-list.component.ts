@@ -18,7 +18,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { PostWorkoutBody } from '../../../../../core';
-import { HelperService, TextInputDialog } from '../../../../../shared';
+import { IonicUiService, TextInputDialog } from '../../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
 import { IsEditingService, WorkoutsService } from '../../../services';
@@ -104,7 +104,7 @@ export class WorkoutsListComponent {
 
   readonly workoutsList = viewChild.required(IonList);
 
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly workoutsService = inject(WorkoutsService);
   readonly sortedWorkouts = this.workoutsService.sortedWorkouts;
 
@@ -180,14 +180,14 @@ export class WorkoutsListComponent {
               'status' in error &&
               error.status === 409
             ) {
-              await this.helperService.showError(
+              await this.ionicUiService.showError(
                 'tabs.training.workouts.actions.add-workout.already-exists',
               );
               return;
             }
 
             console.error('Unexpected fail during change name user.workoutId', error);
-            await this.helperService.showError('tabs.training.workouts.actions.change-name.error');
+            await this.ionicUiService.showError('tabs.training.workouts.actions.change-name.error');
           },
         });
     } catch (error) {
@@ -212,7 +212,7 @@ export class WorkoutsListComponent {
         console.error('Unexpected fail during delete user.workoutId', err);
         await loading.dismiss();
         this.editService.setEditedWorkouts(null);
-        await this.helperService.showError('tabs.training.workouts.actions.delete.error');
+        await this.ionicUiService.showError('tabs.training.workouts.actions.delete.error');
       },
     });
   }

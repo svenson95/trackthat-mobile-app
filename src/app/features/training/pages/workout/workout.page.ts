@@ -32,7 +32,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { ListItem, ListItemExercise, WorkoutDoc } from '../../../../core';
 import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../core';
-import { ContentContainerComponent, HelperService, TextInputDialog } from '../../../../shared';
+import { ContentContainerComponent, IonicUiService, TextInputDialog } from '../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
 import { IsEditingService, WorkoutsService } from '../../services';
@@ -215,7 +215,7 @@ export class WorkoutPage {
   private readonly workoutListComp = viewChild.required(WorkoutListComponent);
 
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly editService = inject(IsEditingService);
 
   readonly isEditing = this.editService.isEditing;
@@ -317,7 +317,7 @@ export class WorkoutPage {
         const message = data
           ? 'tabs.training.workout.actions.change-text.error'
           : 'tabs.training.workout.actions.update-list.error';
-        await this.helperService.showError(message);
+        await this.ionicUiService.showError(message);
       },
     });
   }
@@ -414,7 +414,7 @@ export class WorkoutPage {
         console.error('Unexpected fail during update user.workoutIds', err);
         await loading.dismiss();
         this.editService.setIsEditing(false);
-        await this.helperService.showError('tabs.training.workout.actions.update-list.error');
+        await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
       },
     });
     this.isMoreMenuOpen.set(false);

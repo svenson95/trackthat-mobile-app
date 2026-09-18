@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { provideTestTranslations } from '../../../../../testing/translate-testing.provider';
 import { UserService } from '../../../../core';
-import { HelperService } from '../../../../shared';
+import { IonicUiService } from '../../../../shared';
 
 import { IsEditingService, WorkoutsService } from '../../services';
 
@@ -60,7 +60,7 @@ describe('WorkoutsPage', () => {
         provideIonicAngular(),
         provideTestTranslations(),
         {
-          provide: HelperService,
+          provide: IonicUiService,
           useValue: helperServiceMock,
         },
         {

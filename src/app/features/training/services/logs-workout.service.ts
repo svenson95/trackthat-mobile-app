@@ -12,7 +12,7 @@ import {
   type PostLogWorkoutResponse,
   type WorkoutSet,
 } from '../../../core';
-import { HelperService } from '../../../shared';
+import { IonicUiService } from '../../../shared';
 
 @Injectable()
 export class LogsWorkoutService {
@@ -20,7 +20,7 @@ export class LogsWorkoutService {
 
   private readonly http = inject(HttpClient);
   private readonly userService = inject(UserService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
 
   private readonly INITIAL_HISTORY_LIMIT = 2;
   private readonly LOAD_MORE_HISTORY_LIMIT = 1;
@@ -72,7 +72,7 @@ export class LogsWorkoutService {
         return;
       }
 
-      await this.helperService.showError('tabs.training.log-workout.actions.get-error');
+      await this.ionicUiService.showError('tabs.training.log-workout.actions.get-error');
     });
   }
 

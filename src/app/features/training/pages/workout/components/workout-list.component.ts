@@ -26,7 +26,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import type { ListItem, Workout } from '../../../../../core';
-import { ExerciseItemComponent, HelperService, TextInputDialog } from '../../../../../shared';
+import { ExerciseItemComponent, IonicUiService, TextInputDialog } from '../../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
 import { IsEditingService, WorkoutsService } from '../../../services';
@@ -122,7 +122,7 @@ export class WorkoutListComponent {
   readonly router = inject(Router);
 
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly helperService = inject(HelperService);
+  private readonly ionicUiService = inject(IonicUiService);
   private readonly editService = inject(IsEditingService);
   readonly isEditing = this.editService.isEditing;
 
@@ -196,7 +196,7 @@ export class WorkoutListComponent {
       error: async (err) => {
         console.error('Unexpected fail during delete workout item', err);
         await loading.dismiss();
-        await this.helperService.showError('tabs.training.workout.actions.delete.error');
+        await this.ionicUiService.showError('tabs.training.workout.actions.delete.error');
       },
     });
   }
