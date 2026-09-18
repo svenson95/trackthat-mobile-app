@@ -18,7 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import type { GetLogsWorkoutDTO, LogWorkoutDoc, WorkoutSet } from '../../core';
 import { UserService } from '../../core';
-import { ContentContainerComponent, ExerciseItemComponent } from '../../shared';
+import { ExerciseItemComponent } from '../../shared';
 
 import { LogsWorkoutService } from './services';
 
@@ -40,7 +40,7 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-logs-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, TranslateModule, ContentContainerComponent, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
     ion-datetime {
       --background: var(--ion-card-background);
@@ -88,7 +88,7 @@ const ION_COMPONENTS = [
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container name="Logs page">
+      <div class="page-content">
         <ion-card class="date-card">
           <ion-card-content>
             <ion-datetime
@@ -144,7 +144,7 @@ const ION_COMPONENTS = [
         } @else {
           <p class="logs-data-label">{{ 'tabs.logs.no-data' | translate }}</p>
         }
-      </app-content-container>
+      </div>
     </ion-content>
   `,
 })

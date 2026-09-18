@@ -3,8 +3,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { provideTestTranslations } from '../../../testing/translate-testing.provider';
 
-import { ContentContainerComponent } from '../../shared';
-
 import { EatPage } from './eat.page';
 
 describe('EatPage', () => {
@@ -13,7 +11,7 @@ describe('EatPage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EatPage, ContentContainerComponent],
+      imports: [EatPage],
       providers: [provideTestTranslations()],
     }).compileComponents();
 

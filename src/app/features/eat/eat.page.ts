@@ -3,14 +3,12 @@ import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { ContentContainerComponent } from '../../shared';
-
 const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
 
 @Component({
   selector: 'app-eat-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...IONIC_COMPONENTS, TranslateModule, ContentContainerComponent],
+  imports: [...IONIC_COMPONENTS, TranslateModule],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -25,7 +23,7 @@ const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container></app-content-container>
+      <div class="page-content"></div>
     </ion-content>
   `,
 })

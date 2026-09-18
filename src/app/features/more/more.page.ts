@@ -18,7 +18,6 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AuthService, UserService } from '../../core';
-import { ContentContainerComponent } from '../../shared';
 
 import { UsersService } from './services';
 
@@ -39,7 +38,7 @@ const IONIC_COMPONENTS = [
 @Component({
   selector: 'app-more-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...IONIC_COMPONENTS, ContentContainerComponent, TranslateModule],
+  imports: [...IONIC_COMPONENTS, TranslateModule],
   providers: [UsersService],
   styles: `
     li:not(:last-child) .list-item {
@@ -65,7 +64,7 @@ const IONIC_COMPONENTS = [
         </ion-toolbar>
       </ion-header>
 
-      <app-content-container name="More page">
+      <div class="page-content">
         <ion-list [inset]="true">
           <ion-item-group>
             <ion-item-divider>
@@ -124,7 +123,7 @@ const IONIC_COMPONENTS = [
             }
           </ion-item-group>
         </ion-list>
-      </app-content-container>
+      </div>
     </ion-content>
   `,
 })
