@@ -25,10 +25,19 @@
 @import '@ionic/angular/css/text-transformation.css';
 @import '@ionic/angular/css/flex-utils.css';
 
+/* IONIC STUFF */
+
 ion-header,
-app-content-container {
+.page-content {
   max-width: 600px;
   margin: auto;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .input-fullscreen-modal {
@@ -121,12 +130,7 @@ ion-alert {
   margin-block: 0.5rem;
 }
 
-.page-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
+/* GLOBAL STYLING */
 
 // TODO refactor: remove seperate ion-item-divider element in log-workout-data (other one in log-workout-set-list)
 .item-container {
