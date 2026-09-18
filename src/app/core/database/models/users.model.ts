@@ -5,8 +5,8 @@ export interface User {
   name: string;
   picture: string;
   email: string;
-  weight: number;
-  height: number;
+  weight?: number;
+  height?: number;
 }
 
 export interface UserDoc extends User {

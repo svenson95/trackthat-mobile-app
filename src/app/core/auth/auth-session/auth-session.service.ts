@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { HelperService } from '../../shared';
+import { HelperService } from '../../../shared';
 
-import { AuthService } from './auth.service';
+import { AuthService } from '../service/auth.service';
 
 @Injectable({
   providedIn: 'root',

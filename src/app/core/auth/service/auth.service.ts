@@ -2,16 +2,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { finalize, tap, type Observable } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import type { UserDoc } from '../../core';
+import type { UserDoc } from '../..';
+import { environment } from '../../../../environments/environment';
 
-import { UserService } from '../database';
+import { UserService } from '../../database';
 
-type GoogleJWT = string;
-type JwtToken = string;
+export type GoogleJWT = string;
+export type JwtToken = string;
 
 type GetAuthBody = { token: GoogleJWT };
-type GetAuthResponse = {
+export type GetAuthResponse = {
   token: JwtToken;
   user: UserDoc;
 };
