@@ -3,29 +3,45 @@ import chalk from 'chalk';
 
 import type { Reporter, TestCase, TestModule, TestSuite } from 'vitest/node';
 
-const FEATURE_SECTIONS = [
+type TestGroup = {
+  name: string;
+  path?: string;
+  matches?: (path: string) => boolean;
+};
+
+type FeatureSection = {
+  path: string;
+  name: string;
+  fileSuffixes?: string[];
+};
+
+const FEATURE_SECTIONS: FeatureSection[] = [
   {
     path: 'components',
     name: 'COMPONENTS',
+    fileSuffixes: ['.component.spec.ts'],
   },
   {
     path: 'pages',
     name: 'PAGES',
+    fileSuffixes: ['.page.spec.ts'],
   },
   {
     path: 'services',
     name: 'SERVICES',
+    fileSuffixes: ['.service.spec.ts'],
   },
   {
     path: 'models',
     name: 'MODELS',
+    fileSuffixes: ['.model.spec.ts'],
   },
 ];
 
-const TEST_GROUPS = [
+const TEST_GROUPS: TestGroup[] = [
   {
     name: 'GLOBAL',
-    matches: (path: string): boolean =>
+    matches: (path) =>
       path.includes('/app.component.spec.') ||
       path.includes('/app.config.spec.') ||
       path.includes('/app.routes.spec.'),
@@ -60,17 +76,6 @@ const TEST_GROUPS = [
   },
 ];
 
-type TestGroup = {
-  name: string;
-  path?: string;
-  matches?: (path: string) => boolean;
-};
-
-type FeatureSection = {
-  path: string;
-  name: string;
-};
-
 class GroupedReporter implements Reporter {
   onTestRunEnd(testModules: ReadonlyArray<TestModule>): void {
     const groupedModules = this.groupBy(
@@ -98,31 +103,39 @@ class GroupedReporter implements Reporter {
   }
 
   private printGroup(name: string, modules: readonly TestModule[]): void {
-    console.log(`\n${chalk.bold.cyan(name)}\n`);
+    console.log();
+    console.log(chalk.bold.cyan(name));
 
-    const sectionResults = this.groupBy(
+    const groupedSections = this.groupBy(
       modules,
       (module) => this.getFeatureSection(module.moduleId, name)?.name ?? 'ROOT',
     );
 
-    const rootModules = sectionResults.get('ROOT') ?? [];
+    const rootModules = groupedSections.get('ROOT');
 
-    this.printSortedModules(name, rootModules);
+    if (rootModules?.length) {
+      this.printSortedModules(name, rootModules, 1);
+    }
 
     for (const section of FEATURE_SECTIONS) {
-      const sectionModules = sectionResults.get(section.name);
+      const sectionModules = groupedSections.get(section.name);
 
       if (!sectionModules?.length) {
         continue;
       }
 
-      console.log(`  ${chalk.bold.cyan(section.name)}\n`);
+      console.log();
+      console.log(this.indent(1) + chalk.bold.cyan(section.name));
 
-      this.printSortedModules(name, sectionModules, 1);
+      this.printSortedModules(name, sectionModules, 2);
     }
   }
 
-  private printSortedModules(groupName: string, modules: readonly TestModule[], indent = 0): void {
+  private printSortedModules(
+    groupName: string,
+    modules: readonly TestModule[],
+    depth: number,
+  ): void {
     const sortedModules = [...modules].sort((a, b) => {
       const depthDifference =
         this.getPathDepth(a.moduleId, groupName) - this.getPathDepth(b.moduleId, groupName);
@@ -135,39 +148,36 @@ class GroupedReporter implements Reporter {
     });
 
     for (const module of sortedModules) {
-      this.printModule(module, indent);
+      this.printModule(module, depth);
     }
   }
 
-  private printModule(module: TestModule, baseDepth: number): void {
-    const baseIndent = '  '.repeat(baseDepth);
+  private printModule(module: TestModule, depth: number): void {
+    const children = [...module.children];
 
-    for (const child of module.children) {
+    for (const child of children) {
       if (child.type === 'suite') {
-        this.printSuite(child, baseDepth + 1);
+        this.printSuite(child, depth);
       } else {
-        console.log(`${baseIndent}  ${chalk.white(this.getFileName(module.moduleId))}`);
-        this.printTest(child, baseDepth + 2);
+        console.log(`${this.indent(depth)}${chalk.white(this.getFileName(module.moduleId))}`);
+
+        this.printTest(child, depth + 1);
       }
     }
 
     for (const error of module.errors()) {
-      console.log(chalk.red('\n  Failure:'));
-      console.log(error.message);
+      console.log();
+      console.log(`${this.indent(depth)}${chalk.bold.red('Failure:')}`);
+      console.log(`${this.indent(depth + 1)}${chalk.red(error.message)}`);
     }
-
-    console.log();
   }
 
   private printSuite(suite: TestSuite, depth: number): void {
-    const indent = '  '.repeat(depth);
     const passed = suite.ok();
+    const symbol = passed ? chalk.green('✓') : chalk.red('✕');
+    const name = passed ? chalk.white(suite.name) : chalk.red(suite.name);
 
-    console.log(
-      `${indent}${passed ? chalk.green('✓') : chalk.red('✕')} ${
-        passed ? chalk.white(suite.name) : chalk.red(suite.name)
-      }`,
-    );
+    console.log(`${this.indent(depth)}${symbol} ${name}`);
 
     for (const child of suite.children) {
       if (child.type === 'suite') {
@@ -179,33 +189,97 @@ class GroupedReporter implements Reporter {
   }
 
   private printTest(test: TestCase, depth: number): void {
-    const indent = '  '.repeat(depth);
     const result = test.result();
     const duration = test.diagnostic()?.duration;
 
     console.log(
-      `${indent}${this.getTestSymbol(result.state)} ${this.getTestName(
-        test,
-        result.state,
-      )}${this.getDuration(duration)}`,
+      `${this.indent(depth)}` +
+        `${this.getTestSymbol(result.state)} ` +
+        `${this.getTestName(test, result.state)}` +
+        `${this.getDuration(duration)}`,
     );
   }
 
-  private groupBy<T>(items: readonly T[], getKey: (item: T) => string): Map<string, T[]> {
-    const groups = new Map<string, T[]>();
+  private printSummary(modules: readonly TestModule[]): void {
+    const tests = modules.flatMap((module) => [...module.children.allTests()]);
 
-    for (const item of items) {
-      const key = getKey(item);
-      const group = groups.get(key);
+    const passedTests = tests.filter((test) => test.result().state === 'passed').length;
 
-      if (group) {
-        group.push(item);
-      } else {
-        groups.set(key, [item]);
-      }
+    const failedTests = tests.filter((test) => test.result().state === 'failed').length;
+
+    const skippedTests = tests.filter((test) => test.result().state === 'skipped').length;
+
+    const passedModules = modules.filter((module) => module.ok()).length;
+    const failedModules = modules.length - passedModules;
+
+    const moduleResults = [
+      failedModules > 0 && chalk.red(`${failedModules} failed`),
+      passedModules > 0 && chalk.green(`${passedModules} passed`),
+    ].filter(Boolean);
+
+    const testResults = [
+      failedTests > 0 && chalk.red(`${failedTests} failed`),
+      passedTests > 0 && chalk.green(`${passedTests} passed`),
+      skippedTests > 0 && chalk.yellow(`${skippedTests} skipped`),
+    ].filter(Boolean);
+
+    console.log();
+    console.log(chalk.gray('─'.repeat(48)));
+    console.log();
+
+    console.log(
+      `${chalk.bold('Test Files:')} ${moduleResults.join(', ')}, ${modules.length} total`,
+    );
+
+    console.log(`${chalk.bold('Tests:')}      ${testResults.join(', ')}, ${tests.length} total`);
+  }
+
+  private getFeatureSection(path: string, groupName: string): FeatureSection | null {
+    const group = TEST_GROUPS.find((group) => group.name === groupName);
+
+    if (!group?.path) {
+      return null;
     }
 
-    return groups;
+    const relativePath = path.split(group.path)[1];
+
+    if (!relativePath) {
+      return null;
+    }
+
+    const [rootFolder] = relativePath.split('/');
+
+    const folderSection = FEATURE_SECTIONS.find((section) => section.path === rootFolder);
+
+    if (folderSection) {
+      return folderSection;
+    }
+
+    return (
+      FEATURE_SECTIONS.find((section) =>
+        section.fileSuffixes?.some((suffix) => relativePath.endsWith(suffix)),
+      ) ?? null
+    );
+  }
+
+  private getGroup(path: string): TestGroup {
+    return (
+      TEST_GROUPS.find((group) =>
+        group.matches ? group.matches(path) : path.includes(group.path ?? ''),
+      ) ?? { name: 'OTHER' }
+    );
+  }
+
+  private getPathDepth(path: string, groupName: string): number {
+    const group = TEST_GROUPS.find((group) => group.name === groupName);
+
+    if (!group?.path) {
+      return 0;
+    }
+
+    const relativePath = path.split(group.path)[1];
+
+    return relativePath?.split('/').length ?? Number.MAX_SAFE_INTEGER;
   }
 
   private getTestSymbol(state: string): string {
@@ -228,103 +302,40 @@ class GroupedReporter implements Reporter {
   }
 
   private getTestName(test: TestCase, state: string): string {
-    return state === 'failed' ? chalk.red(test.name) : test.name;
+    return state === 'failed' ? chalk.red(test.name) : chalk.white(test.name);
   }
 
   private getDuration(duration?: number): string {
-    return duration == null ? '' : chalk.gray(` (${Math.round(duration)} ms)`);
-  }
-
-  private getGroup(path: string): TestGroup {
-    return (
-      TEST_GROUPS.find((group) =>
-        group.matches ? group.matches(path) : path.includes(group.path ?? ''),
-      ) ?? {
-        name: 'OTHER',
-      }
-    );
-  }
-
-  private getFeatureSection(path: string, groupName: string): FeatureSection | null {
-    const group = TEST_GROUPS.find((group) => group.name === groupName);
-
-    if (!group?.path) {
-      return null;
+    if (duration == null) {
+      return '';
     }
 
-    const relativePath = path.split(group.path)[1];
-
-    if (!relativePath) {
-      return null;
-    }
-
-    const [rootFolder] = relativePath.split('/');
-
-    return FEATURE_SECTIONS.find((section) => section.path === rootFolder) ?? null;
-  }
-
-  private getPathDepth(path: string, groupName: string): number {
-    const group = TEST_GROUPS.find((group) => group.name === groupName);
-
-    if (!group?.path) {
-      return 0;
-    }
-
-    const relativePath = path.split(group.path)[1];
-
-    if (!relativePath) {
-      return Number.MAX_SAFE_INTEGER;
-    }
-
-    return relativePath.split('/').length;
+    return chalk.gray(` (${Math.round(duration)} ms)`);
   }
 
   private getFileName(path: string): string {
     return path.split('/').at(-1)?.replace('.spec.ts', '') ?? path;
   }
 
-  private printSummary(modules: readonly TestModule[]): void {
-    const tests = modules.flatMap((module) => [...module.children.allTests()]);
+  private indent(depth: number): string {
+    return '  '.repeat(depth);
+  }
 
-    const passedTests = tests.filter((test) => test.result().state === 'passed').length;
+  private groupBy<T>(items: readonly T[], getKey: (item: T) => string): Map<string, T[]> {
+    const groups = new Map<string, T[]>();
 
-    const failedTests = tests.filter((test) => test.result().state === 'failed').length;
+    for (const item of items) {
+      const key = getKey(item);
+      const group = groups.get(key);
 
-    const skippedTests = tests.filter((test) => test.result().state === 'skipped').length;
-
-    const passedModules = modules.filter((module) => module.ok()).length;
-    const failedModules = modules.length - passedModules;
-
-    const suiteResults: string[] = [];
-
-    if (failedModules > 0) {
-      suiteResults.push(chalk.red(`${failedModules} failed`));
+      if (group) {
+        group.push(item);
+      } else {
+        groups.set(key, [item]);
+      }
     }
 
-    if (passedModules > 0) {
-      suiteResults.push(chalk.green(`${passedModules} passed`));
-    }
-
-    const testResults: string[] = [];
-
-    if (failedTests > 0) {
-      testResults.push(chalk.red(`${failedTests} failed`));
-    }
-
-    if (passedTests > 0) {
-      testResults.push(chalk.green(`${passedTests} passed`));
-    }
-
-    if (skippedTests > 0) {
-      testResults.push(chalk.yellow(`${skippedTests} skipped`));
-    }
-
-    console.log(
-      [
-        `${chalk.bold('Test Files:')} ${suiteResults.join(', ')}, ${modules.length} total`,
-        `${chalk.bold('Tests:')}      ${testResults.join(', ')}, ${tests.length} total`,
-      ].join('\n'),
-    );
+    return groups;
   }
 }
 

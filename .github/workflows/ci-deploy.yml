@@ -17,6 +17,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      FORCE_COLOR: 3
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
