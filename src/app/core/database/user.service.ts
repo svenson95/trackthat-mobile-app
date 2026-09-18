@@ -21,7 +21,7 @@ export class UserService {
     },
   );
 
-  setUser(user: UserDoc | undefined): void {
+  setUser(user: UserDoc): void {
     localStorage.setItem('user', JSON.stringify(user));
     this.userData.set(user);
   }
