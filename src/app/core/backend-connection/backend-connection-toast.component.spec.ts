@@ -6,7 +6,6 @@ import { BackendConnectionToastComponent } from './backend-connection-toast.comp
 import { BackendConnectionService } from './backend-connection.service';
 
 describe('BackendConnectionToastComponent', () => {
-  let component: BackendConnectionToastComponent;
   let fixture: ComponentFixture<BackendConnectionToastComponent>;
   let backendConnectionService: BackendConnectionService;
 
@@ -19,6 +18,18 @@ describe('BackendConnectionToastComponent', () => {
 
   const animationControllerMock = {
     create: vi.fn(),
+  };
+
+  const getToast = (): HTMLIonToastElement => fixture.nativeElement.querySelector('ion-toast');
+
+  const getRemainingSeconds = (message: HTMLIonToastElement['message']): number | null => {
+    if (typeof message !== 'string') {
+      return null;
+    }
+
+    const match = message.match(/\d+/);
+
+    return match ? Number(match[0]) : null;
   };
 
   beforeEach(async () => {
@@ -43,8 +54,6 @@ describe('BackendConnectionToastComponent', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(BackendConnectionToastComponent);
-    component = fixture.componentInstance;
-
     backendConnectionService = TestBed.inject(BackendConnectionService);
 
     fixture.detectChanges();
@@ -56,43 +65,90 @@ describe('BackendConnectionToastComponent', () => {
 
   describe('status display', () => {
     it('should be hidden initially', () => {
-      const toast = fixture.nativeElement.querySelector('ion-toast');
-
-      expect(toast.isOpen).toBe(false);
-      expect(toast.message).toBe('');
+      expect(getToast().isOpen).toBe(false);
     });
 
-    it('should show the connecting message', () => {
+    it('should show the connecting status', () => {
       backendConnectionService.status.set('connecting');
 
       fixture.detectChanges();
 
-      const toast = fixture.nativeElement.querySelector('ion-toast');
+      const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.message).toBe('Verbindung zur Datenbank wird hergestellt');
+      expect(toast.classList.contains('backend-connection-toast--connecting')).toBe(true);
     });
 
-    it('should show the connected message', () => {
+    it('should show the connected status', () => {
       backendConnectionService.status.set('connected');
 
       fixture.detectChanges();
 
-      const toast = fixture.nativeElement.querySelector('ion-toast');
+      const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.message).toBe('Verbindung hergestellt');
+      expect(toast.classList.contains('backend-connection-toast--connected')).toBe(true);
     });
 
-    it('should show the failed message', () => {
+    it('should show the failed status', () => {
       backendConnectionService.status.set('failed');
 
       fixture.detectChanges();
 
-      const toast = fixture.nativeElement.querySelector('ion-toast');
+      const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.message).toBe('Verbindung zur Datenbank konnte nicht hergestellt werden');
+      expect(toast.classList.contains('backend-connection-toast--failed')).toBe(true);
+    });
+  });
+
+  describe('countdown', () => {
+    it('should decrease the remaining connection time every second', () => {
+      backendConnectionService.status.set('connecting');
+      fixture.detectChanges();
+
+      expect(getRemainingSeconds(getToast().message)).toBe(18);
+
+      vi.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(getRemainingSeconds(getToast().message)).toBe(17);
+
+      vi.advanceTimersByTime(16_000);
+      fixture.detectChanges();
+
+      expect(getRemainingSeconds(getToast().message)).toBe(1);
+    });
+
+    it('should replace the countdown when the expected connection time is exceeded', () => {
+      backendConnectionService.status.set('connecting');
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(18_000);
+      fixture.detectChanges();
+
+      const toast = getToast();
+
+      expect(toast.message).toBeTruthy();
+      expect(getRemainingSeconds(toast.message)).toBeNull();
+    });
+
+    it('should reset the countdown when connecting starts again', () => {
+      backendConnectionService.status.set('connecting');
+      fixture.detectChanges();
+
+      vi.advanceTimersByTime(5000);
+      fixture.detectChanges();
+
+      expect(getRemainingSeconds(getToast().message)).toBe(13);
+
+      backendConnectionService.status.set('failed');
+      fixture.detectChanges();
+
+      backendConnectionService.status.set('connecting');
+      fixture.detectChanges();
+
+      expect(getRemainingSeconds(getToast().message)).toBe(18);
     });
   });
 
@@ -107,16 +163,12 @@ describe('BackendConnectionToastComponent', () => {
       vi.advanceTimersByTime(699);
       fixture.detectChanges();
 
-      let toast = fixture.nativeElement.querySelector('ion-toast');
-
-      expect(toast.isOpen).toBe(true);
+      expect(getToast().isOpen).toBe(true);
 
       vi.advanceTimersByTime(1);
       fixture.detectChanges();
 
-      toast = fixture.nativeElement.querySelector('ion-toast');
-
-      expect(toast.isOpen).toBe(false);
+      expect(getToast().isOpen).toBe(false);
     });
 
     it('should hide immediately after a failed status becomes hidden', () => {
@@ -126,9 +178,7 @@ describe('BackendConnectionToastComponent', () => {
       backendConnectionService.status.set('hidden');
       fixture.detectChanges();
 
-      const toast = fixture.nativeElement.querySelector('ion-toast');
-
-      expect(toast.isOpen).toBe(false);
+      expect(getToast().isOpen).toBe(false);
     });
   });
 });
