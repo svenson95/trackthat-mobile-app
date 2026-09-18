@@ -7,6 +7,7 @@ type TestGroup = {
   name: string;
   path?: string;
   matches?: (path: string) => boolean;
+  sectionByFolder?: boolean;
 };
 
 type FeatureSection = {
@@ -49,10 +50,12 @@ const TEST_GROUPS: TestGroup[] = [
   {
     name: 'CORE',
     path: '/core/',
+    sectionByFolder: true,
   },
   {
     name: 'SHARED',
     path: '/shared/',
+    sectionByFolder: true,
   },
   {
     name: 'TRAINING',
@@ -108,7 +111,7 @@ class GroupedReporter implements Reporter {
 
     const groupedSections = this.groupBy(
       modules,
-      (module) => this.getFeatureSection(module.moduleId, name)?.name ?? 'ROOT',
+      (module) => this.getSectionName(module.moduleId, name) ?? 'ROOT',
     );
 
     const rootModules = groupedSections.get('ROOT');
@@ -117,15 +120,13 @@ class GroupedReporter implements Reporter {
       this.printSortedModules(name, rootModules, 1);
     }
 
-    for (const section of FEATURE_SECTIONS) {
-      const sectionModules = groupedSections.get(section.name);
-
-      if (!sectionModules?.length) {
+    for (const [sectionName, sectionModules] of groupedSections) {
+      if (sectionName === 'ROOT') {
         continue;
       }
 
       console.log();
-      console.log(this.indent(1) + chalk.bold.cyan(section.name));
+      console.log(`${this.indent(1)}${chalk.bold.cyan(sectionName)}`);
 
       this.printSortedModules(name, sectionModules, 2);
     }
@@ -234,7 +235,7 @@ class GroupedReporter implements Reporter {
     console.log(`${chalk.bold('Tests:')}      ${testResults.join(', ')}, ${tests.length} total`);
   }
 
-  private getFeatureSection(path: string, groupName: string): FeatureSection | null {
+  private getSectionName(path: string, groupName: string): string | null {
     const group = TEST_GROUPS.find((group) => group.name === groupName);
 
     if (!group?.path) {
@@ -249,17 +250,25 @@ class GroupedReporter implements Reporter {
 
     const [rootFolder] = relativePath.split('/');
 
+    if (group.sectionByFolder) {
+      return this.formatSectionName(rootFolder);
+    }
+
     const folderSection = FEATURE_SECTIONS.find((section) => section.path === rootFolder);
 
     if (folderSection) {
-      return folderSection;
+      return folderSection.name;
     }
 
     return (
       FEATURE_SECTIONS.find((section) =>
         section.fileSuffixes?.some((suffix) => relativePath.endsWith(suffix)),
-      ) ?? null
+      )?.name ?? null
     );
+  }
+
+  private formatSectionName(folderName: string): string {
+    return folderName.toUpperCase();
   }
 
   private getGroup(path: string): TestGroup {
