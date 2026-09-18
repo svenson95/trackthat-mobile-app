@@ -4,4 +4,4 @@ export * from './auth';
 export * from './backend-connection';
 export * from './database';
 export * from './language/language.service';
-export * from './tabs/tabs.page';
+export * from './tab-view/tab-view.component';
