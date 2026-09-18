@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import '../../../testing/mocks/google.mock';
 import { provideTestTranslations } from '../../../testing/translate-testing.provider';
-import { ContentContainerComponent } from '../../shared';
 
 import { OverviewPage } from './overview.page';
 
@@ -20,7 +19,7 @@ describe('OverviewPage', () => {
     });
 
     await TestBed.configureTestingModule({
-      imports: [ContentContainerComponent, OverviewPage],
+      imports: [OverviewPage],
       providers: [provideTestTranslations(), provideHttpClient(withXhr())],
     }).compileComponents();
 

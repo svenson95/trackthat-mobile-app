@@ -3,7 +3,6 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { provideTestTranslations } from '../../../testing/translate-testing.provider';
-import { ContentContainerComponent } from '../../shared';
 
 import { MorePage } from './more.page';
 
@@ -13,7 +12,7 @@ describe('MorePage', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ContentContainerComponent, MorePage],
+      imports: [MorePage],
       providers: [provideTestTranslations(), provideHttpClient(withXhr())],
     }).compileComponents();
 
