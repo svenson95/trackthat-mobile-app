@@ -2,7 +2,7 @@ import { httpResource } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 import { environment } from '../../../../environments/environment.prod';
-import type { GetUsersResponse } from '../../../shared';
+import type { GetUsersResponse } from '../../../core';
 
 @Injectable()
 export class UsersService {

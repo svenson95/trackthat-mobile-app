@@ -17,7 +17,8 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { HelperService, TextInputDialog, type PostWorkoutBody } from '../../../../../shared';
+import type { PostWorkoutBody } from '../../../../../core';
+import { HelperService, TextInputDialog } from '../../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
 import { IsEditingService, WorkoutsService } from '../../../services';

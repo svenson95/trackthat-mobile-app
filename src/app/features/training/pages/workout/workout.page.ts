@@ -30,16 +30,9 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import {
-  ContentContainerComponent,
-  HelperService,
-  type ListItem,
-  type ListItemExercise,
-  TextInputDialog,
-  WORKOUT_LIST_ITEM_HEADER,
-  WORKOUT_LIST_ITEM_SPACER,
-  type WorkoutDoc,
-} from '../../../../shared';
+import type { ListItem, ListItemExercise, WorkoutDoc } from '../../../../core';
+import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../core';
+import { ContentContainerComponent, HelperService, TextInputDialog } from '../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
 import { IsEditingService, WorkoutsService } from '../../services';

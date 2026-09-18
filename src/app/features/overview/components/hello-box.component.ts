@@ -9,7 +9,7 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { UserDoc } from '../../../shared/models';
+import type { UserDoc } from '../../../core';
 
 const IONIC_COMPONENTS = [IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle];
 

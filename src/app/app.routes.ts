@@ -1,11 +1,11 @@
 import type { Routes } from '@angular/router';
 
-import { TabsPage } from './core';
+import { TabViewComponent } from './core';
 
 export const appRoutes: Routes = [
   {
     path: 'tabs',
-    component: TabsPage,
+    component: TabViewComponent,
     children: [
       {
         path: 'training',

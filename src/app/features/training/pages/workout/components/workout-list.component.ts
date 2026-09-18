@@ -25,13 +25,8 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import {
-  ExerciseItemComponent,
-  HelperService,
-  TextInputDialog,
-  type ListItem,
-  type Workout,
-} from '../../../../../shared';
+import type { ListItem, Workout } from '../../../../../core';
+import { ExerciseItemComponent, HelperService, TextInputDialog } from '../../../../../shared';
 
 import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
 import { IsEditingService, WorkoutsService } from '../../../services';

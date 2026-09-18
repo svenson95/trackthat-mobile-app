@@ -2,7 +2,7 @@ import { inject, Injectable, linkedSignal, signal } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import type { UserDoc } from '../../shared';
+import type { UserDoc } from './models/users.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -21,7 +21,7 @@ export class UserService {
     },
   );
 
-  setUser(user: UserDoc | undefined): void {
+  setUser(user: UserDoc): void {
     localStorage.setItem('user', JSON.stringify(user));
     this.userData.set(user);
   }

@@ -3,8 +3,16 @@ import { Injectable, inject } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 
-import { AuthService, type GoogleResponse } from '../../../core';
+import { AuthService } from '../../../core';
 import { HelperService } from '../../../shared';
+
+// https://developers.google.com/identity/gsi/web/reference/js-reference?hl=de
+type GoogleResponse = {
+  clientId: string;
+  client_id: string;
+  credential: string;
+  select_by: string;
+};
 
 interface GoogleIdentityService {
   accounts: {

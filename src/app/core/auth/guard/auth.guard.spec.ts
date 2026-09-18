@@ -3,10 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { appRoutes } from '../../app.routes';
-
+import { AuthService } from '../service/auth.service';
 import { AuthGuard } from './auth.guard';
-import { AuthService } from './auth.service';
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
@@ -21,7 +19,7 @@ describe('AuthGuard', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideRouter(appRoutes),
+        provideRouter([]),
         {
           provide: AuthService,
           useValue: authServiceMock,
