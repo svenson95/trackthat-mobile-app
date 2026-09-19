@@ -89,9 +89,9 @@ const ION_COMPONENTS = [
       </ion-toolbar>
     </ion-header>
 
-    <ion-content [fullscreen]="true" color="light">
+    <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
-        <ion-toolbar color="light">
+        <ion-toolbar>
           <ion-title size="large">
             {{ 'tabs.training.log-workout.title' | translate }}
           </ion-title>

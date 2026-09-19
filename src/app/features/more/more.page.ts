@@ -57,9 +57,9 @@ const IONIC_COMPONENTS = [
       </ion-toolbar>
     </ion-header>
 
-    <ion-content [fullscreen]="true" color="light">
+    <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
-        <ion-toolbar color="light">
+        <ion-toolbar>
           <ion-title size="large">{{ 'tabs.more.tab-title' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>

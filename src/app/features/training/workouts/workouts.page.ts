@@ -99,7 +99,7 @@ const ION_COMPONENTS = [
       </ion-toolbar>
     </ion-header>
 
-    <ion-content [fullscreen]="true" color="light">
+    <ion-content [fullscreen]="true">
       <ion-refresher slot="fixed" [pullFactor]="1.5" (ionRefresh)="handleRefresh($event)">
         <ion-refresher-content
           pullingIcon="chevron-down"
@@ -110,7 +110,7 @@ const ION_COMPONENTS = [
       </ion-refresher>
 
       <ion-header collapse="condense">
-        <ion-toolbar color="light">
+        <ion-toolbar>
           <ion-title size="large">{{ 'tabs.training.tab-title' | translate }}</ion-title>
         </ion-toolbar>
       </ion-header>
