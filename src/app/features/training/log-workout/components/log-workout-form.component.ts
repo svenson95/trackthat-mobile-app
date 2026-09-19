@@ -9,13 +9,22 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import type { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DatetimePickerModalComponent } from '../../../dialogs';
+import { DatetimePickerModalComponent } from '../dialogs';
+import {
+  formatDate,
+  formatTime,
+  getCurrentTime,
+  getCurrentUnixTimestamp,
+  normalizeDateForBackend,
+  normalizeTimeForBackend,
+  unixTimestampToDateValue,
+} from '../log-workout.utils';
+import { maxDecimalPlacesValidator, numberValidator } from '../log-workout.validators';
 
 export type LogWorkoutFormValue = {
   load: number;
@@ -237,32 +246,28 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
 export class LogWorkoutFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly modalController = inject(ModalController);
 
   readonly isAddingSet = input<boolean>(false);
   readonly addSet = output<LogWorkoutFormValue>();
 
-  readonly form = this.fb.group({
+  protected readonly form = this.fb.group({
     load: [
       null as number | null,
       [
         Validators.required,
-        this.isNumberValidator(),
-        this.maxDecimalPlacesValidator(2),
+        numberValidator(),
+        maxDecimalPlacesValidator(2),
         Validators.min(0),
         Validators.max(300),
       ],
     ],
     reps: [
       null as number | null,
-      [
-        Validators.required,
-        this.isNumberValidator('integer'),
-        Validators.min(1),
-        Validators.max(500),
-      ],
+      [Validators.required, numberValidator('integer'), Validators.min(1), Validators.max(500)],
     ],
-    date: this.fb.nonNullable.control<number>(this.getCurrentUnixTimestamp()),
-    time: this.fb.nonNullable.control<string>(this.getCurrentTime()),
+    date: this.fb.nonNullable.control<number>(getCurrentUnixTimestamp()),
+    time: this.fb.nonNullable.control<string>(getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
 
@@ -283,20 +288,26 @@ export class LogWorkoutFormComponent {
   });
 
   readonly displayTime = computed(() => {
-    return this.formatTime(this.formValueTime());
+    return formatTime(this.formValueTime());
   });
 
   readonly displayDate = computed(() => {
-    return this.formatDate(this.form.value.date ?? 0);
+    return formatDate(this.form.value.date ?? 0);
   });
 
   readonly timeManuallyChanged = signal<boolean>(false);
+
+  protected readonly datetimeDateValue = computed<string>(() => {
+    return unixTimestampToDateValue(this.form.controls.date.value);
+  });
+
+  private selectedDuringFocus = new WeakSet<HTMLInputElement>();
 
   constructor() {
     const REFRESH_INTERVAL = 30_000;
     const intervalId = window.setInterval(() => {
       if (this.timeManuallyChanged()) return;
-      this.form.controls.time.setValue(this.getCurrentTime());
+      this.form.controls.time.setValue(getCurrentTime());
     }, REFRESH_INTERVAL);
 
     this.destroyRef.onDestroy(() => {
@@ -304,7 +315,15 @@ export class LogWorkoutFormComponent {
     });
   }
 
-  submit(): void {
+  patchForm(set: { load: number; reps: number; note?: string | null }): void {
+    this.form.patchValue({
+      load: set.load,
+      reps: set.reps,
+      note: set.note ?? null,
+    });
+  }
+
+  protected submit(): void {
     if (this.form.invalid || this.isAddingSet()) {
       this.form.markAllAsTouched();
       return;
@@ -325,77 +344,7 @@ export class LogWorkoutFormComponent {
     });
   }
 
-  patchForm(set: { load: number; reps: number; note?: string | null }): void {
-    this.form.patchValue({
-      load: set.load,
-      reps: set.reps,
-      note: set.note ?? null,
-    });
-  }
-
-  private maxDecimalPlacesValidator(maxPlaces: number): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-
-      if (value === null || value === undefined || value === '') {
-        return null;
-      }
-
-      const normalizedValue = String(value).replace(',', '.');
-      if (!/^\d+(\.\d+)?$/.test(normalizedValue)) return null;
-      const decimalPlaces = normalizedValue.split('.')[1]?.length ?? 0;
-
-      return decimalPlaces > maxPlaces
-        ? { maxDecimalPlaces: { max: maxPlaces, actual: decimalPlaces } }
-        : null;
-    };
-  }
-
-  private isNumberValidator(type: 'number' | 'integer' = 'number'): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-
-      if (value === null || value === undefined || value === '') {
-        return null;
-      }
-
-      const parsed = Number(value);
-
-      if (!Number.isFinite(parsed)) {
-        return { number: true };
-      }
-
-      if (type === 'integer' && !Number.isInteger(parsed)) {
-        return { integer: true };
-      }
-
-      return null;
-    };
-  }
-
-  private getCurrentTime(): string {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${hours}:${minutes}:${seconds}`;
-  }
-
-  private formatTime(value: string): string {
-    return value.substring(0, value.length - 3);
-  }
-
-  private formatDate(value: number): string {
-    const date = new Date(value * 1000);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  }
-
-  private selectedDuringFocus = new WeakSet<HTMLInputElement>();
-
-  async selectAllOnFreshFocus(event: Event): Promise<void> {
+  protected async selectAllOnFreshFocus(event: Event): Promise<void> {
     const ionInput = event.target as HTMLIonInputElement;
     const nativeInput = await ionInput.getInputElement();
 
@@ -409,20 +358,14 @@ export class LogWorkoutFormComponent {
     }, 50);
   }
 
-  async resetSelectAllOnFocus(event: Event): Promise<void> {
+  protected async resetSelectAllOnFocus(event: Event): Promise<void> {
     const ionInput = event.target as HTMLIonInputElement;
     const nativeInput = await ionInput.getInputElement();
 
     this.selectedDuringFocus.delete(nativeInput);
   }
 
-  private readonly modalController = inject(ModalController);
-
-  readonly datetimeDateValue = computed(() => {
-    return this.unixTimestampToDateValue(this.form.controls.date.value);
-  });
-
-  async openTimePicker(): Promise<void> {
+  protected async openTimePicker(): Promise<void> {
     const modal = await this.modalController.create({
       component: DatetimePickerModalComponent,
       cssClass: 'datetime-modal',
@@ -440,12 +383,12 @@ export class LogWorkoutFormComponent {
       return;
     }
 
-    const normalizedTime = this.normalizeTimeForBackend(result.data);
+    const normalizedTime = normalizeTimeForBackend(result.data);
     this.timeManuallyChanged.set(true);
     this.form.controls.time.setValue(normalizedTime);
   }
 
-  async openDatePicker(): Promise<void> {
+  protected async openDatePicker(): Promise<void> {
     const modal = await this.modalController.create({
       component: DatetimePickerModalComponent,
       cssClass: 'datetime-modal',
@@ -461,40 +404,15 @@ export class LogWorkoutFormComponent {
     if (result.role !== 'confirm' || typeof result.data !== 'string') return;
 
     this.form.patchValue({
-      date: this.normalizeDateForBackend(result.data),
+      date: normalizeDateForBackend(result.data),
     });
   }
 
-  getCurrentTimeForDatetime(): string {
-    return this.getCurrentTime().substring(0, 5);
+  protected getCurrentTimeForDatetime(): string {
+    return getCurrentTime().substring(0, 5);
   }
 
-  getCurrentDateForDatetime(): string {
-    return this.unixTimestampToDateValue(this.getCurrentUnixTimestamp());
-  }
-
-  private getCurrentUnixTimestamp(): number {
-    return Math.floor(Date.now() / 1000);
-  }
-
-  private normalizeTimeForBackend(value: string): string {
-    const time = value.includes('T') ? value.split('T')[1] : value;
-    const cleanTime = time.replace('Z', '').split('.')[0];
-    const [hours = '00', minutes = '00', seconds] = cleanTime.split(':');
-    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:${seconds?.padStart(2, '0') ?? '00'}`;
-  }
-
-  private unixTimestampToDateValue(timestamp: number): string {
-    const date = new Date(timestamp * 1000);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  private normalizeDateForBackend(value: string): number {
-    const dateValue = value.split('T')[0];
-    const [year, month, day] = dateValue.split('-').map(Number);
-    return Math.floor(new Date(year, month - 1, day, 0, 0, 0, 0).getTime() / 1000);
+  protected getCurrentDateForDatetime(): string {
+    return unixTimestampToDateValue(getCurrentUnixTimestamp());
   }
 }

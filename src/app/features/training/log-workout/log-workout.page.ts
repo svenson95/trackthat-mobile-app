@@ -10,9 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import {
   IonBackButton,
   IonButton,
@@ -25,15 +23,18 @@ import {
   IonPopover,
   IonTitle,
   IonToolbar,
+  LoadingController,
 } from '@ionic/angular';
 
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { IonicUiService } from '../../../../shared';
+import { IonicUiService } from '../../../shared';
 
-import { IsEditingService, LogsWorkoutService, WorkoutsService } from '../../services';
+import { WorkoutsService } from '../data-access';
 
 import { LogWorkoutDataComponent } from './components';
+import { LogWorkoutEditorState } from './log-workout-editor.state';
+import { LogWorkoutService } from './log-workout.service';
 
 const ION_COMPONENTS = [
   IonBackButton,
@@ -53,6 +54,7 @@ const ION_COMPONENTS = [
   selector: 'app-log-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule, LogWorkoutDataComponent],
+  providers: [LogWorkoutEditorState],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -65,7 +67,7 @@ const ION_COMPONENTS = [
             <ion-back-button
               [text]="backButtonText()"
               [defaultHref]="'/tabs/training/' + workoutId()"
-            ></ion-back-button>
+            />
           }
         </ion-buttons>
 
@@ -75,16 +77,12 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button>
+            <ion-button (click)="saveEditing()">
               {{ 'general.save' | translate }}
             </ion-button>
           } @else {
             <ion-button (click)="presentPopover($event)">
-              <ion-icon
-                slot="icon-only"
-                ios="ellipsis-horizontal"
-                md="ellipsis-vertical"
-              ></ion-icon>
+              <ion-icon slot="icon-only" ios="ellipsis-horizontal" md="ellipsis-vertical" />
             </ion-button>
           }
         </ion-buttons>
@@ -101,13 +99,13 @@ const ION_COMPONENTS = [
       </ion-header>
 
       <div class="page-content">
-        <app-log-workout-data [exercise]="exercise()" [itemId]="itemId()" />
+        <app-log-workout-data [exercise]="exercise()" />
       </div>
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
           <ion-list lines="none">
-            <ion-item [button]="true" [detail]="false" (click)="startEditing()">
+            <ion-item button [detail]="false" (click)="startEditing()">
               {{ 'general.edit' | translate }}
             </ion-item>
           </ion-list>
@@ -122,60 +120,105 @@ export class LogWorkoutPage {
   readonly logId = input<string | undefined>();
   readonly exercise = input<string | undefined>();
 
-  private readonly logsWorkoutService = inject(LogsWorkoutService);
+  private readonly logsWorkoutService = inject(LogWorkoutService);
   private readonly workoutsService = inject(WorkoutsService);
   private readonly ionicUiService = inject(IonicUiService);
-  private readonly editService = inject(IsEditingService);
+  private readonly editorState = inject(LogWorkoutEditorState);
+
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly location = inject(Location);
-  private readonly route = inject(ActivatedRoute);
+  private readonly loadingCtrl = inject(LoadingController);
+  private readonly translate = inject(TranslateService);
 
-  readonly isEditing = this.editService.isEditing;
-
-  readonly isMoreMenuOpen = signal<boolean>(false);
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
 
-  readonly routeParams = toSignal(this.route.params, {
-    initialValue: this.route.snapshot.params,
-  });
+  protected readonly isEditing = this.editorState.isEditing;
+  protected readonly isMoreMenuOpen = signal(false);
 
-  readonly backButtonText = computed(() => {
+  protected readonly backButtonText = computed(() => {
     const workout = this.workoutsService
       .sortedWorkouts()
-      .find((w) => w.workoutId === Number(this.workoutId()));
+      .find((currentWorkout) => currentWorkout.workoutId === Number(this.workoutId()));
+
     const name = workout?.name ?? '';
+
     return name.length > 12 ? `${name.slice(0, 10)}...` : name;
   });
 
-  readonly syncRouteWithLogData = effect(() => {
+  private readonly syncRouteWithLogData = effect(() => {
     const logId = this.logsWorkoutService.logId();
     const workoutId = this.workoutId();
-    const { itemId, exercise } = this.routeParams();
+    const itemId = this.itemId();
+    const exercise = this.exercise();
 
-    if (!workoutId || !itemId || !exercise) return;
+    if (!workoutId || !itemId || !exercise) {
+      return;
+    }
 
     const baseTarget = `/tabs/training/${workoutId}/${itemId}/${exercise}/log`;
+
     const target = logId !== undefined ? `${baseTarget}/${logId}` : baseTarget;
-    if (this.location.path() === target) return;
-    this.location.replaceState(target);
+
+    if (this.location.path() !== target) {
+      this.location.replaceState(target);
+    }
   });
 
-  readonly syncRouteWithService = effect(() => {
-    this.logsWorkoutService.exercise.set(this.exercise()!);
+  private readonly syncRouteWithService = effect(() => {
+    const exercise = this.exercise();
+
+    if (exercise) {
+      this.logsWorkoutService.exercise.set(exercise);
+    }
   });
 
-  async startEditing(): Promise<void> {
-    this.editService.setIsEditing(true);
+  protected async startEditing(): Promise<void> {
+    this.editorState.start();
     await this.moreMenu().dismiss();
   }
 
-  presentPopover(ev: Event): void {
-    this.moreMenu().event = ev;
+  protected presentPopover(event: Event): void {
+    this.moreMenu().event = event;
     this.isMoreMenuOpen.set(true);
   }
 
-  async abortEditing(): Promise<void> {
+  protected async abortEditing(): Promise<void> {
     await this.ionicUiService.closeSlidingItems(this.host);
-    this.editService.setIsEditing(false);
+    this.editorState.cancel();
+  }
+
+  protected async saveEditing(): Promise<void> {
+    const deletedSets = this.editorState.deletedSets();
+    const logId = this.logsWorkoutService.logId();
+
+    if (deletedSets.length === 0) {
+      this.editorState.finish();
+      return;
+    }
+
+    if (logId === undefined) {
+      return;
+    }
+
+    const loading = await this.loadingCtrl.create({
+      message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),
+      spinner: 'circles',
+    });
+
+    await loading.present();
+
+    this.logsWorkoutService.deleteSets(String(logId), deletedSets).subscribe({
+      next: async () => {
+        await loading.dismiss();
+        this.editorState.finish();
+      },
+      error: async (error) => {
+        console.error('Could not save log workout changes', error);
+
+        await loading.dismiss();
+
+        await this.ionicUiService.showError('tabs.training.log-workout.actions.delete-set.error');
+      },
+    });
   }
 }

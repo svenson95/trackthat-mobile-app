@@ -9,15 +9,15 @@ import {
   IonLabel,
   IonList,
   IonSkeletonText,
-  LoadingController,
 } from '@ionic/angular';
 
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 
-import type { WorkoutSet } from '../../../../../../../core';
-import { ExerciseItemComponent, IonicUiService } from '../../../../../../../shared';
+import type { WorkoutSet } from '../../../../core';
+import { ExerciseItemComponent } from '../../../../shared';
 
-import { IsEditingService, LogsWorkoutService } from '../../../../../services';
+import { LogWorkoutEditorState } from '../log-workout-editor.state';
+import { LogWorkoutService } from '../log-workout.service';
 
 export type ExerciseSetView =
   | {
@@ -139,7 +139,7 @@ const ION_COMPONENTS = [
                     <ion-item-option
                       class="delete-set"
                       color="danger"
-                      (click)="deleteItem(item, item.set.itemId, slidingItem)"
+                      (click)="deleteItem(item, slidingItem)"
                     >
                       {{ 'general.delete' | translate }}
                     </ion-item-option>
@@ -184,20 +184,16 @@ export class LogWorkoutSetListComponent {
 
   readonly setSelected = output<WorkoutSet>();
 
-  readonly loadingCtrl = inject(LoadingController);
-  readonly translate = inject(TranslateService);
+  private editorState = inject(LogWorkoutEditorState);
+  private logWorkoutService = inject(LogWorkoutService);
 
-  private readonly ionicUiService = inject(IonicUiService);
-  private readonly editService = inject(IsEditingService);
-  readonly logsWorkoutService = inject(LogsWorkoutService);
+  protected isEditing = this.editorState.isEditing;
 
-  readonly isEditing = this.editService.isEditing;
-
-  readonly isLoading = computed<boolean>(() =>
-    this.logsWorkoutService.logWorkoutResource.isLoading(),
+  protected isLoading = computed<boolean>(() =>
+    this.logWorkoutService.logWorkoutResource.isLoading(),
   );
 
-  trackSet(item: ExerciseSetView): string {
+  protected trackSet(item: ExerciseSetView): string {
     switch (item.type) {
       case 'set':
         return `set-${item.set.itemId}`;
@@ -210,41 +206,13 @@ export class LogWorkoutSetListComponent {
     }
   }
 
-  async deleteItem(
-    item: ExerciseSetView,
-    itemId: number,
-    slidingItem: IonItemSliding,
-  ): Promise<void> {
+  protected async deleteItem(item: ExerciseSetView, slidingItem: IonItemSliding): Promise<void> {
     if (item.type !== 'set') {
       return;
     }
 
     await slidingItem.close();
 
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),
-      spinner: 'circles',
-    });
-
-    await loading.present();
-
-    const logId = String(this.logsWorkoutService.logId()!);
-
-    this.logsWorkoutService.deleteSet(logId, itemId, item.set).subscribe({
-      next: async (response) => {
-        await loading.dismiss();
-
-        if (response === null) {
-          this.editService.setIsEditing(false);
-        }
-      },
-      error: async (err) => {
-        console.error('Unexpected fail during delete log-workout.set', err);
-
-        await loading.dismiss();
-
-        await this.ionicUiService.showError('tabs.training.log-workout.actions.delete-set.error');
-      },
-    });
+    this.editorState.deleteSet(item.set);
   }
 }

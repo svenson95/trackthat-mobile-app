@@ -1,14 +1,6 @@
+import { ChangeDetectionStrategy, Component, inject, input, viewChild } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  output,
-  viewChild,
-} from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import {
-  AlertController,
   IonIcon,
   IonItem,
   IonItemOption,
@@ -18,18 +10,18 @@ import {
   IonList,
   IonReorder,
   IonReorderGroup,
-  LoadingController,
   ModalController,
   type ItemReorderEventDetail,
 } from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { ListItem, Workout } from '../../../../../core';
-import { ExerciseItemComponent, IonicUiService, TextInputDialog } from '../../../../../shared';
+import type { ListItem, Workout } from '../../../../core';
+import { ExerciseItemComponent, TextInputDialog } from '../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
-import { IsEditingService, WorkoutsService } from '../../../services';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
+
+import { WorkoutEditorState } from '../workout-editor.state';
 
 const ION_COMPONENTS = [
   IonIcon,
@@ -51,12 +43,14 @@ const ION_COMPONENTS = [
     .exercise-image {
       margin-right: 0.75rem;
     }
+
     .label-item {
       font-weight: 700;
     }
   `,
   template: `
     @let list = workout().list;
+
     <ion-list [inset]="true">
       <ion-reorder-group [disabled]="!isEditing()" (ionItemReorder)="handleReorder($event)">
         @if (list.length === 0) {
@@ -70,17 +64,14 @@ const ION_COMPONENTS = [
             <ion-item-sliding #slidingItem [disabled]="!isEditing()">
               @if (item.type === 'HEADER') {
                 <ion-item-options side="start">
-                  <ion-item-option
-                    color="medium"
-                    (click)="openChangeTextModal(item.name!, item.listId, slidingItem)"
-                  >
+                  <ion-item-option color="medium" (click)="openChangeTextModal(item, slidingItem)">
                     {{ 'tabs.training.workout.actions.change-text.title' | translate }}
                   </ion-item-option>
                 </ion-item-options>
 
                 <ion-item>
                   <ion-label class="label-item">{{ item.name }}</ion-label>
-                  <ion-reorder slot="end"></ion-reorder>
+                  <ion-reorder slot="end" />
                 </ion-item>
               } @else if (item.type === 'EXERCISE') {
                 <ion-item
@@ -89,15 +80,16 @@ const ION_COMPONENTS = [
                   [detail]="!isEditing()"
                 >
                   <app-exercise-item [exercise]="item.name!" />
-                  <ion-reorder slot="end"></ion-reorder>
+                  <ion-reorder slot="end" />
                 </ion-item>
               } @else if (item.type === 'SPACER') {
                 <ion-item>
-                  <ion-icon aria-hidden="true" slot="start"></ion-icon>
-                  <ion-label></ion-label>
-                  <ion-reorder slot="end"></ion-reorder>
+                  <ion-icon aria-hidden="true" slot="start" />
+                  <ion-label />
+                  <ion-reorder slot="end" />
                 </ion-item>
               }
+
               <ion-item-options side="end">
                 <ion-item-option color="danger" (click)="deleteItem(item, slidingItem)">
                   {{ 'general.delete' | translate }}
@@ -112,92 +104,73 @@ const ION_COMPONENTS = [
 })
 export class WorkoutListComponent {
   readonly workout = input.required<Workout>();
-  readonly save = output<{ message: string; data: ListItem }>();
+
   readonly workoutList = viewChild.required(IonList);
 
   private readonly modalCtrl = inject(ModalController);
   private readonly translate = inject(TranslateService);
-  private readonly loadingCtrl = inject(LoadingController);
-  readonly alertCtrl = inject(AlertController);
-  readonly router = inject(Router);
+  private readonly editorState = inject(WorkoutEditorState);
 
-  private readonly workoutsService = inject(WorkoutsService);
-  private readonly ionicUiService = inject(IonicUiService);
-  private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
+  protected readonly isEditing = this.editorState.isEditing;
 
-  handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
-    const from = event.detail.from;
-    const to = event.detail.to;
+  protected handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
+    const draft = this.editorState.draft();
 
-    const ids = this.editService.editedWorkoutList() ?? [];
-    const items = [...ids];
-    const moved = items.splice(from, 1)[0];
-    items.splice(to, 0, moved);
-    this.editService.setEditedWorkoutList(items);
+    if (!draft) {
+      event.detail.complete();
+      return;
+    }
+
+    const items = [...draft];
+    const [movedItem] = items.splice(event.detail.from, 1);
+
+    items.splice(event.detail.to, 0, movedItem);
+
+    this.editorState.update(items);
 
     event.detail.complete();
   }
 
-  async openChangeTextModal(
-    item: string,
-    listId: number,
-    slidingItem: IonItemSliding,
-  ): Promise<void> {
+  protected async openChangeTextModal(item: ListItem, slidingItem: IonItemSliding): Promise<void> {
+    if (item.type !== 'HEADER') {
+      return;
+    }
+
     try {
       await slidingItem.close();
+
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
           title: this.translate.instant('tabs.training.workout.actions.change-text.title'),
           label: 'Text',
           placeholder: 'Text',
-          value: item,
+          value: item.name,
           maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
+
       await modal.present();
 
       const { data } = await modal.onDidDismiss<string>();
-      if (!data || data === item) return;
+      const name = data?.trim();
 
-      this.save.emit({
-        message: this.translate.instant('tabs.training.workout.actions.change-text.process'),
-        data: { ...this.workout().list.find((w) => w.listId === listId)!, name: data },
+      if (!name || name === item.name) {
+        return;
+      }
+
+      this.editorState.updateItem({
+        ...item,
+        name,
       });
     } catch (error) {
       console.error('Change text modal could not be opened:', error);
     }
   }
 
-  async deleteItem(item: ListItem, slidingItem: IonItemSliding): Promise<void> {
+  protected async deleteItem(item: ListItem, slidingItem: IonItemSliding): Promise<void> {
     await slidingItem.close();
 
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workout.actions.delete.process'),
-      spinner: 'circles',
-    });
-    await loading.present();
-
-    const workout = this.workout();
-    const filtered = workout.list.filter((listItem) => listItem.listId !== item.listId);
-    const normalized = this.workoutsService.normalizeWorkoutList(filtered);
-
-    const updatedWorkout = {
-      ...workout,
-      list: normalized,
-    };
-
-    this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: async (res) => {
-        this.editService.setEditedWorkoutList(res.list);
-        await loading.dismiss();
-      },
-      error: async (err) => {
-        console.error('Unexpected fail during delete workout item', err);
-        await loading.dismiss();
-        await this.ionicUiService.showError('tabs.training.workout.actions.delete.error');
-      },
-    });
+    this.editorState.removeItem(item.listId);
   }
 }

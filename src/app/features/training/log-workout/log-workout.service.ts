@@ -1,6 +1,6 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { tap, type Observable } from 'rxjs';
+import { concatMap, from, last, tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment.prod';
 import {
@@ -15,7 +15,7 @@ import {
 import { IonicUiService } from '../../../shared';
 
 @Injectable()
-export class LogsWorkoutService {
+export class LogWorkoutService {
   private readonly apiUrl = environment.api + 'logs-workout';
 
   private readonly http = inject(HttpClient);
@@ -100,6 +100,13 @@ export class LogsWorkoutService {
           this.logWorkoutResource.set(updatedLog);
         }),
       );
+  }
+
+  deleteSets(logId: string, sets: WorkoutSet[]): Observable<DeleteLogWorkoutResponse> {
+    return from(sets).pipe(
+      concatMap((set) => this.deleteSet(logId, set.itemId, set)),
+      last(),
+    );
   }
 
   loadMoreExerciseHistory(): Observable<ExerciseWorkoutHistoryDTO> | undefined {

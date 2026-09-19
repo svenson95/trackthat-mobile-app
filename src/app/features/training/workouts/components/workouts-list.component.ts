@@ -17,11 +17,13 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { PostWorkoutBody } from '../../../../../core';
-import { IonicUiService, TextInputDialog } from '../../../../../shared';
+import type { PostWorkoutBody, WorkoutDoc } from '../../../../core';
+import { IonicUiService, TextInputDialog } from '../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../../data';
-import { IsEditingService, WorkoutsService } from '../../../services';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
+import { WorkoutsService } from '../../data-access';
+
+import { WorkoutsEditorState } from '../workouts-editor.state';
 
 const ION_COMPONENTS = [
   IonList,
@@ -55,8 +57,9 @@ const ION_COMPONENTS = [
             </ion-label>
           </ion-item>
         } @else {
-          @let workouts = sortedWorkouts();
-          @if (workouts?.length === 0) {
+          @let workouts = displayedWorkouts();
+
+          @if (workouts.length === 0) {
             <ion-item>
               <ion-label>
                 <p>{{ 'tabs.training.workouts.no-plans' | translate }}</p>
@@ -79,9 +82,9 @@ const ION_COMPONENTS = [
                   [routerLink]="isEditing() ? null : ['/tabs/training/', workout.workoutId]"
                   [detail]="!isEditing()"
                 >
-                  <ion-icon aria-hidden="true" name="list-outline" slot="start"></ion-icon>
+                  <ion-icon aria-hidden="true" name="list-outline" slot="start" />
                   <ion-label>{{ workout.name }}</ion-label>
-                  <ion-reorder slot="end"></ion-reorder>
+                  <ion-reorder slot="end" />
                 </ion-item>
 
                 <ion-item-options side="end">
@@ -102,36 +105,45 @@ export class WorkoutsListComponent {
   private readonly modalCtrl = inject(ModalController);
   private readonly translate = inject(TranslateService);
 
-  readonly workoutsList = viewChild.required(IonList);
-
   private readonly ionicUiService = inject(IonicUiService);
   private readonly workoutsService = inject(WorkoutsService);
-  readonly sortedWorkouts = this.workoutsService.sortedWorkouts;
+  private readonly editorState = inject(WorkoutsEditorState);
 
-  private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
+  public readonly workoutsList = viewChild.required(IonList);
 
-  readonly hasError = computed<boolean>(
+  protected readonly isEditing = this.editorState.isEditing;
+
+  protected readonly displayedWorkouts = computed<WorkoutDoc[]>(
+    () => this.editorState.draft() ?? this.workoutsService.sortedWorkouts(),
+  );
+
+  protected readonly hasError = computed<boolean>(
     () => this.workoutsService.workoutsResource.status() === 'error',
   );
 
-  readonly hasWorkoutsValue = computed<boolean>(
+  protected readonly hasWorkoutsValue = computed<boolean>(
     () => this.workoutsService.workoutsResource.value() !== undefined,
   );
 
-  readonly isInitialLoading = computed<boolean>(
+  protected readonly isInitialLoading = computed<boolean>(
     () => this.workoutsService.workoutsResource.status() === 'loading' && !this.hasWorkoutsValue(),
   );
 
-  handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
-    const from = event.detail.from;
-    const to = event.detail.to;
+  protected handleReorder(event: CustomEvent<ItemReorderEventDetail>): void {
+    const workouts = this.editorState.draft();
 
-    const workouts = [...this.editService.editedWorkouts()!];
-    const moved = workouts.splice(from, 1)[0];
-    workouts.splice(to, 0, moved);
-    this.editService.setEditedWorkouts(
-      workouts.map((workout, index) => ({
+    if (!workouts) {
+      event.detail.complete();
+      return;
+    }
+
+    const reorderedWorkouts = [...workouts];
+
+    const [movedWorkout] = reorderedWorkouts.splice(event.detail.from, 1);
+    reorderedWorkouts.splice(event.detail.to, 0, movedWorkout);
+
+    this.editorState.update(
+      reorderedWorkouts.map((workout, index) => ({
         ...workout,
         listId: index,
       })),
@@ -140,9 +152,13 @@ export class WorkoutsListComponent {
     event.detail.complete();
   }
 
-  async openChangeNameModal(workout: PostWorkoutBody, slidingItem: IonItemSliding): Promise<void> {
+  protected async openChangeNameModal(
+    workout: PostWorkoutBody,
+    slidingItem: IonItemSliding,
+  ): Promise<void> {
     try {
       await slidingItem.close();
+
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
         componentProps: {
@@ -153,15 +169,20 @@ export class WorkoutsListComponent {
           maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
+
       await modal.present();
 
       const { data } = await modal.onDidDismiss<string>();
-      if (!data || data === workout.name) return;
+
+      if (!data || data === workout.name) {
+        return;
+      }
 
       const loading = await this.loadingCtrl.create({
         message: this.translate.instant('tabs.training.workouts.actions.change-name.process'),
         spinner: 'circles',
       });
+
       await loading.present();
 
       this.workoutsService
@@ -170,7 +191,9 @@ export class WorkoutsListComponent {
           name: data,
         })
         .subscribe({
-          next: async () => await loading.dismiss(),
+          next: async () => {
+            await loading.dismiss();
+          },
           error: async (error) => {
             await loading.dismiss();
 
@@ -187,31 +210,35 @@ export class WorkoutsListComponent {
             }
 
             console.error('Unexpected fail during change name user.workoutId', error);
+
             await this.ionicUiService.showError('tabs.training.workouts.actions.change-name.error');
           },
         });
     } catch (error) {
-      console.error('Add workout modal could not be opened:', error);
+      console.error('Change workout name modal could not be opened:', error);
     }
   }
 
-  async deleteWorkout(id: string, slidingItem: IonItemSliding): Promise<void> {
+  protected async deleteWorkout(id: string, slidingItem: IonItemSliding): Promise<void> {
     await slidingItem.close();
+
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.workouts.actions.delete.process'),
       spinner: 'circles',
     });
+
     await loading.present();
 
     this.workoutsService.deleteWorkout(id).subscribe({
       next: async (filtered) => {
         await loading.dismiss();
-        this.editService.setEditedWorkouts(filtered);
+        this.editorState.update(filtered);
       },
-      error: async (err) => {
-        console.error('Unexpected fail during delete user.workoutId', err);
+      error: async (error) => {
+        console.error('Unexpected fail during delete user.workoutId', error);
+
         await loading.dismiss();
-        this.editService.setEditedWorkouts(null);
+
         await this.ionicUiService.showError('tabs.training.workouts.actions.delete.error');
       },
     });

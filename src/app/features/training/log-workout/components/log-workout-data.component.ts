@@ -20,17 +20,17 @@ import {
 } from '@ionic/angular';
 import { finalize } from 'rxjs';
 
-import { UserService, type WorkoutSet } from '../../../../../../core';
-import { IonicUiService } from '../../../../../../shared';
+import type { WorkoutSet } from '../../../../core';
+import { UserService } from '../../../../core';
+import { IonicUiService } from '../../../../shared';
 
-import { LogsWorkoutService } from '../../../../services';
-import {
-  LogWorkoutFormComponent,
-  LogWorkoutSetListComponent,
-  type ExerciseSetView,
-  type ExerciseView,
-  type LogWorkoutFormValue,
-} from '../../components';
+import { LogWorkoutEditorState } from '../log-workout-editor.state';
+import { LogWorkoutService } from '../log-workout.service';
+
+import type { LogWorkoutFormValue } from './log-workout-form.component';
+import { LogWorkoutFormComponent } from './log-workout-form.component';
+import type { ExerciseSetView, ExerciseView } from './log-workout-set-list.component';
+import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
 
 const ION_COMPONENTS = [
   IonButton,
@@ -146,20 +146,18 @@ const ION_COMPONENTS = [
   `,
 })
 export class LogWorkoutDataComponent {
-  readonly itemId = input<string>();
   readonly exercise = input<string>();
-  readonly logId = input<string>();
 
-  private readonly logsWorkoutService = inject(LogsWorkoutService);
+  private readonly logWorkoutService = inject(LogWorkoutService);
   private readonly userService = inject(UserService);
   private readonly ionicUiService = inject(IonicUiService);
 
   readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
 
-  readonly exerciseHistory = this.logsWorkoutService.exerciseHistoryResource.value;
+  readonly exerciseHistory = this.logWorkoutService.exerciseHistoryResource.value;
 
   readonly isExerciseHistoryLoading = computed(() =>
-    this.logsWorkoutService.exerciseHistoryResource.isLoading(),
+    this.logWorkoutService.exerciseHistoryResource.isLoading(),
   );
 
   readonly isLoadingMoreHistory = signal(false);
@@ -178,15 +176,19 @@ export class LogWorkoutDataComponent {
 
   readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
 
-  readonly exerciseView = computed<ExerciseView | undefined>(() => {
+  private readonly editorState = inject(LogWorkoutEditorState);
+
+  protected readonly exerciseView = computed<ExerciseView | undefined>(() => {
     const exercise = this.exercise();
 
     if (!exercise) {
       return undefined;
     }
 
-    const sets = (this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [])
-      .filter((set) => set.exercise === exercise)
+    const deletedItemIds = this.editorState.deletedItemIds();
+
+    const sets = (this.logWorkoutService.logWorkoutResource.value()?.sets ?? [])
+      .filter((set) => set.exercise === exercise && !deletedItemIds.has(set.itemId))
       .sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time))
       .map<ExerciseSetView>((set) => ({
         type: 'set',
@@ -232,7 +234,7 @@ export class LogWorkoutDataComponent {
       return;
     }
 
-    const request = this.logsWorkoutService.loadMoreExerciseHistory();
+    const request = this.logWorkoutService.loadMoreExerciseHistory();
 
     if (!request) {
       return;
@@ -260,7 +262,7 @@ export class LogWorkoutDataComponent {
       return;
     }
 
-    const logId = this.logsWorkoutService.logId();
+    const logId = this.logWorkoutService.logId();
     const userId = this.userService.userData()?.id;
     const exercise = this.exercise();
     const form = this.logWorkoutForm();
@@ -296,7 +298,7 @@ export class LogWorkoutDataComponent {
     });
 
     requestAnimationFrame(() => {
-      this.logsWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
+      this.logWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
         next: () => {
           this.pendingSet.set(null);
         },
@@ -330,7 +332,7 @@ export class LogWorkoutDataComponent {
   }
 
   private getNextItemId(): number {
-    const sets = this.logsWorkoutService.logWorkoutResource.value()?.sets ?? [];
+    const sets = this.logWorkoutService.logWorkoutResource.value()?.sets ?? [];
 
     const maxItemId = sets.reduce((max, set) => {
       return Math.max(max, set.itemId);
