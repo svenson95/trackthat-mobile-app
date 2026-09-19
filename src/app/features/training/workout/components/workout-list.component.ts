@@ -19,7 +19,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ListItem, Workout } from '../../../../core';
 import { ExerciseItemComponent, TextInputDialog } from '../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../workout.validators';
 
 import { WorkoutEditorState } from '../workout-editor.state';
 

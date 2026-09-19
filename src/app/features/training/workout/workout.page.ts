@@ -34,8 +34,8 @@ import type { ListItemExercise, WorkoutDoc } from '../../../core';
 import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../core';
 import { IonicUiService, TextInputDialog } from '../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../data';
 import { WorkoutsService } from '../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../workout.validators';
 
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
