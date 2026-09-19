@@ -8,6 +8,7 @@ type TestGroup = {
   path?: string;
   matches?: (path: string) => boolean;
   sectionByFolder?: boolean;
+  sectionOrder?: string[];
 };
 
 type FeatureSection = {
@@ -23,19 +24,14 @@ const FEATURE_SECTIONS: FeatureSection[] = [
     fileSuffixes: ['.component.spec.ts'],
   },
   {
-    path: 'pages',
-    name: 'PAGES',
-    fileSuffixes: ['.page.spec.ts'],
+    path: 'dialogs',
+    name: 'DIALOGS',
+    fileSuffixes: ['.dialog.spec.ts'],
   },
   {
     path: 'services',
     name: 'SERVICES',
     fileSuffixes: ['.service.spec.ts'],
-  },
-  {
-    path: 'models',
-    name: 'MODELS',
-    fileSuffixes: ['.model.spec.ts'],
   },
 ];
 
@@ -60,18 +56,20 @@ const TEST_GROUPS: TestGroup[] = [
   {
     name: 'TRAINING',
     path: '/features/training/',
+    sectionByFolder: true,
+    sectionOrder: ['workouts', 'workout', 'log-workout', 'data-access'],
   },
   {
-    name: 'LOGS',
-    path: '/features/logs/',
+    name: 'EAT',
+    path: '/features/eat/',
   },
   {
     name: 'OVERVIEW',
     path: '/features/overview/',
   },
   {
-    name: 'EAT',
-    path: '/features/eat/',
+    name: 'LOGS',
+    path: '/features/logs/',
   },
   {
     name: 'MORE',
@@ -120,16 +118,47 @@ class GroupedReporter implements Reporter {
       this.printSortedModules(name, rootModules, 1);
     }
 
-    for (const [sectionName, sectionModules] of groupedSections) {
-      if (sectionName === 'ROOT') {
-        continue;
-      }
+    const group = TEST_GROUPS.find((group) => group.name === name);
 
+    const sections = [...groupedSections.entries()]
+      .filter(([sectionName]) => sectionName !== 'ROOT')
+      .sort(([sectionA], [sectionB]) =>
+        this.compareSections(sectionA, sectionB, group?.sectionOrder),
+      );
+
+    for (const [sectionName, sectionModules] of sections) {
       console.log();
       console.log(`${this.indent(1)}${chalk.bold.cyan(sectionName)}`);
 
       this.printSortedModules(name, sectionModules, 2);
     }
+  }
+
+  private compareSections(
+    sectionA: string,
+    sectionB: string,
+    sectionOrder?: readonly string[],
+  ): number {
+    if (!sectionOrder) {
+      return sectionA.localeCompare(sectionB);
+    }
+
+    const indexA = sectionOrder.indexOf(sectionA);
+    const indexB = sectionOrder.indexOf(sectionB);
+
+    if (indexA === -1 && indexB === -1) {
+      return sectionA.localeCompare(sectionB);
+    }
+
+    if (indexA === -1) {
+      return 1;
+    }
+
+    if (indexB === -1) {
+      return -1;
+    }
+
+    return indexA - indexB;
   }
 
   private printSortedModules(
