@@ -10,14 +10,16 @@ describe('BackendConnectionToastComponent', () => {
   let backendConnectionService: BackendConnectionService;
 
   const animationMock = {
-    addElement: vi.fn(),
-    duration: vi.fn(),
-    easing: vi.fn(),
-    fromTo: vi.fn(),
+    addElement: vi.fn().mockReturnThis(),
+    duration: vi.fn().mockReturnThis(),
+    easing: vi.fn().mockReturnThis(),
+    fromTo: vi.fn().mockReturnThis(),
+    play: vi.fn().mockResolvedValue(undefined),
+    destroy: vi.fn(),
   };
 
   const animationControllerMock = {
-    create: vi.fn(),
+    create: vi.fn().mockReturnValue(animationMock),
   };
 
   const getToast = (): HTMLIonToastElement => fixture.nativeElement.querySelector('ion-toast');

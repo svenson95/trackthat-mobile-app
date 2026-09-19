@@ -17,4 +17,8 @@ class IntersectionObserverMock implements IntersectionObserver {
   unobserve(_target: Element): void {}
 }
 
-globalThis.IntersectionObserver = IntersectionObserverMock;
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  configurable: true,
+  writable: true,
+  value: IntersectionObserverMock,
+});
