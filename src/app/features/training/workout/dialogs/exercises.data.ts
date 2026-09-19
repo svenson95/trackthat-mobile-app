@@ -1,4 +1,4 @@
-import type { ExerciseEquipment, ExerciseVariant, MuscleGroup } from '../../../core';
+import type { ExerciseEquipment, ExerciseVariant, MuscleGroup } from '../../../../core';
 
 // TODO: missing types for biceps-curls 'barbell', 'cable-tower', 'machine' ...
 export interface ExerciseMetadata {
@@ -9,12 +9,12 @@ export interface ExerciseMetadata {
   muscleGroups: null | Array<MuscleGroup>;
 }
 
-export interface ExerciseGroup {
+interface ExerciseGroup {
   name: 'legs' | 'arms' | 'core_and_abs' | 'chest' | 'back' | 'shoulders';
   exercises: Array<ExerciseMetadata>;
 }
 
-export const EXERCISES_METADATA: Array<ExerciseGroup> = [
+export const EXERCISES_DATA: Array<ExerciseGroup> = [
   {
     name: 'legs',
     exercises: [
@@ -229,7 +229,7 @@ export const EXERCISES_METADATA: Array<ExerciseGroup> = [
   },
 ];
 
-export const EXERCISES_METADATA_FLAT: Array<ExerciseMetadata> = EXERCISES_METADATA.reduce<
+export const EXERCISES_METADATA_FLAT: Array<ExerciseMetadata> = EXERCISES_DATA.reduce<
   Array<ExerciseMetadata>
 >((acc, group) => {
   acc.push(...group.exercises);

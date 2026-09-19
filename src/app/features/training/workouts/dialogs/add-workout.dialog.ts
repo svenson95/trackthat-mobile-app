@@ -22,8 +22,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Workout, WorkoutDoc } from '../../../../core';
 import { IonicUiService } from '../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
 import { WorkoutsService } from '../../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../workout.validators';
 
 import { WORKOUT_TEMPLATES } from './workout-templates.data';
 

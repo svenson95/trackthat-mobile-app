@@ -20,8 +20,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { PostWorkoutBody, WorkoutDoc } from '../../../../core';
 import { IonicUiService, TextInputDialog } from '../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
 import { WorkoutsService } from '../../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../workout.validators';
 
 import { WorkoutsEditorState } from '../workouts-editor.state';
 

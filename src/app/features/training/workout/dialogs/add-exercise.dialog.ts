@@ -20,8 +20,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { ListItemExercise, WorkoutList } from '../../../../core';
 import { ExerciseItemComponent } from '../../../../shared';
 
-import type { ExerciseMetadata } from '../../data';
-import { EXERCISES_METADATA } from '../../data';
+import type { ExerciseMetadata } from './exercises.data';
+import { EXERCISES_DATA } from './exercises.data';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -84,7 +84,7 @@ export class AddExerciseDialog {
 
   private modalCtrl = inject(ModalController);
 
-  readonly exercises = EXERCISES_METADATA;
+  readonly exercises = EXERCISES_DATA;
 
   cancel(): void {
     void this.modalCtrl.dismiss(null, 'cancel');
