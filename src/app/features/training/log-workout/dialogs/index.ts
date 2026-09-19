@@ -1,1 +1,1 @@
-export * from './datetime-picker-modal.component';
+export * from './datetime-picker-modal.dialog';
