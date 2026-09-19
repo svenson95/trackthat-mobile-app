@@ -55,7 +55,12 @@ const ION_COMPONENTS = [
       padding-inline: 1rem;
       margin-top: 1rem;
       margin-bottom: 6rem;
-      gap: 0.5rem;
+      gap: 1rem;
+    }
+
+    ion-item-group.exercise-item ion-item-divider {
+      border-top-left-radius: var(--app-radius-1);
+      border-top-right-radius: var(--app-radius-1);
     }
 
     app-log-workout-form {
