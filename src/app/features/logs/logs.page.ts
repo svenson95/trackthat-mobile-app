@@ -73,6 +73,11 @@ const ION_COMPONENTS = [
     .exercise-item {
       padding-inline: 1rem;
     }
+
+    ion-item-group.exercise-item ion-item-divider {
+      border-top-left-radius: var(--app-radius-1);
+      border-top-right-radius: var(--app-radius-1);
+    }
   `,
   template: `
     <ion-header [translucent]="true">

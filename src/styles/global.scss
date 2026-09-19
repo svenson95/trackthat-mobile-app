@@ -87,7 +87,7 @@ ion-item-group.exercise-item {
     --padding-start: 12px;
     --background: white;
     background: white;
-    border-radius: var(--app-radius-1);
+    border-bottom: 0.55px solid var(--app-border-color);
 
     &.is-selected-exercise {
       text-decoration: underline;
@@ -136,8 +136,8 @@ ion-alert {
 .item-container {
   display: flex;
   flex-direction: column;
-  margin-top: 0.5rem;
-  border-radius: var(--app-radius-1);
+  border-bottom-left-radius: var(--app-radius-1);
+  border-bottom-right-radius: var(--app-radius-1);
 
   .log-set {
     --min-height: 32px;

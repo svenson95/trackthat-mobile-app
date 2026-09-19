@@ -64,8 +64,9 @@ const ION_COMPONENTS = [
       display: flex;
       flex-direction: column;
       width: 100%;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
+      border-top-left-radius: var(--app-radius-1);
+      border-top-right-radius: var(--app-radius-1);
+      overflow: hidden;
     }
 
     ion-item-option.delete-set {
