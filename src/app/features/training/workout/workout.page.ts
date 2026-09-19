@@ -30,15 +30,17 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { ListItem, ListItemExercise, WorkoutDoc } from '../../../../core';
-import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../core';
-import { IonicUiService, TextInputDialog } from '../../../../shared';
+import type { ListItemExercise, WorkoutDoc } from '../../../core';
+import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../core';
+import { IonicUiService, TextInputDialog } from '../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../data';
-import { IsEditingService, WorkoutsService } from '../../services';
+import { WORKOUT_NAME_MAX_LENGTH } from '../data';
+import { WorkoutsService } from '../data-access';
 
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
+import { WorkoutEditorState } from './workout-editor.state';
+import { normalizeWorkoutList } from './workout-list.utils';
 
 const ION_COMPONENTS = [
   IonBackButton,
@@ -62,6 +64,7 @@ const ION_COMPONENTS = [
   selector: 'app-workout-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule, WorkoutListComponent],
+  providers: [WorkoutEditorState],
   styles: `
     .workout-skeleton-list {
       margin-top: 1rem;
@@ -106,9 +109,7 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button
-              (click)="saveEdit({ message: 'tabs.training.workout.actions.update-list.process' })"
-            >
+            <ion-button (click)="saveEdit()">
               {{ 'general.save' | translate }}
             </ion-button>
           } @else {
@@ -155,7 +156,7 @@ const ION_COMPONENTS = [
             }
           </ion-list>
         } @else if (workout(); as currentWorkout) {
-          <app-workout-list [workout]="currentWorkout" (save)="saveEdit($event)" />
+          <app-workout-list [workout]="currentWorkout" />
         }
       </div>
 
@@ -210,12 +211,13 @@ export class WorkoutPage {
 
   private readonly workoutsService = inject(WorkoutsService);
   private readonly ionicUiService = inject(IonicUiService);
-  private readonly editService = inject(IsEditingService);
+  private readonly editorState = inject(WorkoutEditorState);
 
-  readonly isEditing = this.editService.isEditing;
-  readonly isMoreMenuOpen = signal<boolean>(false);
+  protected readonly isEditing = this.editorState.isEditing;
 
-  readonly skeletonItems = [
+  protected readonly isMoreMenuOpen = signal<boolean>(false);
+
+  protected readonly skeletonItems = [
     { type: 'HEADER', width: '65%' },
     { type: 'EXERCISE', width: '70%' },
     { type: 'EXERCISE', width: '62%' },
@@ -225,98 +227,94 @@ export class WorkoutPage {
     { type: 'EXERCISE', width: '58%' },
   ];
 
-  readonly isLoading = computed(() => {
+  protected readonly isLoading = computed<boolean>(() => {
     return this.workoutsService.workoutsResource.isLoading();
   });
 
-  readonly hasError = computed(() => {
-    return !!this.workoutsService.workoutsResource.error();
-  });
-
-  readonly workout = computed<WorkoutDoc | undefined>(() => {
-    const workoutId = Number(this.workoutId());
-    const workouts = this.workoutsService.workoutsResource.value();
-
-    if (!Number.isFinite(workoutId)) return undefined;
-    if (!workouts) return undefined;
-
-    const currentWorkout = workouts.find((w) => Number(w.workoutId) === workoutId);
-    if (!currentWorkout) return undefined;
-
-    const editedList = this.editService.editedWorkoutList();
-    const isEditing = this.editService.isEditing();
-
-    return {
-      ...currentWorkout,
-      list: isEditing && editedList ? editedList : currentWorkout.list,
-    };
-  });
-
-  readonly titleTrimmed = computed<string>(() => {
+  protected readonly titleTrimmed = computed<string>(() => {
     return this.workout()?.name ?? '';
   });
 
-  presentPopover(ev: Event): void {
+  protected readonly workout = computed<WorkoutDoc | undefined>(() => {
+    const workoutId = Number(this.workoutId());
+    const workouts = this.workoutsService.workoutsResource.value();
+
+    if (!Number.isFinite(workoutId) || !workouts) {
+      return undefined;
+    }
+
+    const workout = workouts.find(
+      (currentWorkout) => Number(currentWorkout.workoutId) === workoutId,
+    );
+
+    if (!workout) {
+      return undefined;
+    }
+
+    return {
+      ...workout,
+      list: this.editorState.draft() ?? workout.list,
+    };
+  });
+
+  protected presentPopover(ev: Event): void {
     this.moreMenu().event = ev;
     this.isMoreMenuOpen.set(true);
   }
 
-  async startEditing(): Promise<void> {
-    const currentWorkout = this.workout();
-    if (!currentWorkout) return;
+  protected async startEditing(): Promise<void> {
+    const workout = this.workout();
 
-    this.editService.setIsEditing(true);
-    this.editService.setEditedWorkoutList(structuredClone(currentWorkout.list));
+    if (!workout) {
+      return;
+    }
+
+    this.editorState.start(workout.list);
     await this.moreMenu().dismiss();
   }
 
-  async abortEditing(): Promise<void> {
-    const list = this.workoutListComp().workoutList();
-    await list.closeSlidingItems();
-    this.editService.setIsEditing(false);
-    this.editService.setEditedWorkoutList(null);
+  protected async abortEditing(): Promise<void> {
+    await this.workoutListComp().workoutList().closeSlidingItems();
+
+    this.editorState.cancel();
   }
 
-  async saveEdit({ message, data }: { message: string; data?: ListItem }): Promise<void> {
+  protected async saveEdit(): Promise<void> {
     const currentWorkout = this.workout();
-    if (!currentWorkout) return;
+    const draft = this.editorState.draft();
 
-    const loading = await this.loadingCtrl.create({
-      message,
-      spinner: 'circles',
-    });
-    await loading.present();
-
-    const editedList = this.editService.editedWorkoutList();
-    const list = editedList ?? currentWorkout.list;
-    const changedName = data ? list.map((i) => (i.listId === data.listId ? data : i)) : list;
-    const normalized = this.workoutsService.normalizeWorkoutList(changedName);
+    if (!currentWorkout || !draft) {
+      return;
+    }
 
     const updatedWorkout = {
       ...currentWorkout,
-      list: normalized,
+      list: normalizeWorkoutList(draft),
     };
 
+    const loading = await this.loadingCtrl.create({
+      message: this.translate.instant('tabs.training.workout.actions.update-list.process'),
+      spinner: 'circles',
+    });
+
+    await loading.present();
+
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: () => {
-        this.editService.setIsEditing(false);
-        this.editService.setEditedWorkoutList(null);
-        void loading.dismiss();
+      next: async () => {
+        await loading.dismiss();
+        this.editorState.cancel();
       },
-      error: async (err) => {
-        console.error('Unexpected fail during update user.workoutIds', err);
-        this.editService.setIsEditing(false);
-        this.editService.setEditedWorkoutList(null);
-        void loading.dismiss();
-        const message = data
-          ? 'tabs.training.workout.actions.change-text.error'
-          : 'tabs.training.workout.actions.update-list.error';
-        await this.ionicUiService.showError(message);
+      error: async (error) => {
+        console.error('Unexpected fail during update workout', error);
+
+        await loading.dismiss();
+
+        await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
       },
     });
   }
 
-  async addText(workout: WorkoutDoc): Promise<void> {
+  protected async addText(workout: WorkoutDoc): Promise<void> {
     try {
       const modal = await this.modalCtrl.create({
         component: TextInputDialog,
@@ -331,14 +329,19 @@ export class WorkoutPage {
       await modal.present();
 
       const { data } = await modal.onDidDismiss<string>();
-      if (!data || !data.trim() || data.trim() === '') return;
 
-      const added = [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name: data }];
+      if (!data?.trim()) {
+        return;
+      }
+
+      const name = data.trim();
+
+      const added = [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name }];
       const updatedWorkout: WorkoutDoc = {
         ...workout,
         list: added,
       };
-      await this.updateDatabase(
+      await this.updateWorkout(
         updatedWorkout,
         this.translate.instant('tabs.training.workout.actions.add-text.loading'),
       );
@@ -347,7 +350,7 @@ export class WorkoutPage {
     }
   }
 
-  async addExercise(workout: WorkoutDoc): Promise<void> {
+  protected async addExercise(workout: WorkoutDoc): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: AddExerciseDialog,
       componentProps: {
@@ -367,50 +370,53 @@ export class WorkoutPage {
       ...workout,
       list: added,
     };
-    await this.updateDatabase(
+    await this.updateWorkout(
       updatedWorkout,
       this.translate.instant('tabs.training.workout.actions.add-exercise-process'),
     );
   }
 
-  async addSpacer(workout: WorkoutDoc): Promise<void> {
+  protected async addSpacer(workout: WorkoutDoc): Promise<void> {
     const added = [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }];
     const updatedWorkout: WorkoutDoc = {
       ...workout,
       list: added,
     };
 
-    await this.updateDatabase(
+    await this.updateWorkout(
       updatedWorkout,
       this.translate.instant('tabs.training.workout.actions.add-spacer-process'),
     );
   }
 
-  private async updateDatabase(workout: WorkoutDoc, loadMessage: string): Promise<void> {
+  private async updateWorkout(workout: WorkoutDoc, loadingMessage: string): Promise<void> {
     const loading = await this.loadingCtrl.create({
-      message: loadMessage,
+      message: loadingMessage,
       spinner: 'circles',
     });
+
     await loading.present();
 
-    const normalized = this.workoutsService.normalizeWorkoutList(workout.list);
+    const normalizedList = normalizeWorkoutList(workout.list);
+
     const updatedWorkout = {
       ...workout,
-      list: normalized,
+      list: normalizedList,
     };
 
     this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
       next: async () => {
         await loading.dismiss();
-        this.editService.setIsEditing(false);
       },
-      error: async (err) => {
-        console.error('Unexpected fail during update user.workoutIds', err);
+      error: async (error) => {
+        console.error('Unexpected fail during update workout', error);
+
         await loading.dismiss();
-        this.editService.setIsEditing(false);
+
         await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
       },
     });
+
     this.isMoreMenuOpen.set(false);
   }
 }

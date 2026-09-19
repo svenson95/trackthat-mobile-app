@@ -1,4 +1,4 @@
-import type { Workout } from '../../../core';
+import type { Workout } from '../../../../core';
 
 export const WORKOUT_TEMPLATES: Array<Workout> = [
   {

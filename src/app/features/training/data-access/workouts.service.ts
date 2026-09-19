@@ -7,7 +7,6 @@ import type {
   DeleteWorkoutResponse,
   DeleteWorkoutResult,
   GetWorkoutsResponse,
-  ListItem,
   PostWorkoutBody,
   PostWorkoutResponse,
   PutWorkoutBody,
@@ -21,19 +20,19 @@ import type {
 } from '../../../core';
 import { UserService } from '../../../core';
 
-import { IsEditingService } from './is-editing.service';
-
 @Injectable()
 export class WorkoutsService {
   private readonly apiUrl = environment.api + 'workouts';
 
   private readonly http = inject(HttpClient);
   private readonly userService = inject(UserService);
-  private readonly editService = inject(IsEditingService);
 
   readonly workoutsResource = httpResource<GetWorkoutsResponse>(() => {
     const userId = this.userService.userData()?.id;
-    if (!userId) return undefined;
+
+    if (!userId) {
+      return undefined;
+    }
 
     return {
       url: `${this.apiUrl}/get/${userId}`,
@@ -41,38 +40,32 @@ export class WorkoutsService {
     };
   });
 
-  private readonly workouts = computed<GetWorkoutsResponse>(() => {
-    return (
-      (this.editService.isEditing()
-        ? this.editService.editedWorkouts()
-        : this.workoutsResource.value()) ?? []
-    );
-  });
-
   readonly sortedWorkouts = computed(() => {
-    return [...this.workouts()].sort((a, b) => a.listId - b.listId);
+    const workouts = this.workoutsResource.value() ?? [];
+
+    return [...workouts].sort((a, b) => a.listId - b.listId);
   });
 
   addWorkout(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
-    return this.http.post<PostWorkoutResponse>(this.apiUrl + '/add', workout).pipe(
+    return this.http.post<PostWorkoutResponse>(`${this.apiUrl}/add`, workout).pipe(
       tap((createdWorkout) => {
         const workouts = this.workoutsResource.value() ?? [];
-        const updated = [...workouts, createdWorkout];
-        this.workoutsResource.set(updated);
+
+        this.workoutsResource.set([...workouts, createdWorkout]);
       }),
     );
   }
 
   changeWorkoutName(workout: PostWorkoutBody): Observable<PostWorkoutResponse> {
-    return this.http.post<PostWorkoutResponse>(this.apiUrl + '/change-name', workout).pipe(
+    return this.http.post<PostWorkoutResponse>(`${this.apiUrl}/change-name`, workout).pipe(
       tap((updatedWorkout) => {
         const workouts = this.workoutsResource.value() ?? [];
-        const updated = workouts.map((w) =>
-          w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w,
-        );
 
-        this.workoutsResource.set(updated);
-        this.editService.setEditedWorkouts(updated);
+        this.workoutsResource.set(
+          workouts.map((currentWorkout) =>
+            currentWorkout.workoutId === updatedWorkout.workoutId ? updatedWorkout : currentWorkout,
+          ),
+        );
       }),
     );
   }
@@ -81,11 +74,12 @@ export class WorkoutsService {
     return this.http.post<PutWorkoutResponse>(`${this.apiUrl}/change-list`, workout).pipe(
       tap((updatedWorkout) => {
         const workouts = this.workoutsResource.value() ?? [];
-        const updated = workouts.map((w) =>
-          w.workoutId === updatedWorkout.workoutId ? updatedWorkout : w,
-        );
 
-        this.workoutsResource.set(updated);
+        this.workoutsResource.set(
+          workouts.map((currentWorkout) =>
+            currentWorkout.workoutId === updatedWorkout.workoutId ? updatedWorkout : currentWorkout,
+          ),
+        );
       }),
     );
   }
@@ -101,22 +95,27 @@ export class WorkoutsService {
   }
 
   deleteWorkout(id: WorkoutId): Observable<DeleteWorkoutResult> {
-    return this.http.delete<DeleteWorkoutResponse>(this.apiUrl + '/delete/' + id).pipe(
+    return this.http.delete<DeleteWorkoutResponse>(`${this.apiUrl}/delete/${id}`).pipe(
       map(() => {
         const workouts = this.workoutsResource.value() ?? [];
-        const filtered = workouts.filter((w) => w.id !== id);
-        this.workoutsResource.set(filtered);
-        return filtered;
+        return workouts.filter((workout) => workout.id !== id);
+      }),
+      tap((workouts) => {
+        this.workoutsResource.set(workouts);
       }),
     );
   }
 
   initWorkout(name: string, list: WorkoutList): Workout {
     const workouts = this.workoutsResource.value() ?? [];
-    const workoutIds = workouts.map((w) => w.workoutId);
-    const listIds = workouts.map((w) => w.listId);
+    const workoutIds = workouts.map((workout) => workout.workoutId);
+    const listIds = workouts.map((workout) => workout.listId);
+
     const user = this.userService.userData();
-    if (!user) throw new Error('No user found during initWorkout');
+
+    if (!user) {
+      throw new Error('No user found during initWorkout');
+    }
 
     return {
       userId: user.id,
@@ -126,19 +125,5 @@ export class WorkoutsService {
       name,
       list,
     };
-  }
-
-  normalizeWorkoutList(items: ListItem[]): WorkoutList {
-    let exerciseIndex = 1;
-
-    return items.map((item, index) => {
-      const isExercise = item.type === 'EXERCISE';
-
-      return {
-        ...item,
-        listId: index,
-        itemId: isExercise ? exerciseIndex++ : null,
-      };
-    }) as WorkoutList;
   }
 }

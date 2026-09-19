@@ -17,10 +17,11 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { ListItemExercise, WorkoutList } from '../../../../../core';
-import { ExerciseItemComponent } from '../../../../../shared';
+import type { ListItemExercise, WorkoutList } from '../../../../core';
+import { ExerciseItemComponent } from '../../../../shared';
 
-import { EXERCISES_METADATA, type ExerciseMetadata } from '../../../data';
+import type { ExerciseMetadata } from '../../data';
+import { EXERCISES_METADATA } from '../../data';
 
 const ION_COMPONENTS = [
   IonHeader,

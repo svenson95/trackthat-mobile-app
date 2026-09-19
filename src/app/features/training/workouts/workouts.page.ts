@@ -29,13 +29,14 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { UserService } from '../../../../core';
-import { IonicUiService } from '../../../../shared';
+import { UserService } from '../../../core';
+import { IonicUiService } from '../../../shared';
 
-import { IsEditingService, WorkoutsService } from '../../services';
+import { WorkoutsService } from '../data-access';
 
 import { WorkoutsListComponent } from './components';
 import { AddWorkoutDialog } from './dialogs';
+import { WorkoutsEditorState } from './workouts-editor.state';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -62,6 +63,7 @@ const ION_COMPONENTS = [
     WorkoutsListComponent,
     AddWorkoutDialog,
   ],
+  providers: [WorkoutsEditorState],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
@@ -77,11 +79,13 @@ const ION_COMPONENTS = [
           }
         </ion-buttons>
 
-        <ion-title> {{ 'tabs.training.tab-title' | translate }} </ion-title>
+        <ion-title>{{ 'tabs.training.tab-title' | translate }}</ion-title>
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEdit()"> {{ 'general.save' | translate }} </ion-button>
+            <ion-button (click)="saveEdit()">
+              {{ 'general.save' | translate }}
+            </ion-button>
           } @else {
             <ion-button (click)="presentPopover($event)">
               <ion-icon
@@ -115,7 +119,7 @@ const ION_COMPONENTS = [
         <app-workouts-list #workoutsComp />
       </div>
 
-      <app-add-workout-dialog></app-add-workout-dialog>
+      <app-add-workout-dialog />
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
@@ -138,31 +142,32 @@ export class WorkoutsPage {
 
   private readonly userService = inject(UserService);
   private readonly workoutsService = inject(WorkoutsService);
-  private readonly editService = inject(IsEditingService);
-  readonly isEditing = this.editService.isEditing;
+  private readonly editorState = inject(WorkoutsEditorState);
+
+  protected readonly isEditing = this.editorState.isEditing;
 
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   private readonly workoutsComp = viewChild.required(WorkoutsListComponent);
-  readonly isMoreMenuOpen = signal<boolean>(false);
-
   private readonly addWorkoutDialog = viewChild.required(AddWorkoutDialog);
 
-  handleRefresh(event: RefresherCustomEvent): void {
-    const res = this.workoutsService.workoutsResource;
-    const started = res.reload();
+  protected readonly isMoreMenuOpen = signal<boolean>(false);
 
-    if (!started && !res.isLoading()) {
+  protected handleRefresh(event: RefresherCustomEvent): void {
+    const resource = this.workoutsService.workoutsResource;
+    const started = resource.reload();
+
+    if (!started && !resource.isLoading()) {
       void event.target.complete();
       return;
     }
 
-    toObservable(res.isLoading, { injector: this.injector })
+    toObservable(resource.isLoading, { injector: this.injector })
       .pipe(
         distinctUntilChanged(),
         pairwise(),
         filter(([wasLoading, isLoading]) => wasLoading && !isLoading),
         first(),
-        timeout(10000),
+        timeout(10_000),
         catchError(() => of(null)),
       )
       .subscribe(() => {
@@ -170,61 +175,63 @@ export class WorkoutsPage {
       });
   }
 
-  async openAddWorkoutModal(): Promise<void> {
+  protected async openAddWorkoutModal(): Promise<void> {
     try {
-      const dialog = this.addWorkoutDialog();
-      const modal = dialog.modal();
-
-      await modal.present();
+      await this.addWorkoutDialog().modal().present();
     } catch (error) {
       console.error('Add workout modal could not be opened:', error);
     }
   }
 
-  presentPopover(ev: Event): void {
-    this.moreMenu().event = ev;
+  protected presentPopover(event: Event): void {
+    this.moreMenu().event = event;
     this.isMoreMenuOpen.set(true);
   }
 
-  async startEditing(): Promise<void> {
-    this.editService.setEditedWorkouts(structuredClone(this.workoutsService.sortedWorkouts()));
-    this.editService.setIsEditing(true);
+  protected async startEditing(): Promise<void> {
+    this.editorState.start(this.workoutsService.sortedWorkouts());
     await this.moreMenu().dismiss();
   }
 
-  async abortEditing(): Promise<void> {
-    await this.workoutsComp().workoutsList().closeSlidingItems();
-    await this.ionicUiService.closeSlidingItems(this.host);
-    this.editService.setIsEditing(false);
-    this.editService.setEditedWorkouts(null);
+  protected async abortEditing(): Promise<void> {
+    await this.closeEditingUi();
+    this.editorState.cancel();
   }
 
-  async saveEdit(): Promise<void> {
+  protected async saveEdit(): Promise<void> {
+    const userId = this.userService.userData()?.id;
+    const workouts = this.editorState.draft();
+
+    if (!userId || !workouts) {
+      return;
+    }
+
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.training.workouts.actions.update-list.process'),
       spinner: 'circles',
     });
-    await loading.present();
 
-    const workouts = this.editService.editedWorkouts()!;
-    const userId = this.userService.userData()?.id;
-    if (!userId) return;
+    await loading.present();
 
     this.workoutsService.updateAllWorkouts(userId, workouts).subscribe({
       next: async () => {
-        await this.ionicUiService.closeSlidingItems(this.host);
+        await this.closeEditingUi();
         await loading.dismiss();
-        this.editService.setIsEditing(false);
-        this.editService.setEditedWorkouts(null);
+
+        this.editorState.cancel();
       },
-      error: async (err) => {
-        console.error('Unexpected fail during update user.workoutIds', err);
-        await this.ionicUiService.closeSlidingItems(this.host);
+      error: async (error) => {
+        console.error('Unexpected fail during update user.workoutIds', error);
+
         await loading.dismiss();
-        this.editService.setIsEditing(false);
-        this.editService.setEditedWorkouts(null);
+
         await this.ionicUiService.showError('tabs.training.workouts.actions.update-list.error');
       },
     });
+  }
+
+  private async closeEditingUi(): Promise<void> {
+    await this.workoutsComp().workoutsList().closeSlidingItems();
+    await this.ionicUiService.closeSlidingItems(this.host);
   }
 }
