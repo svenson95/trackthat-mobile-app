@@ -12,19 +12,20 @@ import { add, chevronDown, ellipsisHorizontal, ellipsisVertical } from 'ionicons
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { provideTestTranslations } from '../../../../testing/translate-testing.provider';
-import type { WorkoutDoc } from '../../../core';
-import { UserService } from '../../../core';
-import { IonicUiService } from '../../../shared';
+import { provideTestTranslations } from '../../../../../testing/translate-testing.provider';
+import type { WorkoutDoc } from '../../../../core';
+import { UserService } from '../../../../core';
+import { IonicUiService } from '../../../../shared';
 
-import { WorkoutsService } from '../data-access';
+import { WorkoutsService } from '../../data-access';
 
 import { WorkoutsListComponent } from './components';
-import { WorkoutsEditorState } from './workouts-editor.state';
+import { WorkoutsEditorState } from './state';
 import { WorkoutsPage } from './workouts.page';
 
 type WorkoutsPageTestApi = {
   handleRefresh(event: RefresherCustomEvent): void;
+  presentPopover(event: Event): void;
   startEditing(): Promise<void>;
   abortEditing(): Promise<void>;
   saveEdit(): Promise<void>;
@@ -179,6 +180,17 @@ describe('WorkoutsPage', () => {
     });
   });
 
+  describe('popover', () => {
+    it('should open the more menu with the triggering event', () => {
+      const event = new Event('click');
+      const popover = fixture.nativeElement.querySelector('ion-popover') as HTMLIonPopoverElement;
+
+      page.presentPopover(event);
+
+      expect(popover.event).toBe(event);
+    });
+  });
+
   describe('editing', () => {
     it('should start editing with the current workouts', async () => {
       const popover = fixture.nativeElement.querySelector('ion-popover') as HTMLIonPopoverElement;
@@ -299,6 +311,34 @@ describe('WorkoutsPage', () => {
       } as unknown as RefresherCustomEvent;
 
       page.handleRefresh(event);
+
+      expect(complete).toHaveBeenCalledOnce();
+    });
+
+    it('should complete after reloading finishes', () => {
+      const complete = vi.fn();
+
+      workoutsServiceMock.workoutsResource.reload.mockImplementationOnce(() => {
+        resourceLoading.set(true);
+        return true;
+      });
+
+      const event = {
+        target: {
+          complete,
+        },
+      } as unknown as RefresherCustomEvent;
+
+      page.handleRefresh(event);
+
+      TestBed.tick();
+
+      expect(workoutsServiceMock.workoutsResource.reload).toHaveBeenCalledOnce();
+      expect(complete).not.toHaveBeenCalled();
+
+      resourceLoading.set(false);
+
+      TestBed.tick();
 
       expect(complete).toHaveBeenCalledOnce();
     });

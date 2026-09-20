@@ -28,9 +28,9 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { IonicUiService } from '../../../shared';
+import { IonicUiService } from '../../../../shared';
 
-import { WorkoutsService } from '../data-access';
+import { WorkoutsService } from '../../data-access';
 
 import { LogWorkoutDataComponent } from './components';
 import { LogWorkoutEditorState } from './log-workout-editor.state';

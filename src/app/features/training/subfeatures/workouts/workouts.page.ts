@@ -29,14 +29,13 @@ import { catchError, distinctUntilChanged, filter, first, of, pairwise, timeout 
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { UserService } from '../../../core';
-import { IonicUiService } from '../../../shared';
+import { UserService } from '../../../../core';
+import { IonicUiService } from '../../../../shared';
 
-import { WorkoutsService } from '../data-access';
+import { WorkoutsService } from '../../data-access';
 
-import { WorkoutsListComponent } from './components';
-import { AddWorkoutDialog } from './dialogs';
-import { WorkoutsEditorState } from './workouts-editor.state';
+import { AddWorkoutModalComponent, WorkoutsListComponent } from './components';
+import { WorkoutsEditorState } from './state';
 
 const ION_COMPONENTS = [
   IonHeader,
@@ -61,7 +60,7 @@ const ION_COMPONENTS = [
     TranslateModule,
     FormsModule,
     WorkoutsListComponent,
-    AddWorkoutDialog,
+    AddWorkoutModalComponent,
   ],
   providers: [WorkoutsEditorState],
   template: `
@@ -119,7 +118,7 @@ const ION_COMPONENTS = [
         <app-workouts-list #workoutsComp />
       </div>
 
-      <app-add-workout-dialog />
+      <app-add-workout-modal />
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
@@ -148,20 +147,16 @@ export class WorkoutsPage {
 
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
   private readonly workoutsComp = viewChild.required(WorkoutsListComponent);
-  private readonly addWorkoutDialog = viewChild.required(AddWorkoutDialog);
+  private readonly addWorkoutModal = viewChild.required(AddWorkoutModalComponent);
 
   protected readonly isMoreMenuOpen = signal<boolean>(false);
 
   protected handleRefresh(event: RefresherCustomEvent): void {
     const resource = this.workoutsService.workoutsResource;
-    const started = resource.reload();
 
-    if (!started && !resource.isLoading()) {
-      void event.target.complete();
-      return;
-    }
-
-    toObservable(resource.isLoading, { injector: this.injector })
+    const subscription = toObservable(resource.isLoading, {
+      injector: this.injector,
+    })
       .pipe(
         distinctUntilChanged(),
         pairwise(),
@@ -173,11 +168,18 @@ export class WorkoutsPage {
       .subscribe(() => {
         void event.target.complete();
       });
+
+    const started = resource.reload();
+
+    if (!started && !resource.isLoading()) {
+      subscription.unsubscribe();
+      void event.target.complete();
+    }
   }
 
   protected async openAddWorkoutModal(): Promise<void> {
     try {
-      await this.addWorkoutDialog().modal().present();
+      await this.addWorkoutModal().present();
     } catch (error) {
       console.error('Add workout modal could not be opened:', error);
     }

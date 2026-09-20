@@ -20,9 +20,9 @@ import {
 } from '@ionic/angular';
 import { finalize } from 'rxjs';
 
-import type { WorkoutSet } from '../../../../core';
-import { UserService } from '../../../../core';
-import { IonicUiService } from '../../../../shared';
+import type { WorkoutSet } from '../../../../../core';
+import { UserService } from '../../../../../core';
+import { IonicUiService } from '../../../../../shared';
 
 import { LogWorkoutEditorState } from '../log-workout-editor.state';
 import { LogWorkoutService } from '../log-workout.service';
