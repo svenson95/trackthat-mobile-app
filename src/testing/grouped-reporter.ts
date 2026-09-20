@@ -212,15 +212,11 @@ class GroupedReporter implements Reporter {
   }
 
   private getSectionOrder(group: TestGroup, parentSectionName?: string): readonly string[] {
-    if (parentSectionName) {
-      const nestedOrder = group.nestedSectionOrder?.[parentSectionName.toLowerCase()];
-
-      if (nestedOrder) {
-        return nestedOrder;
-      }
+    if (!parentSectionName) {
+      return group.sectionOrder ?? DEFAULT_SECTION_ORDER;
     }
 
-    return group.sectionOrder ?? DEFAULT_SECTION_ORDER;
+    return group.nestedSectionOrder?.[parentSectionName.toLowerCase()] ?? DEFAULT_SECTION_ORDER;
   }
 
   private compareSections(
