@@ -4,7 +4,7 @@
   "author": "Sven Brodny",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 8100",
+    "dev": "ng serve --port 8100",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
