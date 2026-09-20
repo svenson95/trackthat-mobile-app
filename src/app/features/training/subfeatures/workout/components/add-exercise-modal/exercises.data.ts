@@ -1,20 +1,19 @@
 import type { ExerciseEquipment, ExerciseVariant, MuscleGroup } from '../../../../../../core';
 
-// TODO: missing types for biceps-curls 'barbell', 'cable-tower', 'machine' ...
 export interface ExerciseMetadata {
   name: string;
-  image: null | string;
-  equipmentTypes: Array<ExerciseEquipment>;
-  variants: null | Array<ExerciseVariant>;
-  muscleGroups: null | Array<MuscleGroup>;
+  image: string | null;
+  equipmentTypes: readonly ExerciseEquipment[];
+  variants: readonly ExerciseVariant[];
+  muscleGroups: readonly MuscleGroup[];
 }
 
 interface ExerciseGroup {
   name: 'legs' | 'arms' | 'core_and_abs' | 'chest' | 'back' | 'shoulders';
-  exercises: Array<ExerciseMetadata>;
+  exercises: readonly ExerciseMetadata[];
 }
 
-export const EXERCISES_DATA: Array<ExerciseGroup> = [
+export const EXERCISES_DATA: readonly ExerciseGroup[] = [
   {
     name: 'legs',
     exercises: [
@@ -22,7 +21,7 @@ export const EXERCISES_DATA: Array<ExerciseGroup> = [
         name: 'squats_dumbbell',
         image: 'squats_dumbbell',
         equipmentTypes: ['dumbbell'],
-        variants: null,
+        variants: [],
         muscleGroups: ['quads', 'glutes', 'hamstrings'],
       },
       {
@@ -228,10 +227,3 @@ export const EXERCISES_DATA: Array<ExerciseGroup> = [
     ],
   },
 ];
-
-export const EXERCISES_METADATA_FLAT: Array<ExerciseMetadata> = EXERCISES_DATA.reduce<
-  Array<ExerciseMetadata>
->((acc, group) => {
-  acc.push(...group.exercises);
-  return acc;
-}, []);

@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import type { ListItem } from '../../../../../core';
+import type { ListItem } from '../../../../../../core';
 
 @Injectable()
 export class WorkoutEditorState {

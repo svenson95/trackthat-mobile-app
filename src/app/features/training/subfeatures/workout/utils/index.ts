@@ -1,1 +1,1 @@
-export * from './workout-list.utils';
+export * from './workout-list/workout-list.utils';

@@ -19,7 +19,7 @@ export type WorkoutList = Array<ListItem | ListItemExercise>;
 export type ItemListId = number; // custom id for sorting
 export type ListItem = {
   name: null | string;
-  itemId: number;
+  itemId: number | null;
   listId: ItemListId;
   type: ListItemType;
 };
