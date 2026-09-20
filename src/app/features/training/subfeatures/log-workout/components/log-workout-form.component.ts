@@ -14,17 +14,18 @@ import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DatetimePickerModalComponent } from '../dialogs';
+import { DatetimePickerModalComponent } from '../components';
 import {
   formatDate,
   formatTime,
   getCurrentTime,
   getCurrentUnixTimestamp,
+  maxDecimalPlacesValidator,
   normalizeDateForBackend,
   normalizeTimeForBackend,
+  numberValidator,
   unixTimestampToDateValue,
-} from '../log-workout.utils';
-import { maxDecimalPlacesValidator, numberValidator } from '../log-workout.validators';
+} from '../utils';
 
 export type LogWorkoutFormValue = {
   load: number;

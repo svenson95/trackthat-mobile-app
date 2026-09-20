@@ -24,8 +24,8 @@ import type { WorkoutSet } from '../../../../../core';
 import { UserService } from '../../../../../core';
 import { IonicUiService } from '../../../../../shared';
 
-import { LogWorkoutEditorState } from '../log-workout-editor.state';
-import { LogWorkoutService } from '../log-workout.service';
+import { LogWorkoutService } from '../data-access';
+import { LogWorkoutEditorState } from '../state';
 
 import type { LogWorkoutFormValue } from './log-workout-form.component';
 import { LogWorkoutFormComponent } from './log-workout-form.component';

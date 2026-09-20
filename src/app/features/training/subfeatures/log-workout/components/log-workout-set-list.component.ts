@@ -16,8 +16,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { WorkoutSet } from '../../../../../core';
 import { ExerciseItemComponent } from '../../../../../shared';
 
-import { LogWorkoutEditorState } from '../log-workout-editor.state';
-import { LogWorkoutService } from '../log-workout.service';
+import { LogWorkoutService } from '../data-access';
+import { LogWorkoutEditorState } from '../state';
 
 export type ExerciseSetView =
   | {

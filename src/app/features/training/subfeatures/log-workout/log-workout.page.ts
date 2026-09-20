@@ -33,8 +33,8 @@ import { IonicUiService } from '../../../../shared';
 import { WorkoutsService } from '../../data-access';
 
 import { LogWorkoutDataComponent } from './components';
-import { LogWorkoutEditorState } from './log-workout-editor.state';
-import { LogWorkoutService } from './log-workout.service';
+import { LogWorkoutService } from './data-access';
+import { LogWorkoutEditorState } from './state';
 
 const ION_COMPONENTS = [
   IonBackButton,

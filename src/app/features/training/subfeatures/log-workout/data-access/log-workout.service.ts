@@ -2,7 +2,7 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { concatMap, from, last, tap, type Observable } from 'rxjs';
 
-import { environment } from '../../../../../environments/environment.prod';
+import { environment } from '../../../../../../environments/environment.prod';
 import {
   UserService,
   type DeleteLogWorkoutBody,
@@ -11,8 +11,8 @@ import {
   type GetLogWorkoutDTO,
   type PostLogWorkoutResponse,
   type WorkoutSet,
-} from '../../../../core';
-import { IonicUiService } from '../../../../shared';
+} from '../../../../../core';
+import { IonicUiService } from '../../../../../shared';
 
 @Injectable()
 export class LogWorkoutService {

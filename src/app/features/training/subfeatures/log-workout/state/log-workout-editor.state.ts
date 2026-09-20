@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import type { WorkoutSet } from '../../../../core';
+import type { WorkoutSet } from '../../../../../core';
 
 @Injectable()
 export class LogWorkoutEditorState {
