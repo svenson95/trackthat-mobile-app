@@ -36,6 +36,7 @@ describe('AppInitializerService', () => {
     });
 
     service = TestBed.inject(AppInitializerService);
+    service.init();
   });
 
   afterEach(() => {
@@ -44,6 +45,28 @@ describe('AppInitializerService', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.useRealTimers();
+  });
+
+  describe('init', () => {
+    it('should use the initialization time as start of the minimum visible duration', () => {
+      vi.spyOn(performance, 'now').mockReturnValue(200);
+      service.init();
+
+      const initializer = createInitializer();
+
+      vi.spyOn(performance, 'now').mockReturnValue(300);
+
+      service.hideOverlay();
+
+      vi.advanceTimersByTime(499);
+
+      expect(initializer.classList.contains('app-init-overlay--hidden')).toBe(false);
+
+      vi.advanceTimersByTime(1);
+      runAnimationFrames();
+
+      expect(initializer.classList.contains('app-init-overlay--hidden')).toBe(true);
+    });
   });
 
   describe('hideOverlay', () => {

@@ -13,7 +13,7 @@ type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 export class LanguageService {
   private readonly translateService = inject(TranslateService);
 
-  initialize(): void {
+  init(): void {
     this.translateService.addLangs([...SUPPORTED_LANGUAGES]);
 
     const language =

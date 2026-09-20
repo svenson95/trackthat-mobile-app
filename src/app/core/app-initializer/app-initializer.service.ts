@@ -5,7 +5,11 @@ const MIN_VISIBLE_DURATION_MS = 600;
 
 @Injectable({ providedIn: 'root' })
 export class AppInitializerService {
-  private readonly startedAt = performance.now();
+  private startedAt = 0;
+
+  init(): void {
+    this.startedAt = performance.now();
+  }
 
   hideOverlay(): void {
     const elapsed = performance.now() - this.startedAt;
