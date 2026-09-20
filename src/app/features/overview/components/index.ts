@@ -1,2 +1,2 @@
-export * from './hello-box.component';
-export * from './login-box.component';
+export * from './hello-box/hello-box.component';
+export * from './login-box/login-box.component';

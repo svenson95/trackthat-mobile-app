@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import { IonSpinner } from '@ionic/angular';
 
-import { AuthService } from '../../../core';
-
-import { GoogleAuthService } from '../services';
+import { AuthService } from '../../../../core';
+import { GoogleAuthService } from '../../data-access';
 
 @Component({
   selector: 'app-login-form',
@@ -18,13 +17,14 @@ import { GoogleAuthService } from '../services';
   styles: `
     :host {
       display: flex;
+      width: 100%;
       flex-direction: column;
       gap: 10px;
     }
 
     #google-button,
     .ios-google-button {
-      margin: 1rem auto 0;
+      margin: 1rem auto;
     }
 
     .ios-google-button {
@@ -47,7 +47,7 @@ import { GoogleAuthService } from '../services';
     }
 
     @if (isGoogleInitializing() || isLoading()) {
-      <ion-spinner></ion-spinner>
+      <ion-spinner />
     }
 
     @if (!isGoogleInitializing() && !isGoogleReady()) {
@@ -55,15 +55,15 @@ import { GoogleAuthService } from '../services';
     }
   `,
 })
-export class LoginForm implements AfterViewInit {
+export class LoginFormComponent implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly googleAuthService = inject(GoogleAuthService);
 
   readonly isLoading = this.authService.isLoading;
   readonly isNativeIos = this.googleAuthService.isNativeIos;
 
-  readonly isGoogleReady = signal<boolean>(false);
-  readonly isGoogleInitializing = signal<boolean>(true);
+  readonly isGoogleReady = signal(false);
+  readonly isGoogleInitializing = signal(true);
 
   async ngAfterViewInit(): Promise<void> {
     try {

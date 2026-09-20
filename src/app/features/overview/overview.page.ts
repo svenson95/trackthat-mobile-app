@@ -40,8 +40,8 @@ const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
 })
 export class OverviewPage {
   private readonly authService = inject(AuthService);
-  readonly isLoggedIn = this.authService.isLoggedIn;
+  protected readonly isLoggedIn = this.authService.isLoggedIn;
 
   private readonly userService = inject(UserService);
-  readonly userData = this.userService.userData;
+  protected readonly userData = this.userService.userData;
 }
