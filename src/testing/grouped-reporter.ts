@@ -8,8 +8,9 @@ type TestGroup = {
   path?: string;
   matches?: (path: string) => boolean;
   sectionByFolder?: boolean;
-  sectionRoot?: string;
+  nestedSectionRoots?: string[];
   sectionOrder?: string[];
+  nestedSectionOrder?: Record<string, string[]>;
 };
 
 type FeatureSection = {
@@ -58,8 +59,11 @@ const TEST_GROUPS: TestGroup[] = [
     name: 'TRAINING',
     path: '/features/training/',
     sectionByFolder: true,
-    sectionRoot: 'subfeatures',
-    sectionOrder: ['data-access', 'workouts', 'workout', 'log-workout'],
+    nestedSectionRoots: ['subfeatures'],
+    sectionOrder: ['data-access', 'subfeatures'],
+    nestedSectionOrder: {
+      subfeatures: ['workouts', 'workout', 'log-workout'],
+    },
   },
   {
     name: 'EAT',
@@ -109,30 +113,76 @@ class GroupedReporter implements Reporter {
     console.log();
     console.log(chalk.bold.cyan(name));
 
-    const groupedSections = this.groupBy(
-      modules,
-      (module) => this.getSectionName(module.moduleId, name) ?? 'ROOT',
-    );
+    const group = TEST_GROUPS.find((group) => group.name === name);
 
-    const rootModules = groupedSections.get('ROOT');
+    const rootModules: TestModule[] = [];
+    const sections = new Map<
+      string,
+      {
+        modules: TestModule[];
+        subsections: Map<string, TestModule[]>;
+      }
+    >();
 
-    if (rootModules?.length) {
+    for (const module of modules) {
+      const [sectionName, subsectionName] = this.getSectionPath(module.moduleId, name);
+
+      if (!sectionName) {
+        rootModules.push(module);
+        continue;
+      }
+
+      let section = sections.get(sectionName);
+
+      if (!section) {
+        section = {
+          modules: [],
+          subsections: new Map(),
+        };
+
+        sections.set(sectionName, section);
+      }
+
+      if (!subsectionName) {
+        section.modules.push(module);
+        continue;
+      }
+
+      const subsection = section.subsections.get(subsectionName) ?? [];
+
+      subsection.push(module);
+
+      section.subsections.set(subsectionName, subsection);
+    }
+
+    if (rootModules.length) {
       this.printSortedModules(name, rootModules, 1);
     }
 
-    const group = TEST_GROUPS.find((group) => group.name === name);
+    const sortedSections = [...sections.entries()].sort(([sectionA], [sectionB]) =>
+      this.compareSections(sectionA, sectionB, group?.sectionOrder),
+    );
 
-    const sections = [...groupedSections.entries()]
-      .filter(([sectionName]) => sectionName !== 'ROOT')
-      .sort(([sectionA], [sectionB]) =>
-        this.compareSections(sectionA, sectionB, group?.sectionOrder),
-      );
-
-    for (const [sectionName, sectionModules] of sections) {
+    for (const [sectionName, section] of sortedSections) {
       console.log();
       console.log(`${this.indent(1)}${chalk.bold.cyan(sectionName)}`);
 
-      this.printSortedModules(name, sectionModules, 2);
+      if (section.modules.length) {
+        this.printSortedModules(name, section.modules, 2);
+      }
+
+      const nestedOrder = group?.nestedSectionOrder?.[sectionName.toLowerCase()];
+
+      const sortedSubsections = [...section.subsections.entries()].sort(([sectionA], [sectionB]) =>
+        this.compareSections(sectionA, sectionB, nestedOrder),
+      );
+
+      for (const [subsectionName, subsectionModules] of sortedSubsections) {
+        console.log();
+        console.log(`${this.indent(2)}${chalk.bold.cyan(subsectionName)}`);
+
+        this.printSortedModules(name, subsectionModules, 3);
+      }
     }
   }
 
@@ -269,39 +319,41 @@ class GroupedReporter implements Reporter {
     console.log(`${chalk.bold('Tests:')}      ${testResults.join(', ')}, ${tests.length} total`);
   }
 
-  private getSectionName(path: string, groupName: string): string | null {
+  private getSectionPath(path: string, groupName: string): string[] {
     const group = TEST_GROUPS.find((group) => group.name === groupName);
 
     if (!group?.path) {
-      return null;
+      return [];
     }
 
     const relativePath = path.split(group.path)[1];
 
     if (!relativePath) {
-      return null;
+      return [];
     }
 
     const pathParts = relativePath.split('/').filter(Boolean);
     const [rootFolder] = pathParts;
 
     if (group.sectionByFolder) {
-      const sectionFolder = group.sectionRoot === rootFolder ? pathParts[1] : rootFolder;
+      if (rootFolder && group.nestedSectionRoots?.includes(rootFolder) && pathParts[1]) {
+        return [this.formatSectionName(rootFolder), this.formatSectionName(pathParts[1])];
+      }
 
-      return sectionFolder ? this.formatSectionName(sectionFolder) : null;
+      return rootFolder ? [this.formatSectionName(rootFolder)] : [];
     }
 
     const folderSection = FEATURE_SECTIONS.find((section) => section.path === rootFolder);
 
     if (folderSection) {
-      return folderSection.name;
+      return [folderSection.name];
     }
 
-    return (
-      FEATURE_SECTIONS.find((section) =>
-        section.fileSuffixes?.some((suffix) => relativePath.endsWith(suffix)),
-      )?.name ?? null
+    const suffixSection = FEATURE_SECTIONS.find((section) =>
+      section.fileSuffixes?.some((suffix) => relativePath.endsWith(suffix)),
     );
+
+    return suffixSection ? [suffixSection.name] : [];
   }
 
   private formatSectionName(folderName: string): string {
