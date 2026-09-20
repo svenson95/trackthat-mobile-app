@@ -14,7 +14,6 @@ import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import { DatetimePickerModalComponent } from '../components';
 import {
   formatDate,
   formatTime,
@@ -25,7 +24,9 @@ import {
   normalizeTimeForBackend,
   numberValidator,
   unixTimestampToDateValue,
-} from '../utils';
+} from '../../utils';
+
+import { DatetimePickerModalComponent } from '../datetime-picker-modal/datetime-picker-modal.component';
 
 export type LogWorkoutFormValue = {
   load: number;
@@ -35,10 +36,12 @@ export type LogWorkoutFormValue = {
   time: string;
 };
 
+const TIME_REFRESH_INTERVAL = 30_000;
+
 const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
 
 @Component({
-  selector: 'app-log-workout-form',
+  selector: 'app-workout-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, TranslateModule, ReactiveFormsModule],
   styles: `
@@ -244,12 +247,12 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
     </form>
   `,
 })
-export class LogWorkoutFormComponent {
+export class WorkoutFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly modalController = inject(ModalController);
 
-  readonly isAddingSet = input<boolean>(false);
+  readonly isAddingSet = input(false);
   readonly addSet = output<LogWorkoutFormValue>();
 
   protected readonly form = this.fb.group({
@@ -267,8 +270,8 @@ export class LogWorkoutFormComponent {
       null as number | null,
       [Validators.required, numberValidator('integer'), Validators.min(1), Validators.max(500)],
     ],
-    date: this.fb.nonNullable.control<number>(getCurrentUnixTimestamp()),
-    time: this.fb.nonNullable.control<string>(getCurrentTime()),
+    date: this.fb.nonNullable.control(getCurrentUnixTimestamp()),
+    time: this.fb.nonNullable.control(getCurrentTime()),
     note: this.fb.control<string | null>(null),
   });
 
@@ -284,32 +287,30 @@ export class LogWorkoutFormComponent {
     initialValue: this.form.controls.note.value,
   });
 
+  readonly formValueDate = toSignal(this.form.controls.date.valueChanges, {
+    initialValue: this.form.controls.date.value,
+  });
+
   readonly formValueTime = toSignal(this.form.controls.time.valueChanges, {
     initialValue: this.form.controls.time.value,
   });
 
-  readonly displayTime = computed(() => {
-    return formatTime(this.formValueTime());
-  });
+  readonly displayTime = computed(() => formatTime(this.formValueTime()));
 
-  readonly displayDate = computed(() => {
-    return formatDate(this.form.value.date ?? 0);
-  });
+  readonly displayDate = computed(() => formatDate(this.formValueDate()));
 
-  readonly timeManuallyChanged = signal<boolean>(false);
+  readonly datetimeDateValue = computed(() => unixTimestampToDateValue(this.formValueDate()));
 
-  protected readonly datetimeDateValue = computed<string>(() => {
-    return unixTimestampToDateValue(this.form.controls.date.value);
-  });
+  readonly timeManuallyChanged = signal(false);
 
-  private selectedDuringFocus = new WeakSet<HTMLInputElement>();
+  private readonly selectedDuringFocus = new WeakSet<HTMLInputElement>();
 
   constructor() {
-    const REFRESH_INTERVAL = 30_000;
     const intervalId = window.setInterval(() => {
-      if (this.timeManuallyChanged()) return;
-      this.form.controls.time.setValue(getCurrentTime());
-    }, REFRESH_INTERVAL);
+      if (!this.timeManuallyChanged()) {
+        this.form.controls.time.setValue(getCurrentTime());
+      }
+    }, TIME_REFRESH_INTERVAL);
 
     this.destroyRef.onDestroy(() => {
       window.clearInterval(intervalId);
@@ -367,53 +368,55 @@ export class LogWorkoutFormComponent {
   }
 
   protected async openTimePicker(): Promise<void> {
-    const modal = await this.modalController.create({
-      component: DatetimePickerModalComponent,
-      cssClass: 'datetime-modal',
-      componentProps: {
-        kind: 'time',
-        value: this.formValueTime(),
-        resetValue: this.getCurrentTimeForDatetime(),
-      },
-    });
-    await modal.present();
+    const value = await this.openDatetimePicker('time', this.formValueTime(), getCurrentTime());
 
-    const result = await modal.onDidDismiss<string>();
-    if (result.role !== 'confirm' || typeof result.data !== 'string') {
+    if (value === undefined) {
       this.timeManuallyChanged.set(false);
       return;
     }
 
-    const normalizedTime = normalizeTimeForBackend(result.data);
     this.timeManuallyChanged.set(true);
-    this.form.controls.time.setValue(normalizedTime);
+
+    this.form.controls.time.setValue(normalizeTimeForBackend(value));
   }
 
   protected async openDatePicker(): Promise<void> {
+    const value = await this.openDatetimePicker(
+      'date',
+      this.datetimeDateValue(),
+      unixTimestampToDateValue(getCurrentUnixTimestamp()),
+    );
+
+    if (value === undefined) {
+      return;
+    }
+
+    this.form.controls.date.setValue(normalizeDateForBackend(value));
+  }
+
+  private async openDatetimePicker(
+    kind: 'date' | 'time',
+    value: string,
+    resetValue: string,
+  ): Promise<string | undefined> {
     const modal = await this.modalController.create({
       component: DatetimePickerModalComponent,
       cssClass: 'datetime-modal',
       componentProps: {
-        kind: 'date',
-        value: this.datetimeDateValue(),
-        resetValue: this.getCurrentDateForDatetime(),
+        kind,
+        value,
+        resetValue,
       },
     });
+
     await modal.present();
 
     const result = await modal.onDidDismiss<string>();
-    if (result.role !== 'confirm' || typeof result.data !== 'string') return;
 
-    this.form.patchValue({
-      date: normalizeDateForBackend(result.data),
-    });
-  }
+    if (result.role !== 'confirm' || typeof result.data !== 'string') {
+      return undefined;
+    }
 
-  protected getCurrentTimeForDatetime(): string {
-    return getCurrentTime().substring(0, 5);
-  }
-
-  protected getCurrentDateForDatetime(): string {
-    return unixTimestampToDateValue(getCurrentUnixTimestamp());
+    return result.data;
   }
 }

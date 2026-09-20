@@ -10,9 +10,7 @@ export class LogWorkoutEditorState {
   readonly isEditing = this.isEditingSignal.asReadonly();
   readonly deletedSets = this.deletedSetsSignal.asReadonly();
 
-  readonly deletedItemIds = computed(
-    () => new Set(this.deletedSetsSignal().map((set) => set.itemId)),
-  );
+  readonly deletedItemIds = computed(() => new Set(this.deletedSets().map((set) => set.itemId)));
 
   start(): void {
     this.deletedSetsSignal.set([]);

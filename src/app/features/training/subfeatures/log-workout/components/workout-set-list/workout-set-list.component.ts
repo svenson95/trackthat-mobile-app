@@ -13,35 +13,13 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { WorkoutSet } from '../../../../../core';
-import { ExerciseItemComponent } from '../../../../../shared';
+import type { WorkoutSet } from '../../../../../../core';
+import { ExerciseItemComponent } from '../../../../../../shared';
 
-import { LogWorkoutService } from '../data-access';
-import { LogWorkoutEditorState } from '../state';
+import { LogWorkoutService } from '../../data-access';
+import { LogWorkoutEditorState } from '../../state';
 
-export type ExerciseSetView =
-  | {
-      type: 'set';
-      set: WorkoutSet;
-    }
-  | {
-      type: 'placeholder';
-      load: number | null;
-      reps: number | null;
-      note: string | null;
-      time: string;
-    }
-  | {
-      type: 'skeleton';
-      id: string;
-      exercise: string;
-      time: string;
-    };
-
-export type ExerciseView = {
-  name: string;
-  sets: ExerciseSetView[];
-};
+import type { ExerciseSetView, ExerciseView } from './workout-set-list.types';
 
 const ION_COMPONENTS = [
   IonItem,
@@ -56,7 +34,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-log-workout-set-list',
+  selector: 'app-workout-set-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
@@ -179,18 +157,18 @@ const ION_COMPONENTS = [
     }
   `,
 })
-export class LogWorkoutSetListComponent {
+export class WorkoutSetListComponent {
   readonly skeletonSets = input<number[]>([]);
   readonly exercise = input.required<ExerciseView>();
 
   readonly setSelected = output<WorkoutSet>();
 
-  private editorState = inject(LogWorkoutEditorState);
-  private logWorkoutService = inject(LogWorkoutService);
+  private readonly editorState = inject(LogWorkoutEditorState);
+  private readonly logWorkoutService = inject(LogWorkoutService);
 
-  protected isEditing = this.editorState.isEditing;
+  protected readonly isEditing = this.editorState.isEditing;
 
-  protected isLoading = computed<boolean>(() =>
+  protected readonly isLoading = computed(() =>
     this.logWorkoutService.logWorkoutResource.isLoading(),
   );
 

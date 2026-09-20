@@ -18,19 +18,20 @@ import {
   IonSkeletonText,
   IonSpinner,
 } from '@ionic/angular';
-import { finalize } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 
-import type { WorkoutSet } from '../../../../../core';
-import { UserService } from '../../../../../core';
-import { IonicUiService } from '../../../../../shared';
+import type { WorkoutSet } from '../../../../../../core';
+import { UserService } from '../../../../../../core';
+import { IonicUiService } from '../../../../../../shared';
 
-import { LogWorkoutService } from '../data-access';
-import { LogWorkoutEditorState } from '../state';
+import { LogWorkoutService } from '../../data-access';
+import { LogWorkoutEditorState } from '../../state';
+import { getCurrentTime, timeToSeconds } from '../../utils';
 
-import type { LogWorkoutFormValue } from './log-workout-form.component';
-import { LogWorkoutFormComponent } from './log-workout-form.component';
-import type { ExerciseSetView, ExerciseView } from './log-workout-set-list.component';
-import { LogWorkoutSetListComponent } from './log-workout-set-list.component';
+import type { LogWorkoutFormValue } from '../workout-form/workout-form.component';
+import { WorkoutFormComponent } from '../workout-form/workout-form.component';
+import { WorkoutSetListComponent } from '../workout-set-list/workout-set-list.component';
+import type { ExerciseSetView, ExerciseView } from '../workout-set-list/workout-set-list.types';
 
 const ION_COMPONENTS = [
   IonButton,
@@ -44,9 +45,9 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-log-workout-data',
+  selector: 'app-workout-data',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, LogWorkoutFormComponent, LogWorkoutSetListComponent, DatePipe],
+  imports: [...ION_COMPONENTS, WorkoutFormComponent, WorkoutSetListComponent, DatePipe],
   styles: `
     :host {
       display: flex;
@@ -63,7 +64,7 @@ const ION_COMPONENTS = [
       border-top-right-radius: var(--app-radius-1);
     }
 
-    app-log-workout-form {
+    app-workout-form {
       display: block;
       width: 100%;
     }
@@ -73,10 +74,10 @@ const ION_COMPONENTS = [
     }
   `,
   template: `
-    <app-log-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
+    <app-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
 
     @if (exerciseView(); as exerciseView) {
-      <app-log-workout-set-list
+      <app-workout-set-list
         [skeletonSets]="skeletonSets"
         [exercise]="exerciseView"
         (setSelected)="setData($event)"
@@ -150,14 +151,15 @@ const ION_COMPONENTS = [
     }
   `,
 })
-export class LogWorkoutDataComponent {
+export class WorkoutDataComponent {
   readonly exercise = input<string>();
 
   private readonly logWorkoutService = inject(LogWorkoutService);
   private readonly userService = inject(UserService);
   private readonly ionicUiService = inject(IonicUiService);
+  private readonly editorState = inject(LogWorkoutEditorState);
 
-  readonly logWorkoutForm = viewChild(LogWorkoutFormComponent);
+  readonly logWorkoutForm = viewChild(WorkoutFormComponent);
 
   readonly exerciseHistory = this.logWorkoutService.exerciseHistoryResource.value;
 
@@ -179,9 +181,7 @@ export class LogWorkoutDataComponent {
     time: string;
   } | null>(null);
 
-  readonly isAddingSet = computed<boolean>(() => this.pendingSet() !== null);
-
-  private readonly editorState = inject(LogWorkoutEditorState);
+  readonly isAddingSet = computed(() => this.pendingSet() !== null);
 
   protected readonly exerciseView = computed<ExerciseView | undefined>(() => {
     const exercise = this.exercise();
@@ -194,7 +194,7 @@ export class LogWorkoutDataComponent {
 
     const sets = (this.logWorkoutService.logWorkoutResource.value()?.sets ?? [])
       .filter((set) => set.exercise === exercise && !deletedItemIds.has(set.itemId))
-      .sort((a, b) => this.timeToSeconds(a.time) - this.timeToSeconds(b.time))
+      .sort((a, b) => timeToSeconds(a.time) - timeToSeconds(b.time))
       .map<ExerciseSetView>((set) => ({
         type: 'set',
         set,
@@ -205,9 +205,7 @@ export class LogWorkoutDataComponent {
     if (pendingSet?.exercise === exercise) {
       sets.push({
         type: 'skeleton',
-        id: pendingSet.id,
-        exercise: pendingSet.exercise,
-        time: pendingSet.time,
+        ...pendingSet,
       });
 
       return {
@@ -262,19 +260,17 @@ export class LogWorkoutDataComponent {
       });
   }
 
-  addSet(formValue: LogWorkoutFormValue): void {
+  async addSet(formValue: LogWorkoutFormValue): Promise<void> {
     if (this.isAddingSet()) {
       return;
     }
 
-    const logId = this.logWorkoutService.logId();
     const userId = this.userService.userData()?.id;
     const exercise = this.exercise();
     const form = this.logWorkoutForm();
 
     if (!userId || !exercise || !form) {
       console.error('Missing required data for addSet', {
-        logId,
         userId,
         exercise,
         hasForm: !!form,
@@ -283,7 +279,7 @@ export class LogWorkoutDataComponent {
       return;
     }
 
-    const time = form.timeManuallyChanged() ? form.formValueTime() : this.getCurrentTime();
+    const time = form.timeManuallyChanged() ? form.formValueTime() : getCurrentTime();
 
     const set: WorkoutSet = {
       load: formValue.load,
@@ -294,28 +290,25 @@ export class LogWorkoutDataComponent {
       time,
     };
 
-    const pendingSetId = crypto.randomUUID();
-
     this.pendingSet.set({
-      id: pendingSetId,
+      id: crypto.randomUUID(),
       exercise,
       time,
     });
 
-    requestAnimationFrame(() => {
-      this.logWorkoutService.addLogWorkout(formValue.date, set, userId).subscribe({
-        next: () => {
-          this.pendingSet.set(null);
-        },
-        error: async (error) => {
-          this.pendingSet.set(null);
-
-          console.error('Could not add workout set', error);
-
-          await this.ionicUiService.showError('tabs.training.log-workout.actions.add-set.error');
-        },
-      });
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve());
     });
+
+    try {
+      await firstValueFrom(this.logWorkoutService.addLogWorkout(formValue.date, set, userId));
+    } catch (error) {
+      console.error('Could not add workout set', error);
+
+      await this.ionicUiService.showError('tabs.training.log-workout.actions.add-set.error');
+    } finally {
+      this.pendingSet.set(null);
+    }
   }
 
   setData(set: WorkoutSet): void {
@@ -326,33 +319,9 @@ export class LogWorkoutDataComponent {
     });
   }
 
-  private getCurrentTime(): string {
-    const now = new Date();
-
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-
-    return `${hours}:${minutes}:${seconds}`;
-  }
-
   private getNextItemId(): number {
     const sets = this.logWorkoutService.logWorkoutResource.value()?.sets ?? [];
 
-    const maxItemId = sets.reduce((max, set) => {
-      return Math.max(max, set.itemId);
-    }, -1);
-
-    return maxItemId + 1;
-  }
-
-  private timeToSeconds(time: string | null | undefined): number {
-    if (!time) {
-      return 0;
-    }
-
-    const [hours = '0', minutes = '0', seconds = '0'] = time.split(':');
-
-    return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+    return Math.max(-1, ...sets.map((set) => set.itemId)) + 1;
   }
 }
