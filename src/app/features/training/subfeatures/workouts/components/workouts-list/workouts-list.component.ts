@@ -189,12 +189,20 @@ export class WorkoutsListComponent {
       try {
         await loading.present();
 
-        await firstValueFrom(
+        const updatedWorkout = await firstValueFrom(
           this.workoutsService.changeWorkoutName({
             ...workout,
             name,
           }),
         );
+
+        const draft = this.editorState.draft();
+
+        if (draft) {
+          this.editorState.update(
+            draft.map((item) => (item.id === updatedWorkout.id ? updatedWorkout : item)),
+          );
+        }
       } catch (error) {
         if (
           typeof error === 'object' &&

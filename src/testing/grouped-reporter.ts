@@ -7,35 +7,21 @@ type TestGroup = {
   name: string;
   path?: string;
   matches?: (path: string) => boolean;
+  children?: TestGroup[];
+
   sectionByFolder?: boolean;
   nestedSectionRoots?: string[];
+
   sectionOrder?: string[];
   nestedSectionOrder?: Record<string, string[]>;
 };
 
-type FeatureSection = {
-  path: string;
-  name: string;
-  fileSuffixes?: string[];
+type SectionNode = {
+  modules: TestModule[];
+  children: Map<string, SectionNode>;
 };
 
-const FEATURE_SECTIONS: FeatureSection[] = [
-  {
-    path: 'components',
-    name: 'COMPONENTS',
-    fileSuffixes: ['.component.spec.ts'],
-  },
-  {
-    path: 'dialogs',
-    name: 'DIALOGS',
-    fileSuffixes: ['.dialog.spec.ts'],
-  },
-  {
-    path: 'services',
-    name: 'SERVICES',
-    fileSuffixes: ['.service.spec.ts'],
-  },
-];
+const DEFAULT_SECTION_ORDER: readonly string[] = ['data-access', 'state', 'utils', 'components'];
 
 const TEST_GROUPS: TestGroup[] = [
   {
@@ -56,30 +42,39 @@ const TEST_GROUPS: TestGroup[] = [
     sectionByFolder: true,
   },
   {
-    name: 'TRAINING',
-    path: '/features/training/',
-    sectionByFolder: true,
-    nestedSectionRoots: ['subfeatures'],
-    sectionOrder: ['data-access', 'subfeatures'],
-    nestedSectionOrder: {
-      subfeatures: ['workouts', 'workout', 'log-workout'],
-    },
-  },
-  {
-    name: 'EAT',
-    path: '/features/eat/',
-  },
-  {
-    name: 'OVERVIEW',
-    path: '/features/overview/',
-  },
-  {
-    name: 'LOGS',
-    path: '/features/logs/',
-  },
-  {
-    name: 'MORE',
-    path: '/features/more/',
+    name: 'FEATURES',
+    children: [
+      {
+        name: 'TRAINING',
+        path: '/features/training/',
+        sectionByFolder: true,
+        nestedSectionRoots: ['subfeatures'],
+        sectionOrder: ['data-access', 'utils', 'subfeatures'],
+        nestedSectionOrder: {
+          subfeatures: ['workouts', 'workout', 'log-workout'],
+        },
+      },
+      {
+        name: 'EAT',
+        path: '/features/eat/',
+        sectionByFolder: true,
+      },
+      {
+        name: 'OVERVIEW',
+        path: '/features/overview/',
+        sectionByFolder: true,
+      },
+      {
+        name: 'LOGS',
+        path: '/features/logs/',
+        sectionByFolder: true,
+      },
+      {
+        name: 'MORE',
+        path: '/features/more/',
+        sectionByFolder: true,
+      },
+    ],
   },
 ];
 
@@ -91,110 +86,144 @@ class GroupedReporter implements Reporter {
     );
 
     for (const group of TEST_GROUPS) {
-      const modules = groupedModules.get(group.name);
-
-      if (!modules?.length) {
-        continue;
-      }
-
-      this.printGroup(group.name, modules);
+      this.printConfiguredGroup(group, groupedModules);
     }
 
     const otherModules = groupedModules.get('OTHER');
 
     if (otherModules?.length) {
-      this.printGroup('OTHER', otherModules);
+      this.printGroup({ name: 'OTHER' }, otherModules);
     }
 
     this.printSummary(testModules);
   }
 
-  private printGroup(name: string, modules: readonly TestModule[]): void {
-    console.log();
-    console.log(chalk.bold.cyan(name));
-
-    const group = TEST_GROUPS.find((group) => group.name === name);
-
-    const rootModules: TestModule[] = [];
-    const sections = new Map<
-      string,
-      {
-        modules: TestModule[];
-        subsections: Map<string, TestModule[]>;
+  private printConfiguredGroup(
+    group: TestGroup,
+    groupedModules: ReadonlyMap<string, TestModule[]>,
+    depth = 0,
+  ): void {
+    if (group.children?.length) {
+      if (!this.hasModules(group, groupedModules)) {
+        return;
       }
-    >();
+
+      console.log();
+      console.log(`${this.indent(depth)}${chalk.bold.cyan(group.name)}`);
+
+      for (const child of group.children) {
+        this.printConfiguredGroup(child, groupedModules, depth + 1);
+      }
+
+      return;
+    }
+
+    const modules = groupedModules.get(group.name);
+
+    if (!modules?.length) {
+      return;
+    }
+
+    this.printGroup(group, modules, depth);
+  }
+
+  private hasModules(group: TestGroup, groupedModules: ReadonlyMap<string, TestModule[]>): boolean {
+    if (group.children?.length) {
+      return group.children.some((child) => this.hasModules(child, groupedModules));
+    }
+
+    return Boolean(groupedModules.get(group.name)?.length);
+  }
+
+  private printGroup(group: TestGroup, modules: readonly TestModule[], depth = 0): void {
+    console.log();
+    console.log(`${this.indent(depth)}${chalk.bold.cyan(group.name)}`);
+
+    const rootNode = this.createSectionNode();
 
     for (const module of modules) {
-      const [sectionName, subsectionName] = this.getSectionPath(module.moduleId, name);
+      const sectionPath = this.getSectionPath(module.moduleId, group);
 
-      if (!sectionName) {
-        rootModules.push(module);
+      if (!sectionPath.length) {
+        rootNode.modules.push(module);
         continue;
       }
 
-      let section = sections.get(sectionName);
-
-      if (!section) {
-        section = {
-          modules: [],
-          subsections: new Map(),
-        };
-
-        sections.set(sectionName, section);
-      }
-
-      if (!subsectionName) {
-        section.modules.push(module);
-        continue;
-      }
-
-      const subsection = section.subsections.get(subsectionName) ?? [];
-
-      subsection.push(module);
-
-      section.subsections.set(subsectionName, subsection);
+      this.addModuleToSectionTree(rootNode, sectionPath, module);
     }
 
-    if (rootModules.length) {
-      this.printSortedModules(name, rootModules, 1);
+    if (rootNode.modules.length) {
+      this.printSortedModules(group, rootNode.modules, depth + 1);
     }
 
-    const sortedSections = [...sections.entries()].sort(([sectionA], [sectionB]) =>
-      this.compareSections(sectionA, sectionB, group?.sectionOrder),
+    this.printSectionChildren(rootNode, group, depth + 1);
+  }
+
+  private createSectionNode(): SectionNode {
+    return {
+      modules: [],
+      children: new Map(),
+    };
+  }
+
+  private addModuleToSectionTree(
+    rootNode: SectionNode,
+    sectionPath: readonly string[],
+    module: TestModule,
+  ): void {
+    let currentNode = rootNode;
+
+    for (const sectionName of sectionPath) {
+      let childNode = currentNode.children.get(sectionName);
+
+      if (!childNode) {
+        childNode = this.createSectionNode();
+        currentNode.children.set(sectionName, childNode);
+      }
+
+      currentNode = childNode;
+    }
+
+    currentNode.modules.push(module);
+  }
+
+  private printSectionChildren(
+    node: SectionNode,
+    group: TestGroup,
+    depth: number,
+    parentSectionName?: string,
+  ): void {
+    const sectionOrder = this.getSectionOrder(group, parentSectionName);
+
+    const sections = [...node.children.entries()].sort(([sectionA], [sectionB]) =>
+      this.compareSections(sectionA, sectionB, sectionOrder),
     );
 
-    for (const [sectionName, section] of sortedSections) {
+    for (const [sectionName, sectionNode] of sections) {
       console.log();
-      console.log(`${this.indent(1)}${chalk.bold.cyan(sectionName)}`);
+      console.log(`${this.indent(depth)}${chalk.bold.cyan(sectionName)}`);
 
-      if (section.modules.length) {
-        this.printSortedModules(name, section.modules, 2);
+      if (sectionNode.modules.length) {
+        this.printSortedModules(group, sectionNode.modules, depth + 1);
       }
 
-      const nestedOrder = group?.nestedSectionOrder?.[sectionName.toLowerCase()];
-
-      const sortedSubsections = [...section.subsections.entries()].sort(([sectionA], [sectionB]) =>
-        this.compareSections(sectionA, sectionB, nestedOrder),
-      );
-
-      for (const [subsectionName, subsectionModules] of sortedSubsections) {
-        console.log();
-        console.log(`${this.indent(2)}${chalk.bold.cyan(subsectionName)}`);
-
-        this.printSortedModules(name, subsectionModules, 3);
-      }
+      this.printSectionChildren(sectionNode, group, depth + 1, sectionName);
     }
+  }
+
+  private getSectionOrder(group: TestGroup, parentSectionName?: string): readonly string[] {
+    if (!parentSectionName) {
+      return group.sectionOrder ?? DEFAULT_SECTION_ORDER;
+    }
+
+    return group.nestedSectionOrder?.[parentSectionName.toLowerCase()] ?? DEFAULT_SECTION_ORDER;
   }
 
   private compareSections(
     sectionA: string,
     sectionB: string,
-    sectionOrder?: readonly string[],
+    sectionOrder: readonly string[],
   ): number {
-    if (!sectionOrder) {
-      return sectionA.localeCompare(sectionB);
-    }
-
     const normalizedSectionA = sectionA.toLowerCase();
     const normalizedSectionB = sectionB.toLowerCase();
 
@@ -217,13 +246,13 @@ class GroupedReporter implements Reporter {
   }
 
   private printSortedModules(
-    groupName: string,
+    group: TestGroup,
     modules: readonly TestModule[],
     depth: number,
   ): void {
     const sortedModules = [...modules].sort((a, b) => {
       const depthDifference =
-        this.getPathDepth(a.moduleId, groupName) - this.getPathDepth(b.moduleId, groupName);
+        this.getPathDepth(a.moduleId, group) - this.getPathDepth(b.moduleId, group);
 
       if (depthDifference !== 0) {
         return depthDifference;
@@ -319,10 +348,8 @@ class GroupedReporter implements Reporter {
     console.log(`${chalk.bold('Tests:')}      ${testResults.join(', ')}, ${tests.length} total`);
   }
 
-  private getSectionPath(path: string, groupName: string): string[] {
-    const group = TEST_GROUPS.find((group) => group.name === groupName);
-
-    if (!group?.path) {
+  private getSectionPath(path: string, group: TestGroup): string[] {
+    if (!group.path || !group.sectionByFolder) {
       return [];
     }
 
@@ -333,45 +360,60 @@ class GroupedReporter implements Reporter {
     }
 
     const pathParts = relativePath.split('/').filter(Boolean);
-    const [rootFolder] = pathParts;
 
-    if (group.sectionByFolder) {
-      if (rootFolder && group.nestedSectionRoots?.includes(rootFolder) && pathParts[1]) {
-        return [this.formatSectionName(rootFolder), this.formatSectionName(pathParts[1])];
+    if (pathParts.length <= 1) {
+      return [];
+    }
+
+    const folderParts = pathParts.slice(0, -1);
+    const [rootFolder] = folderParts;
+
+    if (!rootFolder) {
+      return [];
+    }
+
+    if (group.nestedSectionRoots?.includes(rootFolder) && folderParts[1]) {
+      const sectionPath = [
+        this.formatSectionName(rootFolder),
+        this.formatSectionName(folderParts[1]),
+      ];
+
+      const nestedSection = folderParts.slice(2).find((folder) => this.isSectionFolder(folder));
+
+      if (nestedSection) {
+        sectionPath.push(this.formatSectionName(nestedSection));
       }
 
-      return rootFolder ? [this.formatSectionName(rootFolder)] : [];
+      return sectionPath;
     }
 
-    const folderSection = FEATURE_SECTIONS.find((section) => section.path === rootFolder);
+    return [this.formatSectionName(rootFolder)];
+  }
 
-    if (folderSection) {
-      return [folderSection.name];
-    }
-
-    const suffixSection = FEATURE_SECTIONS.find((section) =>
-      section.fileSuffixes?.some((suffix) => relativePath.endsWith(suffix)),
-    );
-
-    return suffixSection ? [suffixSection.name] : [];
+  private isSectionFolder(folderName: string): boolean {
+    return DEFAULT_SECTION_ORDER.includes(folderName);
   }
 
   private formatSectionName(folderName: string): string {
     return folderName.toUpperCase();
   }
 
+  private getLeafGroups(groups: readonly TestGroup[] = TEST_GROUPS): TestGroup[] {
+    return groups.flatMap((group) =>
+      group.children?.length ? this.getLeafGroups(group.children) : [group],
+    );
+  }
+
   private getGroup(path: string): TestGroup {
     return (
-      TEST_GROUPS.find((group) =>
+      this.getLeafGroups().find((group) =>
         group.matches ? group.matches(path) : path.includes(group.path ?? ''),
       ) ?? { name: 'OTHER' }
     );
   }
 
-  private getPathDepth(path: string, groupName: string): number {
-    const group = TEST_GROUPS.find((group) => group.name === groupName);
-
-    if (!group?.path) {
+  private getPathDepth(path: string, group: TestGroup): number {
+    if (!group.path) {
       return 0;
     }
 

@@ -367,6 +367,34 @@ describe('WorkoutsListComponent', () => {
       });
     });
 
+    it('should trim, update and apply a changed workout name to the editor draft', async () => {
+      editorState.start(workouts);
+
+      const slidingItem = createSlidingItem();
+
+      modalMock.onDidDismiss.mockResolvedValueOnce({
+        data: '  Push Day  ',
+      });
+
+      const updatedWorkout: WorkoutDoc = {
+        ...workouts[0],
+        name: 'Push Day',
+      };
+
+      workoutsServiceMock.changeWorkoutName.mockReturnValueOnce(of(updatedWorkout));
+
+      await list.openChangeNameModal(workouts[0], slidingItem);
+
+      expect(workoutsServiceMock.changeWorkoutName).toHaveBeenCalledWith({
+        ...workouts[0],
+        name: 'Push Day',
+      });
+
+      expect(editorState.draft()).toEqual([updatedWorkout, workouts[1]]);
+
+      expect(loadingMock.dismiss).toHaveBeenCalledOnce();
+    });
+
     it('should show the duplicate workout error for status 409', async () => {
       const slidingItem = createSlidingItem();
 
