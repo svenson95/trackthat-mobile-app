@@ -315,10 +315,13 @@ describe('WorkoutsPage', () => {
       expect(complete).toHaveBeenCalledOnce();
     });
 
-    it('should complete after reloading finishes', async () => {
-      resourceLoading.set(true);
-
+    it('should complete after reloading finishes', () => {
       const complete = vi.fn();
+
+      workoutsServiceMock.workoutsResource.reload.mockImplementationOnce(() => {
+        resourceLoading.set(true);
+        return true;
+      });
 
       const event = {
         target: {
@@ -328,14 +331,16 @@ describe('WorkoutsPage', () => {
 
       page.handleRefresh(event);
 
+      TestBed.tick();
+
       expect(workoutsServiceMock.workoutsResource.reload).toHaveBeenCalledOnce();
       expect(complete).not.toHaveBeenCalled();
 
       resourceLoading.set(false);
 
-      await vi.waitFor(() => {
-        expect(complete).toHaveBeenCalledOnce();
-      });
+      TestBed.tick();
+
+      expect(complete).toHaveBeenCalledOnce();
     });
   });
 });

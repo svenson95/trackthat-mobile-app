@@ -153,14 +153,10 @@ export class WorkoutsPage {
 
   protected handleRefresh(event: RefresherCustomEvent): void {
     const resource = this.workoutsService.workoutsResource;
-    const started = resource.reload();
 
-    if (!started && !resource.isLoading()) {
-      void event.target.complete();
-      return;
-    }
-
-    toObservable(resource.isLoading, { injector: this.injector })
+    const subscription = toObservable(resource.isLoading, {
+      injector: this.injector,
+    })
       .pipe(
         distinctUntilChanged(),
         pairwise(),
@@ -172,6 +168,13 @@ export class WorkoutsPage {
       .subscribe(() => {
         void event.target.complete();
       });
+
+    const started = resource.reload();
+
+    if (!started && !resource.isLoading()) {
+      subscription.unsubscribe();
+      void event.target.complete();
+    }
   }
 
   protected async openAddWorkoutModal(): Promise<void> {
