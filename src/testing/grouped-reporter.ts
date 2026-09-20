@@ -85,6 +85,8 @@ const TEST_GROUPS: TestGroup[] = [
 
 class GroupedReporter implements Reporter {
   onTestRunEnd(testModules: ReadonlyArray<TestModule>): void {
+    console.log('=== CUSTOM REPORTER START ===');
+
     const groupedModules = this.groupBy(
       testModules,
       (module) => this.getGroup(module.moduleId).name,
