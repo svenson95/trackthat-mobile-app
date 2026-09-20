@@ -27,6 +27,7 @@ import {
   LoadingController,
   ModalController,
 } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -103,7 +104,7 @@ const ION_COMPONENTS = [
         </ion-buttons>
 
         <ion-title>
-          {{ titleTrimmed() }}
+          {{ title() }}
         </ion-title>
 
         <ion-buttons slot="primary">
@@ -127,7 +128,7 @@ const ION_COMPONENTS = [
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">{{ titleTrimmed() }}</ion-title>
+          <ion-title size="large">{{ title() }}</ion-title>
         </ion-toolbar>
       </ion-header>
 
@@ -228,7 +229,7 @@ export class WorkoutPage {
     return this.workoutsService.workoutsResource.isLoading();
   });
 
-  protected readonly titleTrimmed = computed<string>(() => {
+  protected readonly title = computed<string>(() => {
     return this.workout()?.name ?? '';
   });
 
@@ -284,31 +285,17 @@ export class WorkoutPage {
       return;
     }
 
-    const updatedWorkout = {
-      ...currentWorkout,
-      list: normalizeWorkoutList(draft),
-    };
-
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workout.actions.update-list.process'),
-      spinner: 'circles',
-    });
-
-    await loading.present();
-
-    this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: async () => {
-        await loading.dismiss();
-        this.editorState.cancel();
+    const success = await this.persistWorkout(
+      {
+        ...currentWorkout,
+        list: draft,
       },
-      error: async (error) => {
-        console.error('Unexpected fail during update workout', error);
+      'tabs.training.workout.actions.update-list.process',
+    );
 
-        await loading.dismiss();
-
-        await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
-      },
-    });
+    if (success) {
+      this.editorState.cancel();
+    }
   }
 
   protected async addText(workout: WorkoutDoc): Promise<void> {
@@ -323,27 +310,25 @@ export class WorkoutPage {
           maxLength: WORKOUT_NAME_MAX_LENGTH,
         },
       });
+
       await modal.present();
 
       const { data } = await modal.onDidDismiss<string>();
+      const name = data?.trim();
 
-      if (!data?.trim()) {
+      if (!name) {
         return;
       }
 
-      const name = data.trim();
-
-      const added = [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name }];
-      const updatedWorkout: WorkoutDoc = {
-        ...workout,
-        list: added,
-      };
-      await this.updateWorkout(
-        updatedWorkout,
-        this.translate.instant('tabs.training.workout.actions.add-text.loading'),
+      await this.persistWorkout(
+        {
+          ...workout,
+          list: [...workout.list, { ...WORKOUT_LIST_ITEM_HEADER, name }],
+        },
+        'tabs.training.workout.actions.add-text.loading',
       );
     } catch (error) {
-      console.error('Change text modal could not be opened:', error);
+      console.error('Text modal could not be opened:', error);
     }
   }
 
@@ -356,64 +341,62 @@ export class WorkoutPage {
         currentList: workout.list,
       },
     });
+
     await modal.present();
+
     this.isMoreMenuOpen.set(false);
 
     const { data } = await modal.onDidDismiss<ListItemExercise>();
-    if (!data) return;
 
-    const added = [...workout.list, { ...data }];
-    const updatedWorkout: WorkoutDoc = {
-      ...workout,
-      list: added,
-    };
-    await this.updateWorkout(
-      updatedWorkout,
-      this.translate.instant('tabs.training.workout.actions.add-exercise-process'),
+    if (!data) {
+      return;
+    }
+
+    await this.persistWorkout(
+      {
+        ...workout,
+        list: [...workout.list, { ...data }],
+      },
+      'tabs.training.workout.actions.add-exercise-process',
     );
   }
 
   protected async addSpacer(workout: WorkoutDoc): Promise<void> {
-    const added = [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }];
-    const updatedWorkout: WorkoutDoc = {
-      ...workout,
-      list: added,
-    };
-
-    await this.updateWorkout(
-      updatedWorkout,
-      this.translate.instant('tabs.training.workout.actions.add-spacer-process'),
+    await this.persistWorkout(
+      {
+        ...workout,
+        list: [...workout.list, { ...WORKOUT_LIST_ITEM_SPACER }],
+      },
+      'tabs.training.workout.actions.add-spacer-process',
     );
   }
 
-  private async updateWorkout(workout: WorkoutDoc, loadingMessage: string): Promise<void> {
+  private async persistWorkout(workout: WorkoutDoc, loadingMessageKey: string): Promise<boolean> {
     const loading = await this.loadingCtrl.create({
-      message: loadingMessage,
+      message: this.translate.instant(loadingMessageKey),
       spinner: 'circles',
     });
 
     await loading.present();
 
-    const normalizedList = normalizeWorkoutList(workout.list);
+    try {
+      await firstValueFrom(
+        this.workoutsService.updateWorkoutList({
+          ...workout,
+          list: normalizeWorkoutList(workout.list),
+        }),
+      );
 
-    const updatedWorkout = {
-      ...workout,
-      list: normalizedList,
-    };
+      return true;
+    } catch (error) {
+      console.error('Unexpected fail during update workout', error);
 
-    this.workoutsService.updateWorkoutList(updatedWorkout).subscribe({
-      next: async () => {
-        await loading.dismiss();
-      },
-      error: async (error) => {
-        console.error('Unexpected fail during update workout', error);
+      await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
 
-        await loading.dismiss();
-
-        await this.ionicUiService.showError('tabs.training.workout.actions.update-list.error');
-      },
-    });
-
-    this.isMoreMenuOpen.set(false);
+      return false;
+    } finally {
+      await loading.dismiss();
+      this.isMoreMenuOpen.set(false);
+    }
   }
 }

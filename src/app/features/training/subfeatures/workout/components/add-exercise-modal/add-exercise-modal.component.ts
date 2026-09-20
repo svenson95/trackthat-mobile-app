@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, Input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -40,12 +39,8 @@ const ION_COMPONENTS = [
 @Component({
   selector: 'app-add-exercise-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...ION_COMPONENTS, FormsModule, TranslateModule, ExerciseItemComponent],
+  imports: [...ION_COMPONENTS, TranslateModule, ExerciseItemComponent],
   styles: `
-    h4 {
-      margin-left: 1rem;
-    }
-
     ion-content {
       --padding-bottom: 10rem;
     }
@@ -54,9 +49,14 @@ const ION_COMPONENTS = [
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-button (click)="cancel()">Abbrechen</ion-button>
+          <ion-button (click)="cancel()">
+            {{ 'general.abort' | translate }}
+          </ion-button>
         </ion-buttons>
-        <ion-title>{{ 'tabs.training.workout.actions.add-exercise' | translate }}</ion-title>
+
+        <ion-title>
+          {{ 'tabs.training.workout.actions.add-exercise' | translate }}
+        </ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -65,7 +65,9 @@ const ION_COMPONENTS = [
         @for (group of exercises; track group.name) {
           <ion-item-group>
             <ion-item-divider>
-              <ion-label>{{ 'general.muscles.' + group.name | translate }}</ion-label>
+              <ion-label>
+                {{ 'general.muscles.' + group.name | translate }}
+              </ion-label>
             </ion-item-divider>
 
             @for (exercise of group.exercises; track exercise.name) {
@@ -80,35 +82,51 @@ const ION_COMPONENTS = [
   `,
 })
 export class AddExerciseModalComponent {
-  @Input() currentList!: WorkoutList;
+  readonly currentList = input.required<WorkoutList>();
 
-  private modalCtrl = inject(ModalController);
+  private readonly modalCtrl = inject(ModalController);
 
-  readonly exercises = EXERCISES_DATA;
+  protected readonly exercises = EXERCISES_DATA;
 
-  cancel(): void {
+  protected cancel(): void {
     void this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  async confirm(exercise: ExerciseMetadata): Promise<void> {
-    const getNextId = (key: 'itemId' | 'listId'): number =>
-      this.currentList.length === 0
-        ? 0
-        : Math.max(...this.currentList.map((item) => item[key])) + 1;
-
-    // TODO: add missing options like 'variant', 'sets', ...
+  protected async confirm(exercise: ExerciseMetadata): Promise<void> {
     const addExercise: ListItemExercise = {
       name: exercise.name,
       type: 'EXERCISE',
-      itemId: getNextId('itemId'),
-      listId: getNextId('listId'),
-      equipment: exercise.equipmentTypes[0], // TODO: change equipmetTypes type array -> single-item
-      variant: exercise.variants ? exercise.variants[0] : null,
+      itemId: this.getNextExerciseItemId(),
+      listId: this.getNextListId(),
+      equipment: exercise.equipmentTypes[0],
+      variant: exercise.variants[0] ?? null,
       sets: '0',
       reps: '0',
       rest: '0',
     };
 
     await this.modalCtrl.dismiss(addExercise);
+  }
+
+  private getNextListId(): number {
+    const list = this.currentList();
+
+    if (list.length === 0) {
+      return 0;
+    }
+
+    return Math.max(...list.map((item) => item.listId)) + 1;
+  }
+
+  private getNextExerciseItemId(): number {
+    const exerciseItemIds = this.currentList()
+      .map((item) => item.itemId)
+      .filter((itemId): itemId is number => itemId !== null);
+
+    if (exerciseItemIds.length === 0) {
+      return 1;
+    }
+
+    return Math.max(...exerciseItemIds) + 1;
   }
 }

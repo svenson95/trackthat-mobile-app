@@ -1,4 +1,4 @@
-import type { ListItem, WorkoutList } from '../../../../../core';
+import type { ListItem, WorkoutList } from '../../../../../../core';
 
 export function normalizeWorkoutList(items: ListItem[]): WorkoutList {
   let exerciseIndex = 1;
@@ -7,5 +7,5 @@ export function normalizeWorkoutList(items: ListItem[]): WorkoutList {
     ...item,
     listId: index,
     itemId: item.type === 'EXERCISE' ? exerciseIndex++ : null,
-  })) as WorkoutList;
+  }));
 }
