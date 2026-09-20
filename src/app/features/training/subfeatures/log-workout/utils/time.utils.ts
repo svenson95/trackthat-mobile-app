@@ -42,3 +42,13 @@ export function normalizeDateForBackend(value: string): number {
   const [year, month, day] = dateValue.split('-').map(Number);
   return Math.floor(new Date(year, month - 1, day, 0, 0, 0, 0).getTime() / 1000);
 }
+
+export function timeToSeconds(time: string | null | undefined): number {
+  if (!time) {
+    return 0;
+  }
+
+  const [hours = '0', minutes = '0', seconds = '0'] = time.split(':');
+
+  return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds);
+}

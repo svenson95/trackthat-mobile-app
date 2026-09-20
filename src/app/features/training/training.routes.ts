@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 import { AuthGuard } from '../../core';
 
 import { WorkoutsService } from './data-access';
-import { LogWorkoutService } from './subfeatures/log-workout/log-workout.service';
+import { LogWorkoutService } from './subfeatures/log-workout/data-access';
 
 export const TRAINING_ROUTES: Routes = [
   {

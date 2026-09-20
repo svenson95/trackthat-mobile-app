@@ -26,6 +26,10 @@ export function numberValidator(type: 'number' | 'integer' = 'number'): Validato
       return null;
     }
 
+    if (typeof value === 'string' && value.trim() === '') {
+      return { number: true };
+    }
+
     const parsed = Number(value);
 
     if (!Number.isFinite(parsed)) {

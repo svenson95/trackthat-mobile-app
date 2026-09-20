@@ -1,5 +1,5 @@
 import type { OnInit } from '@angular/core';
-import { ChangeDetectionStrategy, Component, inject, Input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -12,7 +12,6 @@ type PickerKind = 'date' | 'time';
 
 @Component({
   selector: 'app-datetime-picker-modal',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IonButton, IonButtons, IonDatetime],
   styles: `
@@ -28,18 +27,18 @@ type PickerKind = 'date' | 'time';
   template: `
     <ion-datetime
       #datetime
-      [presentation]="kind"
+      [presentation]="kind()"
       [value]="selectedValue()"
       locale="de-DE"
       mode="ios"
       size="cover"
       first-day-of-week="1"
-      [preferWheel]="kind === 'date'"
+      [preferWheel]="kind() === 'date'"
       (ionChange)="onChange($event)"
     >
       <ion-buttons slot="buttons">
         <ion-button type="button" (click)="reset(datetime)">
-          {{ kind === 'time' ? 'Jetzt' : 'Heute' }}
+          {{ kind() === 'time' ? 'Jetzt' : 'Heute' }}
         </ion-button>
 
         <ion-button type="button" (click)="cancel()">Abbrechen</ion-button>
@@ -50,24 +49,26 @@ type PickerKind = 'date' | 'time';
   `,
 })
 export class DatetimePickerModalComponent implements OnInit {
-  @Input({ required: true }) kind!: PickerKind;
-  @Input({ required: true }) value!: string;
-  @Input({ required: true }) resetValue!: string;
+  readonly kind = input.required<PickerKind>();
+  readonly value = input.required<string>();
+  readonly resetValue = input.required<string>();
 
   private readonly modalController = inject(ModalController);
 
   readonly selectedValue = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.selectedValue.set(this.value);
+    this.selectedValue.set(this.value());
   }
 
   onChange(event: DatetimeCustomEvent): void {
     const value = event.detail.value;
-    if (typeof value !== 'string') return;
-    const timeIndex = value.indexOf('T');
-    const time = value.substring(timeIndex + 1, timeIndex + 9);
-    this.selectedValue.set(time);
+
+    if (typeof value !== 'string') {
+      return;
+    }
+
+    this.selectedValue.set(this.normalizeValue(value));
   }
 
   cancel(): void {
@@ -75,13 +76,26 @@ export class DatetimePickerModalComponent implements OnInit {
   }
 
   reset(datetime: IonDatetime): void {
-    this.selectedValue.set(this.resetValue);
-    void datetime.reset(this.resetValue);
-    void this.modalController.dismiss(this.resetValue, 'confirm');
+    const value = this.resetValue();
+
+    this.selectedValue.set(value);
+
+    void datetime.reset(value);
+    void this.modalController.dismiss(value, 'confirm');
   }
 
   async confirm(datetime: IonDatetime): Promise<void> {
     await datetime.confirm();
     await this.modalController.dismiss(this.selectedValue(), 'confirm');
+  }
+
+  private normalizeValue(value: string): string {
+    if (this.kind() === 'date') {
+      return value.split('T')[0];
+    }
+
+    const time = value.includes('T') ? value.split('T')[1] : value;
+
+    return time.replace('Z', '').split('.')[0];
   }
 }

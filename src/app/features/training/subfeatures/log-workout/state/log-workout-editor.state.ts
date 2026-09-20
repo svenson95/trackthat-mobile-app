@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 
-import type { WorkoutSet } from '../../../../core';
+import type { WorkoutSet } from '../../../../../core';
 
 @Injectable()
 export class LogWorkoutEditorState {
@@ -10,9 +10,7 @@ export class LogWorkoutEditorState {
   readonly isEditing = this.isEditingSignal.asReadonly();
   readonly deletedSets = this.deletedSetsSignal.asReadonly();
 
-  readonly deletedItemIds = computed(
-    () => new Set(this.deletedSetsSignal().map((set) => set.itemId)),
-  );
+  readonly deletedItemIds = computed(() => new Set(this.deletedSets().map((set) => set.itemId)));
 
   start(): void {
     this.deletedSetsSignal.set([]);
