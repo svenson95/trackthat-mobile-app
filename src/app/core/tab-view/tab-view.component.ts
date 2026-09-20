@@ -6,7 +6,7 @@ import { AuthService } from '../auth';
 
 const IONIC_COMPONENTS = [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel];
 
-export type TabId = 'training' | 'overview' | 'logs' | 'more';
+export type TabId = 'training' | 'health' | 'overview' | 'logs' | 'more';
 
 interface TabConfig {
   id: TabId;
@@ -18,6 +18,12 @@ interface TabConfig {
 const TABS: readonly TabConfig[] = [
   {
     id: 'training',
+    icon: 'bicycle-outline',
+    activeIcon: 'bicycle',
+    requiresAuth: true,
+  },
+  {
+    id: 'health',
     icon: 'bicycle-outline',
     activeIcon: 'bicycle',
     requiresAuth: true,

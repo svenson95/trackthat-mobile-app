@@ -144,9 +144,9 @@
         }
       }
     },
-    "eat": {
-      "tab-label": "Eat",
-      "tab-title": "Eat"
+    "health": {
+      "tab-label": "Health",
+      "tab-title": "Health"
     },
     "overview": {
       "tab-label": "Overview",

@@ -144,9 +144,9 @@
         }
       }
     },
-    "eat": {
-      "tab-label": "Essen",
-      "tab-title": "Essen"
+    "health": {
+      "tab-label": "Gesundheit",
+      "tab-title": "Gesundheit"
     },
     "overview": {
       "tab-label": "Überblick",

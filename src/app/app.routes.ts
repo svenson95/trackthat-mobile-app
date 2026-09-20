@@ -13,6 +13,10 @@ export const appRoutes: Routes = [
           import('./features/training/training.routes').then((m) => m.TRAINING_ROUTES),
       },
       {
+        path: 'health',
+        loadChildren: () => import('./features/health/health.routes').then((m) => m.HEALTH_ROUTES),
+      },
+      {
         path: 'overview',
         loadChildren: () =>
           import('./features/overview/overview.routes').then((m) => m.OVERVIEW_ROUTES),
