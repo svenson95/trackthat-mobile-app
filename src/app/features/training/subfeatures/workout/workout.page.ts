@@ -37,10 +37,9 @@ import { IonicUiService, TextInputDialog } from '../../../../shared';
 import { WorkoutsService } from '../../data-access';
 import { WORKOUT_NAME_MAX_LENGTH } from '../../utils';
 
-import { WorkoutListComponent } from './components';
-import { AddExerciseDialog } from './dialogs';
-import { WorkoutEditorState } from './workout-editor.state';
-import { normalizeWorkoutList } from './workout-list.utils';
+import { AddExerciseModalComponent, WorkoutListComponent } from './components';
+import { WorkoutEditorState } from './state';
+import { normalizeWorkoutList } from './utils';
 
 const ION_COMPONENTS = [
   IonBackButton,
@@ -159,8 +158,6 @@ const ION_COMPONENTS = [
           <app-workout-list [workout]="currentWorkout" />
         }
       </div>
-
-      <!-- <app-add-item-dialog></app-add-item-dialog> -->
 
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
@@ -352,7 +349,7 @@ export class WorkoutPage {
 
   protected async addExercise(workout: WorkoutDoc): Promise<void> {
     const modal = await this.modalCtrl.create({
-      component: AddExerciseDialog,
+      component: AddExerciseModalComponent,
       componentProps: {
         title: this.translate.instant('tabs.training.workout.actions.add-exercise'),
         value: workout.name,

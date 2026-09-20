@@ -16,12 +16,12 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { ListItem, Workout } from '../../../../../core';
-import { ExerciseItemComponent, TextInputDialog } from '../../../../../shared';
+import type { ListItem, Workout } from '../../../../../../core';
+import { ExerciseItemComponent, TextInputDialog } from '../../../../../../shared';
 
-import { WORKOUT_NAME_MAX_LENGTH } from '../../../utils';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../../../utils';
 
-import { WorkoutEditorState } from '../workout-editor.state';
+import { WorkoutEditorState } from '../../state';
 
 const ION_COMPONENTS = [
   IonIcon,

@@ -17,8 +17,8 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { ListItemExercise, WorkoutList } from '../../../../../core';
-import { ExerciseItemComponent } from '../../../../../shared';
+import type { ListItemExercise, WorkoutList } from '../../../../../../core';
+import { ExerciseItemComponent } from '../../../../../../shared';
 
 import type { ExerciseMetadata } from './exercises.data';
 import { EXERCISES_DATA } from './exercises.data';
@@ -38,7 +38,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-add-item-dialog',
+  selector: 'app-add-exercise-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule, ExerciseItemComponent],
   styles: `
@@ -79,7 +79,7 @@ const ION_COMPONENTS = [
     </ion-content>
   `,
 })
-export class AddExerciseDialog {
+export class AddExerciseModalComponent {
   @Input() currentList!: WorkoutList;
 
   private modalCtrl = inject(ModalController);
