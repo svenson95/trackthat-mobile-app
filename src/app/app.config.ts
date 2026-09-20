@@ -13,13 +13,24 @@ import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { AppInitializerService, backendConnectionInterceptor } from './core';
+import {
+  AppInitializerService,
+  AppUpdateService,
+  AuthSessionService,
+  backendConnectionInterceptor,
+  LanguageService,
+  NavigationFocusService,
+} from './core';
 
 import { appRoutes } from './app.routes';
 
-const APP_INITIALIZER_PROVIDER = provideAppInitializer(() => {
-  inject(AppInitializerService);
-});
+const APP_INITIALIZER_PROVIDERS = [
+  provideAppInitializer(() => inject(AppInitializerService).init()),
+  provideAppInitializer(() => inject(LanguageService).init()),
+  provideAppInitializer(() => inject(AppUpdateService).watchForUpdates()),
+  provideAppInitializer(() => inject(AuthSessionService).verifySession()),
+  provideAppInitializer(() => inject(NavigationFocusService).init()),
+];
 
 const ROUTER_PROVIDER = provideRouter(
   appRoutes,
@@ -57,7 +68,7 @@ const I18N_PROVIDER = provideTranslateService({
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    APP_INITIALIZER_PROVIDER,
+    ...APP_INITIALIZER_PROVIDERS,
     ROUTER_PROVIDER,
     HTTP_PROVIDER,
     ...IONIC_PROVIDERS,

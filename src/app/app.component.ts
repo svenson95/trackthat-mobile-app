@@ -15,13 +15,7 @@ import {
   personOutline,
 } from 'ionicons/icons';
 
-import {
-  AppInitializerService,
-  AppUpdateService,
-  AuthSessionService,
-  BackendConnectionToastComponent,
-  LanguageService,
-} from './core';
+import { AppInitializerService, BackendConnectionToastComponent } from './core';
 
 const registerAppIcons = (): void => {
   addIcons({
@@ -53,18 +47,11 @@ const registerAppIcons = (): void => {
 })
 export class AppComponent {
   private readonly appInitializerService = inject(AppInitializerService);
-  private readonly appUpdateService = inject(AppUpdateService);
-  private readonly authSessionService = inject(AuthSessionService);
-  private readonly languageService = inject(LanguageService);
 
   private initialRouteActivated = false;
 
   constructor() {
     registerAppIcons();
-
-    this.appUpdateService.watchForUpdates();
-    this.authSessionService.verifySession();
-    this.languageService.initialize();
   }
 
   onInitialRouteActivated(): void {

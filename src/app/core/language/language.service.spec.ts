@@ -24,7 +24,6 @@ describe('LanguageService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        LanguageService,
         {
           provide: TranslateService,
           useValue: translateServiceMock,
@@ -42,7 +41,7 @@ describe('LanguageService', () => {
 
   describe('initialize', () => {
     it('should register supported languages', () => {
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.addLangs).toHaveBeenCalledWith(['de', 'en']);
     });
@@ -51,7 +50,7 @@ describe('LanguageService', () => {
       localStorage.setItem('language', 'en');
       translateServiceMock.getBrowserLang.mockReturnValue('de');
 
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.use).toHaveBeenCalledWith('en');
       expect(document.documentElement.lang).toBe('en');
@@ -60,7 +59,7 @@ describe('LanguageService', () => {
     it('should use the browser language when no stored language exists', () => {
       translateServiceMock.getBrowserLang.mockReturnValue('en');
 
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.use).toHaveBeenCalledWith('en');
       expect(document.documentElement.lang).toBe('en');
@@ -70,7 +69,7 @@ describe('LanguageService', () => {
       localStorage.setItem('language', 'fr');
       translateServiceMock.getBrowserLang.mockReturnValue('en');
 
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.use).toHaveBeenCalledWith('en');
       expect(document.documentElement.lang).toBe('en');
@@ -80,7 +79,7 @@ describe('LanguageService', () => {
       localStorage.setItem('language', 'fr');
       translateServiceMock.getBrowserLang.mockReturnValue('es');
 
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.use).toHaveBeenCalledWith('de');
       expect(document.documentElement.lang).toBe('de');
@@ -89,7 +88,7 @@ describe('LanguageService', () => {
     it('should fall back to German when no stored or browser language exists', () => {
       translateServiceMock.getBrowserLang.mockReturnValue(undefined);
 
-      service.initialize();
+      service.init();
 
       expect(translateServiceMock.use).toHaveBeenCalledWith('de');
       expect(document.documentElement.lang).toBe('de');
