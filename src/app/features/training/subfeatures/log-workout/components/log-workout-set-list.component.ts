@@ -13,8 +13,8 @@ import {
 
 import { TranslateModule } from '@ngx-translate/core';
 
-import type { WorkoutSet } from '../../../../core';
-import { ExerciseItemComponent } from '../../../../shared';
+import type { WorkoutSet } from '../../../../../core';
+import { ExerciseItemComponent } from '../../../../../shared';
 
 import { LogWorkoutEditorState } from '../log-workout-editor.state';
 import { LogWorkoutService } from '../log-workout.service';

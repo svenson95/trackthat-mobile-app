@@ -14,16 +14,17 @@ import {
   ModalController,
   type ItemReorderEventDetail,
 } from '@ionic/angular';
+import { firstValueFrom } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { PostWorkoutBody, WorkoutDoc } from '../../../../core';
-import { IonicUiService, TextInputDialog } from '../../../../shared';
+import type { PostWorkoutBody, WorkoutDoc } from '../../../../../../core';
+import { IonicUiService, TextInputDialog } from '../../../../../../shared';
 
-import { WorkoutsService } from '../../data-access';
-import { WORKOUT_NAME_MAX_LENGTH } from '../../workout.validators';
+import { WorkoutsService } from '../../../../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../../../utils';
 
-import { WorkoutsEditorState } from '../workouts-editor.state';
+import { WorkoutsEditorState } from '../../state';
 
 const ION_COMPONENTS = [
   IonList,
@@ -174,7 +175,9 @@ export class WorkoutsListComponent {
 
       const { data } = await modal.onDidDismiss<string>();
 
-      if (!data || data === workout.name) {
+      const name = data?.trim();
+
+      if (!name || name === workout.name) {
         return;
       }
 
@@ -183,37 +186,35 @@ export class WorkoutsListComponent {
         spinner: 'circles',
       });
 
-      await loading.present();
+      try {
+        await loading.present();
 
-      this.workoutsService
-        .changeWorkoutName({
-          ...workout,
-          name: data,
-        })
-        .subscribe({
-          next: async () => {
-            await loading.dismiss();
-          },
-          error: async (error) => {
-            await loading.dismiss();
+        await firstValueFrom(
+          this.workoutsService.changeWorkoutName({
+            ...workout,
+            name,
+          }),
+        );
+      } catch (error) {
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'status' in error &&
+          error.status === 409
+        ) {
+          await this.ionicUiService.showError(
+            'tabs.training.workouts.actions.add-workout.already-exists',
+          );
 
-            if (
-              typeof error === 'object' &&
-              error !== null &&
-              'status' in error &&
-              error.status === 409
-            ) {
-              await this.ionicUiService.showError(
-                'tabs.training.workouts.actions.add-workout.already-exists',
-              );
-              return;
-            }
+          return;
+        }
 
-            console.error('Unexpected fail during change name user.workoutId', error);
+        console.error('Unexpected fail during change name user.workoutId', error);
 
-            await this.ionicUiService.showError('tabs.training.workouts.actions.change-name.error');
-          },
-        });
+        await this.ionicUiService.showError('tabs.training.workouts.actions.change-name.error');
+      } finally {
+        await loading.dismiss();
+      }
     } catch (error) {
       console.error('Change workout name modal could not be opened:', error);
     }
@@ -227,20 +228,18 @@ export class WorkoutsListComponent {
       spinner: 'circles',
     });
 
-    await loading.present();
+    try {
+      await loading.present();
 
-    this.workoutsService.deleteWorkout(id).subscribe({
-      next: async (filtered) => {
-        await loading.dismiss();
-        this.editorState.update(filtered);
-      },
-      error: async (error) => {
-        console.error('Unexpected fail during delete user.workoutId', error);
+      const filtered = await firstValueFrom(this.workoutsService.deleteWorkout(id));
 
-        await loading.dismiss();
+      this.editorState.update(filtered);
+    } catch (error) {
+      console.error('Unexpected fail during delete user.workoutId', error);
 
-        await this.ionicUiService.showError('tabs.training.workouts.actions.delete.error');
-      },
-    });
+      await this.ionicUiService.showError('tabs.training.workouts.actions.delete.error');
+    } finally {
+      await loading.dismiss();
+    }
   }
 }

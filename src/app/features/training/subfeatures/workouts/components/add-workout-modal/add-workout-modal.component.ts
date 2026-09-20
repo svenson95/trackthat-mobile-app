@@ -16,14 +16,15 @@ import {
   LoadingController,
 } from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
+import { firstValueFrom } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { Workout, WorkoutDoc } from '../../../../core';
-import { IonicUiService } from '../../../../shared';
+import type { Workout, WorkoutDoc } from '../../../../../../core';
+import { IonicUiService } from '../../../../../../shared';
 
-import { WorkoutsService } from '../../data-access';
-import { WORKOUT_NAME_MAX_LENGTH } from '../../workout.validators';
+import { WorkoutsService } from '../../../../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../../../utils';
 
 import { WORKOUT_TEMPLATES } from './workout-templates.data';
 
@@ -42,7 +43,7 @@ const ION_COMPONENTS = [
 ];
 
 @Component({
-  selector: 'app-add-workout-dialog',
+  selector: 'app-add-workout-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...ION_COMPONENTS, FormsModule, TranslateModule],
   styles: `
@@ -123,84 +124,97 @@ const ION_COMPONENTS = [
     </ion-modal>
   `,
 })
-export class AddWorkoutDialog {
-  private readonly router = inject(Router);
+export class AddWorkoutModalComponent {
   private readonly loadingCtrl = inject(LoadingController);
   private readonly translate = inject(TranslateService);
-
-  readonly modal = viewChild.required(IonModal);
-
+  private readonly router = inject(Router);
   private readonly workoutsService = inject(WorkoutsService);
   private readonly ionicUiService = inject(IonicUiService);
 
-  readonly INPUT_MAX_LENGTH = WORKOUT_NAME_MAX_LENGTH;
-  readonly templates = WORKOUT_TEMPLATES;
-  readonly EMPTY_TEMPLATE_ID = -1;
-  readonly isLoading = signal<boolean>(false);
+  private readonly modal = viewChild.required(IonModal);
 
-  templateId = this.EMPTY_TEMPLATE_ID;
-  name = '';
+  protected readonly INPUT_MAX_LENGTH = WORKOUT_NAME_MAX_LENGTH;
+  protected readonly templates = WORKOUT_TEMPLATES;
+  protected readonly EMPTY_TEMPLATE_ID = -1;
+  protected readonly isLoading = signal(false);
 
-  get hasValidName(): boolean {
-    return this.name.trim().length > 0;
+  protected templateId = this.EMPTY_TEMPLATE_ID;
+  protected name = '';
+
+  protected get hasValidName(): boolean {
+    const name = this.name.trim();
+
+    return name.length > 0 && name.length <= this.INPUT_MAX_LENGTH;
   }
 
-  async cancel(): Promise<void> {
+  public async present(): Promise<void> {
+    await this.modal().present();
+  }
+
+  protected async cancel(): Promise<void> {
     await this.modal().dismiss(null, 'cancel');
   }
 
-  async confirm(): Promise<void> {
-    const trimmedName = this.name.trim();
-    if (!this.hasValidName || trimmedName.length > this.INPUT_MAX_LENGTH) {
+  protected async confirm(): Promise<void> {
+    if (!this.hasValidName || this.isLoading()) {
       return;
     }
 
-    const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.workouts.actions.add-workout.process'),
-      spinner: 'circles',
-    });
     this.isLoading.set(true);
-    await loading.present();
 
-    const workout = this.createWorkout(trimmedName);
-    this.workoutsService.addWorkout(workout).subscribe({
-      next: async (workout) => {
-        await loading.dismiss();
-        this.isLoading.set(false);
+    let loading: HTMLIonLoadingElement | undefined;
+    let savedWorkout: WorkoutDoc | undefined;
 
-        await this.modal().dismiss(workout, 'confirm');
-      },
-      error: async (error: unknown) => {
-        console.error('Error saving workout:', error);
-        await loading.dismiss();
-        this.isLoading.set(false);
+    try {
+      loading = await this.loadingCtrl.create({
+        message: this.translate.instant('tabs.training.workouts.actions.add-workout.process'),
+        spinner: 'circles',
+      });
 
-        if (
-          typeof error === 'object' &&
-          error !== null &&
-          'status' in error &&
-          error.status === 409
-        ) {
-          await this.ionicUiService.showError(
-            'tabs.training.workouts.actions.add-workout.already-exists',
-          );
-          return;
-        }
+      await loading.present();
 
+      const workout = this.createWorkout(this.name.trim());
+
+      savedWorkout = await firstValueFrom(this.workoutsService.addWorkout(workout));
+    } catch (error: unknown) {
+      console.error('Error saving workout:', error);
+
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'status' in error &&
+        error.status === 409
+      ) {
+        await this.ionicUiService.showError(
+          'tabs.training.workouts.actions.add-workout.already-exists',
+        );
+      } else {
         await this.ionicUiService.showError('general.unknown-error');
-      },
-    });
+      }
+    } finally {
+      await loading?.dismiss();
+      this.isLoading.set(false);
+    }
+
+    if (savedWorkout) {
+      await this.modal().dismiss(savedWorkout, 'confirm');
+    }
   }
 
-  onModalDismiss(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
-    const workout = event.detail.data;
-    if (!workout) return;
+  protected onModalDismiss(event: CustomEvent<OverlayEventDetail<WorkoutDoc>>): void {
+    const { data: workout, role } = event.detail;
+
+    if (role !== 'confirm' || !workout) {
+      return;
+    }
+
     void this.router.navigate(['tabs', 'training', workout.workoutId]);
   }
 
   private createWorkout(name: string): Workout {
     const template = this.templates.find(({ workoutId }) => workoutId === this.templateId);
     const list = template?.list ?? [];
+
     return this.workoutsService.initWorkout(name, list);
   }
 }

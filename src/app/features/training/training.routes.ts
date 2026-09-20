@@ -3,7 +3,7 @@ import type { Routes } from '@angular/router';
 import { AuthGuard } from '../../core';
 
 import { WorkoutsService } from './data-access';
-import { LogWorkoutService } from './log-workout/log-workout.service';
+import { LogWorkoutService } from './subfeatures/log-workout/log-workout.service';
 
 export const TRAINING_ROUTES: Routes = [
   {
@@ -13,11 +13,13 @@ export const TRAINING_ROUTES: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./workouts/workouts.page').then((m) => m.WorkoutsPage),
+        loadComponent: () =>
+          import('./subfeatures/workouts/workouts.page').then((m) => m.WorkoutsPage),
       },
       {
         path: ':workoutId',
-        loadComponent: () => import('./workout/workout.page').then((m) => m.WorkoutPage),
+        loadComponent: () =>
+          import('./subfeatures/workout/workout.page').then((m) => m.WorkoutPage),
       },
       {
         path: ':workoutId/:itemId/:exercise/log',
@@ -26,12 +28,12 @@ export const TRAINING_ROUTES: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
+              import('./subfeatures/log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
           },
           {
             path: ':logId',
             loadComponent: () =>
-              import('./log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
+              import('./subfeatures/log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
           },
         ],
       },

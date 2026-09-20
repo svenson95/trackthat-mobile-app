@@ -30,12 +30,12 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import type { ListItemExercise, WorkoutDoc } from '../../../core';
-import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../core';
-import { IonicUiService, TextInputDialog } from '../../../shared';
+import type { ListItemExercise, WorkoutDoc } from '../../../../core';
+import { WORKOUT_LIST_ITEM_HEADER, WORKOUT_LIST_ITEM_SPACER } from '../../../../core';
+import { IonicUiService, TextInputDialog } from '../../../../shared';
 
-import { WorkoutsService } from '../data-access';
-import { WORKOUT_NAME_MAX_LENGTH } from '../workout.validators';
+import { WorkoutsService } from '../../data-access';
+import { WORKOUT_NAME_MAX_LENGTH } from '../../utils';
 
 import { WorkoutListComponent } from './components';
 import { AddExerciseDialog } from './dialogs';
