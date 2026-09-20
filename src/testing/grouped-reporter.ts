@@ -8,6 +8,7 @@ type TestGroup = {
   path?: string;
   matches?: (path: string) => boolean;
   sectionByFolder?: boolean;
+  sectionRoot?: string;
   sectionOrder?: string[];
 };
 
@@ -57,7 +58,8 @@ const TEST_GROUPS: TestGroup[] = [
     name: 'TRAINING',
     path: '/features/training/',
     sectionByFolder: true,
-    sectionOrder: ['workouts', 'workout', 'log-workout', 'data-access'],
+    sectionRoot: 'subfeatures',
+    sectionOrder: ['data-access', 'workouts', 'workout', 'log-workout'],
   },
   {
     name: 'EAT',
@@ -143,8 +145,11 @@ class GroupedReporter implements Reporter {
       return sectionA.localeCompare(sectionB);
     }
 
-    const indexA = sectionOrder.indexOf(sectionA);
-    const indexB = sectionOrder.indexOf(sectionB);
+    const normalizedSectionA = sectionA.toLowerCase();
+    const normalizedSectionB = sectionB.toLowerCase();
+
+    const indexA = sectionOrder.indexOf(normalizedSectionA);
+    const indexB = sectionOrder.indexOf(normalizedSectionB);
 
     if (indexA === -1 && indexB === -1) {
       return sectionA.localeCompare(sectionB);
@@ -277,10 +282,13 @@ class GroupedReporter implements Reporter {
       return null;
     }
 
-    const [rootFolder] = relativePath.split('/');
+    const pathParts = relativePath.split('/').filter(Boolean);
+    const [rootFolder] = pathParts;
 
     if (group.sectionByFolder) {
-      return this.formatSectionName(rootFolder);
+      const sectionFolder = group.sectionRoot === rootFolder ? pathParts[1] : rootFolder;
+
+      return sectionFolder ? this.formatSectionName(sectionFolder) : null;
     }
 
     const folderSection = FEATURE_SECTIONS.find((section) => section.path === rootFolder);
