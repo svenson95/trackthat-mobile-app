@@ -9,7 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "lint": "ng lint",
     "test": "ng test",
-    "test:ci": "ng test --no-watch --no-progress",
+    "test:ci": "ng test --no-watch --no-progress --quiet",
     "test:debug": "ng test --no-watch --reporters=verbose",
     "e2e": "cypress open --e2e",
     "e2e:run": "cypress run --e2e",
