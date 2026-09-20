@@ -16,7 +16,7 @@ import {
 
 const SUCCESS_HOLD_DURATION = 700;
 const LEAVE_ANIMATION_DURATION = 420;
-const EXPECTED_CONNECTION_DURATION_SECONDS = 18;
+const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
 
 @Component({
   selector: 'app-backend-connection-toast',
