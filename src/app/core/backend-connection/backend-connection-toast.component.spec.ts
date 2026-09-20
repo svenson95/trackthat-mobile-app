@@ -109,14 +109,14 @@ describe('BackendConnectionToastComponent', () => {
       backendConnectionService.status.set('connecting');
       fixture.detectChanges();
 
-      expect(getRemainingSeconds(getToast().message)).toBe(18);
+      expect(getRemainingSeconds(getToast().message)).toBe(20);
 
       vi.advanceTimersByTime(1000);
       fixture.detectChanges();
 
-      expect(getRemainingSeconds(getToast().message)).toBe(17);
+      expect(getRemainingSeconds(getToast().message)).toBe(19);
 
-      vi.advanceTimersByTime(16_000);
+      vi.advanceTimersByTime(18_000);
       fixture.detectChanges();
 
       expect(getRemainingSeconds(getToast().message)).toBe(1);
@@ -126,7 +126,7 @@ describe('BackendConnectionToastComponent', () => {
       backendConnectionService.status.set('connecting');
       fixture.detectChanges();
 
-      vi.advanceTimersByTime(18_000);
+      vi.advanceTimersByTime(20_000);
       fixture.detectChanges();
 
       const toast = getToast();
@@ -142,7 +142,7 @@ describe('BackendConnectionToastComponent', () => {
       vi.advanceTimersByTime(5000);
       fixture.detectChanges();
 
-      expect(getRemainingSeconds(getToast().message)).toBe(13);
+      expect(getRemainingSeconds(getToast().message)).toBe(15);
 
       backendConnectionService.status.set('failed');
       fixture.detectChanges();
@@ -150,7 +150,7 @@ describe('BackendConnectionToastComponent', () => {
       backendConnectionService.status.set('connecting');
       fixture.detectChanges();
 
-      expect(getRemainingSeconds(getToast().message)).toBe(18);
+      expect(getRemainingSeconds(getToast().message)).toBe(20);
     });
   });
 
