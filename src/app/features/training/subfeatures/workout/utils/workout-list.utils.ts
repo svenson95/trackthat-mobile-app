@@ -1,4 +1,4 @@
-import type { ListItem, WorkoutList } from '../../../../core';
+import type { ListItem, WorkoutList } from '../../../../../core';
 
 export function normalizeWorkoutList(items: ListItem[]): WorkoutList {
   let exerciseIndex = 1;
