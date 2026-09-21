@@ -2,6 +2,8 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { ModalController } from '@ionic/angular';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { WorkoutSet } from '../../../../../../core';
+
 import { formatDate, getCurrentUnixTimestamp, unixTimestampToDateValue } from '../../utils';
 
 import { DatetimePickerModalComponent } from '../datetime-picker-modal/datetime-picker-modal.component';
@@ -45,6 +47,16 @@ type WorkoutFormTestApi = {
   openDatePicker(): Promise<void>;
 };
 
+const createWorkoutSet = (overrides: Partial<WorkoutSet> = {}): WorkoutSet => ({
+  load: 80,
+  reps: 10,
+  exercise: 'Bench Press',
+  itemId: 1,
+  note: null,
+  time: '19:23:45',
+  ...overrides,
+});
+
 describe('WorkoutFormComponent', () => {
   let fixture: ComponentFixture<WorkoutFormComponent>;
   let component: WorkoutFormComponent;
@@ -63,11 +75,20 @@ describe('WorkoutFormComponent', () => {
   };
 
   const setValidForm = (): void => {
-    const form = formComponent.form.controls;
+    const controls = formComponent.form.controls;
 
-    form.load.setValue(80);
-    form.reps.setValue(10);
-    form.note.setValue(null);
+    controls.load.setValue(80);
+    controls.reps.setValue(10);
+    controls.note.setValue(null);
+  };
+
+  const setEditMode = (set: WorkoutSet = createWorkoutSet()): void => {
+    fixture.componentRef.setInput('isEditing', true);
+    fixture.componentRef.setInput('selectedSet', set);
+
+    component.patchForm(set);
+
+    fixture.detectChanges();
   };
 
   beforeEach(async () => {
@@ -103,6 +124,7 @@ describe('WorkoutFormComponent', () => {
   });
 
   afterEach(() => {
+    fixture.destroy();
     vi.useRealTimers();
   });
 
@@ -121,9 +143,7 @@ describe('WorkoutFormComponent', () => {
     });
 
     it('should initialize current date', () => {
-      const expected = getCurrentUnixTimestamp();
-
-      expect(component.formValueDate()).toBe(expected);
+      expect(component.formValueDate()).toBe(getCurrentUnixTimestamp());
     });
 
     it('should expose formatted time', () => {
@@ -142,6 +162,10 @@ describe('WorkoutFormComponent', () => {
 
     it('should initially not mark time as manually changed', () => {
       expect(component.timeManuallyChanged()).toBe(false);
+    });
+
+    it('should initially disable submit because form is invalid', () => {
+      expect(component.isSubmitDisabled()).toBe(true);
     });
   });
 
@@ -219,22 +243,112 @@ describe('WorkoutFormComponent', () => {
       expect(component.formValueNote()).toBe('Heavy');
     });
 
-    it('should use null when note is undefined', () => {
+    it('should patch time when provided', () => {
       component.patchForm({
         load: 100,
         reps: 5,
+        note: null,
+        time: '17:30:00',
       });
 
-      expect(component.formValueNote()).toBeNull();
+      expect(component.formValueTime()).toBe('17:30:00');
+    });
+
+    it('should keep current time when time is omitted', () => {
+      component.patchForm({
+        load: 100,
+        reps: 5,
+        note: null,
+      });
+
+      expect(component.formValueTime()).toBe('19:23:45');
+    });
+  });
+
+  describe('edit mode', () => {
+    it('should disable submit when selected set is unchanged', () => {
+      setEditMode();
+
+      expect(component.hasSelectedSetChanges()).toBe(false);
+      expect(component.isSubmitDisabled()).toBe(true);
+    });
+
+    it('should enable submit when load changes', () => {
+      setEditMode();
+
+      formComponent.form.controls.load.setValue(85);
+
+      expect(component.hasSelectedSetChanges()).toBe(true);
+      expect(component.isSubmitDisabled()).toBe(false);
+    });
+
+    it('should enable submit when reps change', () => {
+      setEditMode();
+
+      formComponent.form.controls.reps.setValue(12);
+
+      expect(component.hasSelectedSetChanges()).toBe(true);
+    });
+
+    it('should enable submit when note changes', () => {
+      setEditMode();
+
+      formComponent.form.controls.note.setValue('Heavy');
+
+      expect(component.hasSelectedSetChanges()).toBe(true);
+    });
+
+    it('should treat equivalent trimmed note as unchanged', () => {
+      setEditMode(
+        createWorkoutSet({
+          note: 'Heavy',
+        }),
+      );
+
+      formComponent.form.controls.note.setValue('  Heavy  ');
+
+      expect(component.hasSelectedSetChanges()).toBe(false);
+    });
+
+    it('should enable submit when time changes', () => {
+      setEditMode();
+
+      formComponent.form.controls.time.setValue('20:00:00');
+
+      expect(component.hasSelectedSetChanges()).toBe(true);
+    });
+
+    it('should disable submit again when values are restored', () => {
+      const set = createWorkoutSet();
+
+      setEditMode(set);
+
+      formComponent.form.controls.load.setValue(90);
+
+      expect(component.isSubmitDisabled()).toBe(false);
+
+      formComponent.form.controls.load.setValue(set.load);
+
+      expect(component.isSubmitDisabled()).toBe(true);
+    });
+
+    it('should disable submit when no set is selected', () => {
+      fixture.componentRef.setInput('isEditing', true);
+      fixture.componentRef.setInput('selectedSet', null);
+
+      setValidForm();
+
+      fixture.detectChanges();
+
+      expect(component.isSubmitDisabled()).toBe(true);
     });
   });
 
   describe('submit', () => {
     it('should emit valid form value', () => {
-      const emitSpy = vi.spyOn(component.addSet, 'emit');
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
 
       setValidForm();
-
       formComponent.form.controls.note.setValue('Top set');
 
       formComponent.submit();
@@ -249,10 +363,9 @@ describe('WorkoutFormComponent', () => {
     });
 
     it('should trim note before emitting', () => {
-      const emitSpy = vi.spyOn(component.addSet, 'emit');
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
 
       setValidForm();
-
       formComponent.form.controls.note.setValue('  Top set  ');
 
       formComponent.submit();
@@ -265,10 +378,9 @@ describe('WorkoutFormComponent', () => {
     });
 
     it('should convert whitespace-only note to null', () => {
-      const emitSpy = vi.spyOn(component.addSet, 'emit');
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
 
       setValidForm();
-
       formComponent.form.controls.note.setValue('   ');
 
       formComponent.submit();
@@ -281,14 +393,14 @@ describe('WorkoutFormComponent', () => {
     });
 
     it('should not emit when form is invalid', () => {
-      const emitSpy = vi.spyOn(component.addSet, 'emit');
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
 
       formComponent.submit();
 
       expect(emitSpy).not.toHaveBeenCalled();
     });
 
-    it('should mark controls as touched when form is invalid', () => {
+    it('should mark controls as touched when submit is disabled', () => {
       formComponent.submit();
 
       expect(formComponent.form.controls.load.touched).toBe(true);
@@ -296,7 +408,7 @@ describe('WorkoutFormComponent', () => {
     });
 
     it('should not emit while adding a set', () => {
-      const emitSpy = vi.spyOn(component.addSet, 'emit');
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
 
       setValidForm();
 
@@ -306,6 +418,24 @@ describe('WorkoutFormComponent', () => {
       formComponent.submit();
 
       expect(emitSpy).not.toHaveBeenCalled();
+    });
+
+    it('should emit changed selected set in edit mode', () => {
+      const emitSpy = vi.spyOn(component.submitSet, 'emit');
+
+      setEditMode();
+
+      formComponent.form.controls.load.setValue(85);
+
+      formComponent.submit();
+
+      expect(emitSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          load: 85,
+          reps: 10,
+          time: '19:23:45',
+        }),
+      );
     });
   });
 
@@ -324,7 +454,19 @@ describe('WorkoutFormComponent', () => {
       formComponent.form.controls.time.setValue('17:30:00');
 
       vi.setSystemTime(new Date(2026, 8, 20, 19, 24, 15));
+      vi.advanceTimersByTime(30_000);
 
+      expect(component.formValueTime()).toBe('17:30:00');
+    });
+
+    it('should not refresh selected set time while editing', () => {
+      setEditMode(
+        createWorkoutSet({
+          time: '17:30:00',
+        }),
+      );
+
+      vi.setSystemTime(new Date(2026, 8, 20, 20, 0, 0));
       vi.advanceTimersByTime(30_000);
 
       expect(component.formValueTime()).toBe('17:30:00');
@@ -391,11 +533,9 @@ describe('WorkoutFormComponent', () => {
       } as unknown as Event;
 
       await formComponent.selectAllOnFreshFocus(event);
-
       vi.advanceTimersByTime(50);
 
       await formComponent.resetSelectAllOnFocus(event);
-
       await formComponent.selectAllOnFreshFocus(event);
 
       vi.advanceTimersByTime(50);
@@ -437,7 +577,7 @@ describe('WorkoutFormComponent', () => {
       expect(component.timeManuallyChanged()).toBe(true);
     });
 
-    it('should reset manual change flag when picker is cancelled', async () => {
+    it('should preserve manual change flag when picker is cancelled', async () => {
       component.timeManuallyChanged.set(true);
 
       modalDismissMock.mockResolvedValue({
@@ -446,7 +586,7 @@ describe('WorkoutFormComponent', () => {
 
       await formComponent.openTimePicker();
 
-      expect(component.timeManuallyChanged()).toBe(false);
+      expect(component.timeManuallyChanged()).toBe(true);
     });
 
     it('should ignore confirm result without string data', async () => {
@@ -458,7 +598,6 @@ describe('WorkoutFormComponent', () => {
       await formComponent.openTimePicker();
 
       expect(component.formValueTime()).toBe('19:23:45');
-      expect(component.timeManuallyChanged()).toBe(false);
     });
   });
 
@@ -495,24 +634,20 @@ describe('WorkoutFormComponent', () => {
       expect(component.displayDate()).toBe('25.09.2026');
     });
 
+    it('should not open date picker while editing', async () => {
+      fixture.componentRef.setInput('isEditing', true);
+      fixture.detectChanges();
+
+      await formComponent.openDatePicker();
+
+      expect(modalControllerMock.create).not.toHaveBeenCalled();
+    });
+
     it('should keep current date when picker is cancelled', async () => {
       const originalDate = component.formValueDate();
 
       modalDismissMock.mockResolvedValue({
         role: 'cancel',
-      });
-
-      await formComponent.openDatePicker();
-
-      expect(component.formValueDate()).toBe(originalDate);
-    });
-
-    it('should ignore confirm result without string data', async () => {
-      const originalDate = component.formValueDate();
-
-      modalDismissMock.mockResolvedValue({
-        role: 'confirm',
-        data: undefined,
       });
 
       await formComponent.openDatePicker();

@@ -186,7 +186,7 @@ export class WorkoutSetListComponent {
   }
 
   protected async deleteItem(item: ExerciseSetView, slidingItem: IonItemSliding): Promise<void> {
-    if (item.type !== 'set') {
+    if (!this.isEditing() || item.type !== 'set') {
       return;
     }
 

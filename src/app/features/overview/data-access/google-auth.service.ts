@@ -54,10 +54,16 @@ export class GoogleAuthService {
   private readonly authService = inject(AuthService);
   private readonly ionicUiService = inject(IonicUiService);
 
-  readonly isNativeIos = Capacitor.getPlatform() === 'ios';
+  private get isNativePlatform(): boolean {
+    return Capacitor.isNativePlatform();
+  }
+
+  get isNativeIos(): boolean {
+    return this.isNativePlatform && Capacitor.getPlatform() === 'ios';
+  }
 
   async initialize(): Promise<void> {
-    if (Capacitor.isNativePlatform()) {
+    if (this.isNativePlatform) {
       await this.initializeNative();
       return;
     }
@@ -66,7 +72,7 @@ export class GoogleAuthService {
   }
 
   async login(): Promise<void> {
-    if (Capacitor.isNativePlatform()) {
+    if (this.isNativePlatform) {
       await this.loginNative();
       return;
     }

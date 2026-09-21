@@ -38,7 +38,7 @@ describe('LogWorkoutService', () => {
   const httpMock = {
     get: vi.fn(),
     post: vi.fn(),
-    delete: vi.fn(),
+    put: vi.fn(),
   };
 
   const userServiceMock = {
@@ -113,24 +113,31 @@ describe('LogWorkoutService', () => {
     });
   });
 
-  describe('deleteSet', () => {
-    it('should delete set and update log workout resource', async () => {
-      const set = createWorkoutSet({
-        itemId: 12,
-      });
+  describe('updateSets', () => {
+    it('should update sets and update log workout resource', async () => {
+      const sets = [
+        createWorkoutSet({
+          itemId: 1,
+          load: 90,
+        }),
+        createWorkoutSet({
+          itemId: 2,
+          load: 70,
+        }),
+      ];
 
       const response = createLogWorkout({
-        sets: [],
+        sets,
       });
 
-      httpMock.delete.mockReturnValue(of(response));
+      httpMock.put.mockReturnValue(of(response));
 
-      const result = await firstValueFrom(service.deleteSet('42', 12, set));
+      const result = await firstValueFrom(service.updateSets('42', sets));
 
-      expect(httpMock.delete).toHaveBeenCalledWith(
-        expect.stringContaining('/logs-workout/delete/42/12'),
+      expect(httpMock.put).toHaveBeenCalledWith(
+        expect.stringContaining('/logs-workout/update/42/sets'),
         {
-          body: set,
+          sets,
         },
       );
 
@@ -138,48 +145,22 @@ describe('LogWorkoutService', () => {
       expect(service.logWorkoutResource.value()).toBe(response);
     });
 
-    it('should clear log workout resource when backend returns undefined', async () => {
-      const set = createWorkoutSet();
+    it('should clear log workout resource when backend deletes empty log', async () => {
+      service.logWorkoutResource.set(createLogWorkout());
 
-      httpMock.delete.mockReturnValue(of(undefined));
+      httpMock.put.mockReturnValue(of(null));
 
-      const result = await firstValueFrom(service.deleteSet('42', set.itemId, set));
+      const result = await firstValueFrom(service.updateSets('42', []));
 
-      expect(result).toBeUndefined();
+      expect(httpMock.put).toHaveBeenCalledWith(
+        expect.stringContaining('/logs-workout/update/42/sets'),
+        {
+          sets: [],
+        },
+      );
+
+      expect(result).toBeNull();
       expect(service.logWorkoutResource.value()).toBeUndefined();
-    });
-  });
-
-  describe('deleteSets', () => {
-    it('should delete sets sequentially and return last response', async () => {
-      const firstSet = createWorkoutSet({
-        itemId: 1,
-      });
-
-      const secondSet = createWorkoutSet({
-        itemId: 2,
-      });
-
-      const firstResponse = createLogWorkout({
-        sets: [secondSet],
-      });
-
-      const secondResponse = createLogWorkout({
-        sets: [],
-      });
-
-      const deleteSetSpy = vi
-        .spyOn(service, 'deleteSet')
-        .mockReturnValueOnce(of(firstResponse))
-        .mockReturnValueOnce(of(secondResponse));
-
-      const result = await firstValueFrom(service.deleteSets('42', [firstSet, secondSet]));
-
-      expect(deleteSetSpy).toHaveBeenNthCalledWith(1, '42', firstSet.itemId, firstSet);
-
-      expect(deleteSetSpy).toHaveBeenNthCalledWith(2, '42', secondSet.itemId, secondSet);
-
-      expect(result).toBe(secondResponse);
     });
   });
 

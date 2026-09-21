@@ -14,6 +14,8 @@ import { IonButton, IonIcon, IonInput, IonLabel, ModalController } from '@ionic/
 
 import { TranslateModule } from '@ngx-translate/core';
 
+import type { WorkoutSet } from '../../../../../../core';
+
 import {
   formatDate,
   formatTime,
@@ -219,6 +221,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
         <ion-input
           class="custom-input"
           [value]="displayDate()"
+          [disabled]="isEditing()"
           readonly
           inputmode="text"
           autocomplete="off"
@@ -240,8 +243,12 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
           spellcheck="false"
         />
 
-        <ion-button type="button" (click)="submit()" [disabled]="form.invalid || isAddingSet()">
-          <ion-icon name="add" />
+        <ion-button type="button" [disabled]="isSubmitDisabled()" (click)="submit()">
+          @if (isEditing()) {
+            {{ 'general.save' | translate }}
+          } @else {
+            <ion-icon name="add" />
+          }
         </ion-button>
       </div>
     </form>
@@ -253,7 +260,10 @@ export class WorkoutFormComponent {
   private readonly modalController = inject(ModalController);
 
   readonly isAddingSet = input(false);
-  readonly addSet = output<LogWorkoutFormValue>();
+  readonly isEditing = input(false);
+  readonly selectedSet = input<WorkoutSet | null>(null);
+
+  readonly submitSet = output<LogWorkoutFormValue>();
 
   protected readonly form = this.fb.group({
     load: [
@@ -295,19 +305,52 @@ export class WorkoutFormComponent {
     initialValue: this.form.controls.time.value,
   });
 
+  readonly formStatus = toSignal(this.form.statusChanges, {
+    initialValue: this.form.status,
+  });
+
   readonly displayTime = computed(() => formatTime(this.formValueTime()));
 
   readonly displayDate = computed(() => formatDate(this.formValueDate()));
 
   readonly datetimeDateValue = computed(() => unixTimestampToDateValue(this.formValueDate()));
 
+  readonly isFormInvalid = computed(() => this.formStatus() === 'INVALID');
+
   readonly timeManuallyChanged = signal(false);
+
+  readonly hasSelectedSetChanges = computed(() => {
+    const selectedSet = this.selectedSet();
+
+    if (!selectedSet) {
+      return false;
+    }
+
+    return (
+      this.formValueLoad() !== selectedSet.load ||
+      this.formValueReps() !== selectedSet.reps ||
+      this.normalizeNote(this.formValueNote()) !== selectedSet.note ||
+      this.formValueTime() !== selectedSet.time
+    );
+  });
+
+  readonly isSubmitDisabled = computed(() => {
+    if (this.isFormInvalid() || this.isAddingSet()) {
+      return true;
+    }
+
+    if (!this.isEditing()) {
+      return false;
+    }
+
+    return !this.selectedSet() || !this.hasSelectedSetChanges();
+  });
 
   private readonly selectedDuringFocus = new WeakSet<HTMLInputElement>();
 
   constructor() {
     const intervalId = window.setInterval(() => {
-      if (!this.timeManuallyChanged()) {
+      if (!this.isEditing() && !this.timeManuallyChanged()) {
         this.form.controls.time.setValue(getCurrentTime());
       }
     }, TIME_REFRESH_INTERVAL);
@@ -317,30 +360,33 @@ export class WorkoutFormComponent {
     });
   }
 
-  patchForm(set: { load: number; reps: number; note?: string | null }): void {
+  patchForm(
+    set: Pick<WorkoutSet, 'load' | 'reps' | 'note'> & Partial<Pick<WorkoutSet, 'time'>>,
+  ): void {
     this.form.patchValue({
       load: set.load,
       reps: set.reps,
       note: set.note ?? null,
+      ...(set.time !== undefined ? { time: set.time } : {}),
     });
   }
 
   protected submit(): void {
-    if (this.form.invalid || this.isAddingSet()) {
+    if (this.isSubmitDisabled()) {
       this.form.markAllAsTouched();
       return;
     }
 
     const { load, reps, note, date, time } = this.form.getRawValue();
 
-    if (load === null || load === undefined || reps === null || reps === undefined) {
+    if (load === null || reps === null) {
       return;
     }
 
-    this.addSet.emit({
-      load: Number(load),
-      reps: Number(reps),
-      note: note?.trim() || null,
+    this.submitSet.emit({
+      load,
+      reps,
+      note: this.normalizeNote(note),
       date,
       time,
     });
@@ -355,6 +401,7 @@ export class WorkoutFormComponent {
     }
 
     this.selectedDuringFocus.add(nativeInput);
+
     setTimeout(() => {
       nativeInput.select();
     }, 50);
@@ -371,16 +418,18 @@ export class WorkoutFormComponent {
     const value = await this.openDatetimePicker('time', this.formValueTime(), getCurrentTime());
 
     if (value === undefined) {
-      this.timeManuallyChanged.set(false);
       return;
     }
 
     this.timeManuallyChanged.set(true);
-
     this.form.controls.time.setValue(normalizeTimeForBackend(value));
   }
 
   protected async openDatePicker(): Promise<void> {
+    if (this.isEditing()) {
+      return;
+    }
+
     const value = await this.openDatetimePicker(
       'date',
       this.datetimeDateValue(),
@@ -418,5 +467,9 @@ export class WorkoutFormComponent {
     }
 
     return result.data;
+  }
+
+  private normalizeNote(note: string | null): string | null {
+    return note?.trim() || null;
   }
 }

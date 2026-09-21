@@ -1,12 +1,10 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { concatMap, from, last, tap, type Observable } from 'rxjs';
+import { tap, type Observable } from 'rxjs';
 
 import { environment } from '../../../../../../environments/environment.prod';
 import {
   UserService,
-  type DeleteLogWorkoutBody,
-  type DeleteLogWorkoutResponse,
   type ExerciseWorkoutHistoryDTO,
   type GetLogWorkoutDTO,
   type PostLogWorkoutResponse,
@@ -16,6 +14,10 @@ import { IonicUiService } from '../../../../../shared';
 
 const INITIAL_HISTORY_LIMIT = 2;
 const LOAD_MORE_HISTORY_LIMIT = 1;
+
+type UpdateLogWorkoutSetsBody = {
+  sets: WorkoutSet[];
+};
 
 @Injectable()
 export class LogWorkoutService {
@@ -81,26 +83,15 @@ export class LogWorkoutService {
       );
   }
 
-  deleteSet(
-    logId: string,
-    itemId: number,
-    set: DeleteLogWorkoutBody,
-  ): Observable<DeleteLogWorkoutResponse> {
-    return this.http
-      .delete<DeleteLogWorkoutResponse>(`${this.apiUrl}/delete/${logId}/${itemId}`, {
-        body: set,
-      })
-      .pipe(
-        tap((updatedLog) => {
-          this.logWorkoutResource.set(updatedLog);
-        }),
-      );
-  }
+  updateSets(logId: string, sets: WorkoutSet[]): Observable<GetLogWorkoutDTO | null> {
+    const body: UpdateLogWorkoutSetsBody = {
+      sets,
+    };
 
-  deleteSets(logId: string, sets: WorkoutSet[]): Observable<DeleteLogWorkoutResponse> {
-    return from(sets).pipe(
-      concatMap((set) => this.deleteSet(logId, set.itemId, set)),
-      last(),
+    return this.http.put<GetLogWorkoutDTO | null>(`${this.apiUrl}/update/${logId}/sets`, body).pipe(
+      tap((updatedLogWorkout) => {
+        this.logWorkoutResource.set(updatedLogWorkout ?? undefined);
+      }),
     );
   }
 

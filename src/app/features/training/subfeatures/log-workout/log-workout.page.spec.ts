@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TranslateService } from '@ngx-translate/core';
 
-import type { WorkoutSet } from '../../../../core';
+import type { LogWorkoutDoc, WorkoutSet } from '../../../../core';
 import { IonicUiService } from '../../../../shared';
 
 import { WorkoutsService } from '../../data-access';
@@ -36,6 +36,15 @@ const createWorkoutSet = (overrides: Partial<WorkoutSet> = {}): WorkoutSet => ({
   ...overrides,
 });
 
+const createLogWorkout = (overrides: Partial<LogWorkoutDoc> = {}): LogWorkoutDoc => ({
+  id: 'mongo-id',
+  userId: 'user-id',
+  logId: 123,
+  date: 1_758_484_800,
+  sets: [],
+  ...overrides,
+});
+
 describe('LogWorkoutPage', () => {
   let fixture: ComponentFixture<LogWorkoutPage>;
   let page: LogWorkoutPageTestApi;
@@ -43,6 +52,7 @@ describe('LogWorkoutPage', () => {
 
   const logId = signal<number | undefined>(undefined);
   const exercise = signal<string | null>(null);
+  const logWorkout = signal<LogWorkoutDoc | undefined>(undefined);
 
   const sortedWorkouts = signal<
     Array<{
@@ -52,12 +62,16 @@ describe('LogWorkoutPage', () => {
   >([]);
 
   const isEditing = signal(false);
-  const deletedSets = signal<WorkoutSet[]>([]);
+  const hasChanges = signal(false);
+  const draftSets = signal<WorkoutSet[]>([]);
 
   const logWorkoutServiceMock = {
     logId,
     exercise,
-    deleteSets: vi.fn(),
+    logWorkoutResource: {
+      value: logWorkout,
+    },
+    updateSets: vi.fn(),
   };
 
   const workoutsServiceMock = {
@@ -66,7 +80,8 @@ describe('LogWorkoutPage', () => {
 
   const editorStateMock = {
     isEditing,
-    deletedSets,
+    hasChanges,
+    draftSets,
     start: vi.fn(),
     cancel: vi.fn(),
     finish: vi.fn(),
@@ -108,9 +123,12 @@ describe('LogWorkoutPage', () => {
 
     logId.set(undefined);
     exercise.set(null);
+    logWorkout.set(undefined);
     sortedWorkouts.set([]);
+
     isEditing.set(false);
-    deletedSets.set([]);
+    hasChanges.set(false);
+    draftSets.set([]);
 
     locationMock.path.mockReturnValue('');
 
@@ -266,12 +284,36 @@ describe('LogWorkoutPage', () => {
   });
 
   describe('editing', () => {
-    it('should start editing and dismiss more menu', async () => {
+    it('should start editing with current sets and dismiss more menu', async () => {
+      const sets = [
+        createWorkoutSet({
+          itemId: 1,
+        }),
+        createWorkoutSet({
+          itemId: 2,
+        }),
+      ];
+
+      logWorkout.set(
+        createLogWorkout({
+          sets,
+        }),
+      );
+
       const dismissSpy = vi.spyOn(moreMenu, 'dismiss').mockResolvedValue(true);
 
       await page.startEditing();
 
-      expect(editorStateMock.start).toHaveBeenCalledOnce();
+      expect(editorStateMock.start).toHaveBeenCalledWith(sets);
+      expect(dismissSpy).toHaveBeenCalledOnce();
+    });
+
+    it('should start editing with empty sets when no log exists', async () => {
+      const dismissSpy = vi.spyOn(moreMenu, 'dismiss').mockResolvedValue(true);
+
+      await page.startEditing();
+
+      expect(editorStateMock.start).toHaveBeenCalledWith([]);
       expect(dismissSpy).toHaveBeenCalledOnce();
     });
 
@@ -295,57 +337,60 @@ describe('LogWorkoutPage', () => {
   });
 
   describe('saveEditing', () => {
-    it('should finish editing immediately when no sets were deleted', async () => {
-      deletedSets.set([]);
+    it('should finish editing immediately when nothing changed', async () => {
+      hasChanges.set(false);
 
       await page.saveEditing();
 
       expect(editorStateMock.finish).toHaveBeenCalledOnce();
 
-      expect(logWorkoutServiceMock.deleteSets).not.toHaveBeenCalled();
+      expect(logWorkoutServiceMock.updateSets).not.toHaveBeenCalled();
       expect(loadingControllerMock.create).not.toHaveBeenCalled();
     });
 
     it('should not save when log id is undefined', async () => {
-      deletedSets.set([createWorkoutSet()]);
+      hasChanges.set(true);
+      draftSets.set([createWorkoutSet()]);
       logId.set(undefined);
 
       await page.saveEditing();
 
-      expect(logWorkoutServiceMock.deleteSets).not.toHaveBeenCalled();
+      expect(logWorkoutServiceMock.updateSets).not.toHaveBeenCalled();
       expect(editorStateMock.finish).not.toHaveBeenCalled();
       expect(loadingControllerMock.create).not.toHaveBeenCalled();
     });
 
-    it('should delete sets and finish editing', async () => {
+    it('should update draft sets and finish editing', async () => {
       const sets = [
         createWorkoutSet({
           itemId: 1,
         }),
         createWorkoutSet({
           itemId: 2,
+          load: 85,
         }),
       ];
 
-      deletedSets.set(sets);
+      hasChanges.set(true);
+      draftSets.set(sets);
       logId.set(123);
 
-      logWorkoutServiceMock.deleteSets.mockReturnValue(of(undefined));
+      logWorkoutServiceMock.updateSets.mockReturnValue(of(undefined));
 
       await page.saveEditing();
 
       expect(translateServiceMock.instant).toHaveBeenCalledWith(
-        'tabs.training.log-workout.actions.delete-set.process',
+        'tabs.training.log-workout.actions.update-sets.process',
       );
 
       expect(loadingControllerMock.create).toHaveBeenCalledWith({
-        message: 'tabs.training.log-workout.actions.delete-set.process',
+        message: 'tabs.training.log-workout.actions.update-sets.process',
         spinner: 'circles',
       });
 
       expect(loadingMock.present).toHaveBeenCalledOnce();
 
-      expect(logWorkoutServiceMock.deleteSets).toHaveBeenCalledWith('123', sets);
+      expect(logWorkoutServiceMock.updateSets).toHaveBeenCalledWith('123', sets);
 
       expect(editorStateMock.finish).toHaveBeenCalledOnce();
       expect(loadingMock.dismiss).toHaveBeenCalledOnce();
@@ -353,26 +398,42 @@ describe('LogWorkoutPage', () => {
       expect(ionicUiServiceMock.showError).not.toHaveBeenCalled();
     });
 
-    it('should show error when deleting sets fails', async () => {
-      const error = new Error('Request failed');
-
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-
-      deletedSets.set([createWorkoutSet()]);
+    it('should update with empty draft when all sets were deleted', async () => {
+      hasChanges.set(true);
+      draftSets.set([]);
       logId.set(123);
 
-      logWorkoutServiceMock.deleteSets.mockReturnValue(throwError(() => error));
+      logWorkoutServiceMock.updateSets.mockReturnValue(of(undefined));
+
+      await page.saveEditing();
+
+      expect(logWorkoutServiceMock.updateSets).toHaveBeenCalledWith('123', []);
+
+      expect(editorStateMock.finish).toHaveBeenCalledOnce();
+      expect(loadingMock.dismiss).toHaveBeenCalledOnce();
+    });
+
+    it('should show error and keep editing when updating sets fails', async () => {
+      const error = new Error('Request failed');
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      hasChanges.set(true);
+      draftSets.set([createWorkoutSet()]);
+      logId.set(123);
+
+      logWorkoutServiceMock.updateSets.mockReturnValue(throwError(() => error));
 
       await page.saveEditing();
 
       expect(consoleErrorSpy).toHaveBeenCalledWith('Could not save log workout changes', error);
 
       expect(ionicUiServiceMock.showError).toHaveBeenCalledWith(
-        'tabs.training.log-workout.actions.delete-set.error',
+        'tabs.training.log-workout.actions.update-sets.error',
       );
 
-      expect(loadingMock.dismiss).toHaveBeenCalledOnce();
       expect(editorStateMock.finish).not.toHaveBeenCalled();
+
+      expect(loadingMock.dismiss).toHaveBeenCalledOnce();
 
       consoleErrorSpy.mockRestore();
     });
