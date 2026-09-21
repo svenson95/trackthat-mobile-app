@@ -2,7 +2,7 @@ import type { Routes } from '@angular/router';
 
 import { AuthGuard } from '../../core';
 
-import { LogsWorkoutService } from './services';
+import { LogsWorkoutService } from './data-access';
 
 export const LOGS_ROUTES: Routes = [
   {
