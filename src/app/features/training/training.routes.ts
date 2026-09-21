@@ -3,7 +3,6 @@ import type { Routes } from '@angular/router';
 import { AuthGuard } from '../../core';
 
 import { WorkoutsService } from './data-access';
-import { LogWorkoutService } from './subfeatures/log-workout/data-access';
 
 export const TRAINING_ROUTES: Routes = [
   {
@@ -23,19 +22,8 @@ export const TRAINING_ROUTES: Routes = [
       },
       {
         path: ':workoutId/:itemId/:exercise/log',
-        providers: [LogWorkoutService],
-        children: [
-          {
-            path: '',
-            loadComponent: () =>
-              import('./subfeatures/log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
-          },
-          {
-            path: ':logId',
-            loadComponent: () =>
-              import('./subfeatures/log-workout/log-workout.page').then((m) => m.LogWorkoutPage),
-          },
-        ],
+        loadChildren: () =>
+          import('./subfeatures/log-workout/log-workout.routes').then((m) => m.LOG_WORKOUT_ROUTES),
       },
     ],
   },
