@@ -2,18 +2,26 @@ import { inject, Injectable, linkedSignal, signal } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
 
+import { DEFAULT_LANGUAGE, getSupportedLanguage, type SupportedLanguage } from '../language';
+
 import type { UserDoc } from './types/users.types';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly translate = inject(TranslateService);
 
-  readonly currentLanguage = signal<string>(localStorage.getItem('language') || 'de');
+  readonly currentLanguage = signal<SupportedLanguage>(
+    getSupportedLanguage(localStorage.getItem('language')) ?? DEFAULT_LANGUAGE,
+  );
 
   readonly userData = linkedSignal<undefined | UserDoc>(
     () => {
       const token = localStorage.getItem('user');
-      if (token) return JSON.parse(token);
+
+      if (token) {
+        return JSON.parse(token);
+      }
+
       return undefined;
     },
     {
@@ -31,9 +39,9 @@ export class UserService {
     this.userData.set(undefined);
   }
 
-  setLanguage(lang: 'de' | 'en'): void {
-    localStorage.setItem('language', lang);
-    this.translate.use(lang);
-    this.currentLanguage.set(lang);
+  setLanguage(language: SupportedLanguage): void {
+    localStorage.setItem('language', language);
+    this.translate.use(language);
+    this.currentLanguage.set(language);
   }
 }
