@@ -6,8 +6,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { AuthService } from '../auth';
 
-import type { TabId } from './tab-view.component';
 import { TabViewComponent } from './tab-view.component';
+import type { TabId } from './tab-view.config';
 
 describe('TabViewComponent', () => {
   let fixture: ComponentFixture<TabViewComponent>;
