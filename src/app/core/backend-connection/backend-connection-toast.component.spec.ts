@@ -154,15 +154,30 @@ describe('BackendConnectionToastComponent', () => {
     });
   });
 
-  describe('success hold duration', () => {
-    it('should keep the connected status visible for 700 ms after the service becomes hidden', () => {
+  describe('success state', () => {
+    it('should keep the subheader while transitioning to the connected state', () => {
+      backendConnectionService.status.set('connecting');
+      fixture.detectChanges();
+
+      const message = getToast().message;
+
+      backendConnectionService.status.set('connected');
+      fixture.detectChanges();
+
+      const toast = getToast();
+
+      expect(toast.message).toBe(message);
+      expect(toast.classList.contains('backend-connection-toast--connected')).toBe(true);
+    });
+
+    it('should keep the connected status visible for 1200 ms after the service becomes hidden', () => {
       backendConnectionService.status.set('connected');
       fixture.detectChanges();
 
       backendConnectionService.status.set('hidden');
       fixture.detectChanges();
 
-      vi.advanceTimersByTime(699);
+      vi.advanceTimersByTime(1199);
       fixture.detectChanges();
 
       expect(getToast().isOpen).toBe(true);

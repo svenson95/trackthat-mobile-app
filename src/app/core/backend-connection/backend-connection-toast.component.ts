@@ -14,7 +14,7 @@ import {
   type BackendConnectionStatus,
 } from './backend-connection.service';
 
-const SUCCESS_HOLD_DURATION = 700;
+const SUCCESS_HOLD_DURATION = 1200;
 const LEAVE_ANIMATION_DURATION = 420;
 const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
 
@@ -25,7 +25,7 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     ion-toast.backend-connection-toast {
-      --background: var(--ion-background-color);
+      --background: var(--app-surface);
       --color: var(--ion-text-color);
       --border-radius: 0 0 var(--app-radius-1) var(--app-radius-1);
       --box-shadow: 0 6px 24px rgb(0 0 0 / 25%);
@@ -52,10 +52,29 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
     }
 
     ion-toast.backend-connection-toast::part(message) {
+      overflow: hidden;
+
+      max-height: 2rem;
+      margin-top: 2px;
+      padding: 0;
+
       font-size: 0.75rem;
       font-weight: 400;
       line-height: 1.35;
       color: var(--ion-color-medium);
+
+      opacity: 1;
+
+      transition:
+        max-height 300ms ease 180ms,
+        margin-top 300ms ease 180ms,
+        opacity 180ms ease 120ms;
+    }
+
+    ion-toast.backend-connection-toast--connected::part(message) {
+      max-height: 0;
+      margin-top: 0;
+      opacity: 0;
     }
 
     ion-toast.backend-connection-toast::part(container) {
@@ -144,22 +163,25 @@ export class BackendConnectionToastComponent {
     }
   });
 
+  private readonly connectionWaitMessage = computed<string>(() => {
+    const seconds = this.remainingSeconds();
+
+    if (seconds === 0) {
+      return 'Verbindung dauert etwas länger …';
+    }
+
+    return `Durchschnittliche Wartezeit: ${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
+  });
+
   protected readonly subheader = computed<string>(() => {
     switch (this.displayStatus()) {
-      case 'connecting': {
-        const seconds = this.remainingSeconds();
-
-        if (seconds === 0) {
-          return 'Verbindung dauert etwas länger …';
-        }
-
-        return `Durchschnittliche Wartezeit: ${seconds} ${seconds === 1 ? 'Sekunde' : 'Sekunden'}`;
-      }
+      case 'connecting':
+      case 'connected':
+        return this.connectionWaitMessage();
 
       case 'failed':
         return 'Bitte versuche es in wenigen Augenblicken erneut.';
 
-      case 'connected':
       case 'hidden':
         return '';
     }
