@@ -18,6 +18,7 @@ import {
   AppUpdateService,
   AuthSessionService,
   backendConnectionInterceptor,
+  DEFAULT_LANGUAGE,
   LanguageService,
   NavigationFocusService,
 } from './core';
@@ -59,7 +60,7 @@ const PWA_PROVIDER = provideServiceWorker('ngsw-worker.js', {
 });
 
 const I18N_PROVIDER = provideTranslateService({
-  fallbackLang: 'de',
+  fallbackLang: DEFAULT_LANGUAGE,
   loader: provideTranslateHttpLoader({
     prefix: './assets/i18n/',
     suffix: '.json',

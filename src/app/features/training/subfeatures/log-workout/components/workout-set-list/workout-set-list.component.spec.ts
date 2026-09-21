@@ -4,7 +4,7 @@ import type { IonItemSliding } from '@ionic/angular';
 import { provideTranslateService } from '@ngx-translate/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { WorkoutSet } from '../../../../../../core';
+import { DEFAULT_LANGUAGE, type WorkoutSet } from '../../../../../../core';
 
 import { LogWorkoutService } from '../../data-access';
 import { LogWorkoutEditorState } from '../../state';
@@ -69,8 +69,8 @@ describe('WorkoutSetListComponent', () => {
       imports: [WorkoutSetListComponent],
       providers: [
         provideTranslateService({
-          fallbackLang: 'de',
-          lang: 'de',
+          fallbackLang: DEFAULT_LANGUAGE,
+          lang: DEFAULT_LANGUAGE,
         }),
         {
           provide: LogWorkoutEditorState,

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TranslateModule } from '@ngx-translate/core';
 
 import type { GetLogsWorkoutDTO, LogWorkoutDoc, WorkoutSet } from '../../core';
-import { UserService } from '../../core';
+import { DEFAULT_LANGUAGE, UserService } from '../../core';
 import { ExerciseItemComponent } from '../../shared';
 
 import { LogsWorkoutService } from './data-access';
@@ -25,7 +25,7 @@ describe('LogsPage', () => {
 
   const logs = signal<GetLogsWorkoutDTO>([]);
   const isLoading = signal(false);
-  const currentLanguage = signal('de');
+  const currentLanguage = signal(DEFAULT_LANGUAGE);
 
   const logsWorkoutServiceMock = {
     allLogsWorkoutResource: {
@@ -88,7 +88,7 @@ describe('LogsPage', () => {
 
     logs.set([]);
     isLoading.set(false);
-    currentLanguage.set('de');
+    currentLanguage.set(DEFAULT_LANGUAGE);
 
     await TestBed.configureTestingModule({
       imports: [LogsPage, TranslateModule.forRoot()],
@@ -139,7 +139,7 @@ describe('LogsPage', () => {
         (debugElement) => debugElement.componentInstance instanceof IonDatetime,
       ).componentInstance as IonDatetime;
 
-      expect(datetime.locale).toBe('de');
+      expect(datetime.locale).toBe(DEFAULT_LANGUAGE);
     });
 
     it('should update the locale when the current language changes', () => {

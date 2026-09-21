@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TranslateService } from '@ngx-translate/core';
 
+import { DEFAULT_LANGUAGE } from '../language';
+
 import type { UserDoc } from './types/users.types';
 import { UserService } from './user.service';
 
@@ -47,6 +49,14 @@ describe('UserService', () => {
       const service = TestBed.inject(UserService);
 
       expect(service.currentLanguage()).toBe('en');
+    });
+
+    it('should use the default language when the stored language is unsupported', () => {
+      localStorage.setItem('language', 'fr');
+
+      const service = TestBed.inject(UserService);
+
+      expect(service.currentLanguage()).toBe(DEFAULT_LANGUAGE);
     });
   });
 

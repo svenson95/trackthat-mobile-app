@@ -13,7 +13,7 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     <ion-list [inset]="true" lines="none">
       <ion-item-group>
         <ion-item-divider>
-          <ion-label>Hallo!</ion-label>
+          <ion-label>Hallo</ion-label>
         </ion-item-divider>
 
         <ion-item>

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TranslateService } from '@ngx-translate/core';
 
+import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from './language.config';
 import { LanguageService } from './language.service';
 
 describe('LanguageService', () => {
@@ -43,7 +44,7 @@ describe('LanguageService', () => {
     it('should register supported languages', () => {
       service.init();
 
-      expect(translateServiceMock.addLangs).toHaveBeenCalledWith(['de', 'en']);
+      expect(translateServiceMock.addLangs).toHaveBeenCalledWith([...SUPPORTED_LANGUAGES]);
     });
 
     it('should prefer the stored language', () => {
@@ -75,23 +76,23 @@ describe('LanguageService', () => {
       expect(document.documentElement.lang).toBe('en');
     });
 
-    it('should fall back to German when no supported language is available', () => {
+    it('should fall back to the default language when no supported language is available', () => {
       localStorage.setItem('language', 'fr');
       translateServiceMock.getBrowserLang.mockReturnValue('es');
 
       service.init();
 
-      expect(translateServiceMock.use).toHaveBeenCalledWith('de');
-      expect(document.documentElement.lang).toBe('de');
+      expect(translateServiceMock.use).toHaveBeenCalledWith(DEFAULT_LANGUAGE);
+      expect(document.documentElement.lang).toBe(DEFAULT_LANGUAGE);
     });
 
-    it('should fall back to German when no stored or browser language exists', () => {
+    it('should fall back to the default language when no stored or browser language exists', () => {
       translateServiceMock.getBrowserLang.mockReturnValue(undefined);
 
       service.init();
 
-      expect(translateServiceMock.use).toHaveBeenCalledWith('de');
-      expect(document.documentElement.lang).toBe('de');
+      expect(translateServiceMock.use).toHaveBeenCalledWith(DEFAULT_LANGUAGE);
+      expect(document.documentElement.lang).toBe(DEFAULT_LANGUAGE);
     });
   });
 });

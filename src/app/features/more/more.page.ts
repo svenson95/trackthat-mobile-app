@@ -1,128 +1,49 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonItemDivider,
-  IonItemGroup,
-  IonLabel,
-  IonList,
-  IonSelect,
-  IonSelectOption,
-  IonTitle,
-  IonToolbar,
-  LoadingController,
-} from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar, LoadingController } from '@ionic/angular';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { AuthService, UserService } from '../../core';
+import { AuthService, type SupportedLanguage, UserService } from '../../core';
 
-import { UsersService } from './services';
+import { SettingsListComponent, UsersListComponent } from './components';
+import { UsersService } from './data-access';
 
-const IONIC_COMPONENTS = [
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonItemDivider,
-  IonItemGroup,
-  IonLabel,
-  IonList,
-  IonSelect,
-  IonSelectOption,
-  IonTitle,
-  IonToolbar,
-];
+const ION_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
 
 @Component({
   selector: 'app-more-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [...IONIC_COMPONENTS, TranslateModule],
-  providers: [UsersService],
-  styles: `
-    li:not(:last-child) .list-item {
-      margin-bottom: 1rem;
-    }
-
-    .list-item {
-      display: flex;
-      flex-direction: column;
-    }
-  `,
+  imports: [...ION_COMPONENTS, TranslateModule, SettingsListComponent, UsersListComponent],
   template: `
     <ion-header [translucent]="true">
       <ion-toolbar>
-        <ion-title> {{ 'tabs.more.tab-title' | translate }} </ion-title>
+        <ion-title>{{ 'tabs.more.tab-title' | translate }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
     <ion-content [fullscreen]="true">
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">{{ 'tabs.more.tab-title' | translate }}</ion-title>
+          <ion-title size="large">
+            {{ 'tabs.more.tab-title' | translate }}
+          </ion-title>
         </ion-toolbar>
       </ion-header>
 
       <div class="page-content">
-        <ion-list [inset]="true">
-          <ion-item-group>
-            <ion-item-divider>
-              <ion-label>{{ 'tabs.more.settings.label' | translate }}</ion-label>
-            </ion-item-divider>
+        <app-settings-list
+          [currentLanguage]="currentLanguage()"
+          (logout)="logout()"
+          (languageChange)="setLanguage($event)"
+        />
 
-            <ion-item button (click)="logout()" detail="true">
-              <ion-label>{{ 'tabs.more.settings.sign-off.label' | translate }}</ion-label>
-            </ion-item>
-
-            <ion-item>
-              <ion-select
-                [label]="'tabs.more.settings.language.label' | translate"
-                [value]="currentLanguage()"
-                (ionChange)="setLanguage($event.detail.value)"
-                [cancelText]="'general.abort' | translate"
-              >
-                <ion-select-option value="de">
-                  {{ 'tabs.more.settings.language.german' | translate }}
-                </ion-select-option>
-                <ion-select-option value="en">
-                  {{ 'tabs.more.settings.language.english' | translate }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </ion-item-group>
-        </ion-list>
-
-        <ion-list [inset]="true" lines="none">
-          <ion-item-group>
-            <ion-item-divider>
-              <ion-label>{{ 'tabs.more.user.label' | translate }}</ion-label>
-            </ion-item-divider>
-
-            @if (isResolved()) {
-              @for (user of allUsers.value(); track user.email) {
-                <ion-item>
-                  <ion-label>
-                    <h3>{{ user.name }}</h3>
-                    <p>{{ user.email }}</p>
-                  </ion-label>
-                </ion-item>
-              }
-            } @else if (isLoading()) {
-              <ion-item>
-                <ion-label>
-                  <p>{{ 'general.loading' | translate }} ...</p>
-                </ion-label>
-              </ion-item>
-            } @else if (hasError()) {
-              <ion-item>
-                <ion-label>
-                  <p>{{ 'general.error' | translate }}</p>
-                </ion-label>
-              </ion-item>
-            }
-          </ion-item-group>
-        </ion-list>
+        <app-users-list
+          [users]="allUsers.value() ?? []"
+          [isLoading]="isLoading()"
+          [isResolved]="isResolved()"
+          [hasError]="hasError()"
+        />
       </div>
     </ion-content>
   `,
@@ -132,28 +53,35 @@ export class MorePage {
   private readonly loadingCtrl = inject(LoadingController);
   private readonly translate = inject(TranslateService);
 
+  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly usersService = inject(UsersService);
-  private readonly authService = inject(AuthService);
 
-  readonly currentLanguage = this.userService.currentLanguage;
-  readonly setLanguage = this.userService.setLanguage;
+  protected readonly currentLanguage = this.userService.currentLanguage;
 
-  readonly allUsers = this.usersService.allUsersResource;
-  readonly isLoading = computed(() => this.allUsers.status() === 'loading');
-  readonly isResolved = computed(() => this.allUsers.status() === 'resolved');
-  readonly hasError = computed(() => this.allUsers.status() === 'error');
+  protected readonly allUsers = this.usersService.allUsersResource;
 
-  async logout(): Promise<void> {
+  protected readonly isLoading = computed<boolean>(() => this.allUsers.status() === 'loading');
+  protected readonly isResolved = computed<boolean>(() => this.allUsers.status() === 'resolved');
+  protected readonly hasError = computed<boolean>(() => this.allUsers.status() === 'error');
+
+  protected setLanguage(language: SupportedLanguage): void {
+    this.userService.setLanguage(language);
+  }
+
+  protected async logout(): Promise<void> {
     const loading = await this.loadingCtrl.create({
       message: this.translate.instant('tabs.more.settings.sign-off.process'),
       spinner: 'circles',
     });
+
     await loading.present();
 
-    this.authService.logout();
-    await this.router.navigate(['/tabs/overview']);
-
-    await loading.dismiss();
+    try {
+      this.authService.logout();
+      await this.router.navigate(['/tabs/overview']);
+    } finally {
+      await loading.dismiss();
+    }
   }
 }
