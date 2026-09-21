@@ -144,9 +144,9 @@
         }
       }
     },
-    "health": {
-      "tab-label": "Gesundheit",
-      "tab-title": "Gesundheit"
+    "body": {
+      "tab-label": "Körper",
+      "tab-title": "Körper"
     },
     "overview": {
       "tab-label": "Überblick",

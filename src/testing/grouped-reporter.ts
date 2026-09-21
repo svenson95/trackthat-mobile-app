@@ -55,8 +55,8 @@ const TEST_GROUPS: TestGroup[] = [
         },
       },
       {
-        name: 'HEALTH',
-        path: '/features/health/',
+        name: 'BODY',
+        path: '/features/body/',
         sectionByFolder: true,
       },
       {

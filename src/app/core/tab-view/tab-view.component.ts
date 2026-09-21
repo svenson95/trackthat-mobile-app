@@ -4,48 +4,10 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { AuthService } from '../auth';
 
+import type { TabConfig, TabId } from './tab-view.config';
+import { TABS } from './tab-view.config';
+
 const IONIC_COMPONENTS = [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel];
-
-export type TabId = 'training' | 'health' | 'overview' | 'logs' | 'more';
-
-interface TabConfig {
-  id: TabId;
-  icon: string;
-  activeIcon?: string;
-  requiresAuth: boolean;
-}
-
-const TABS: readonly TabConfig[] = [
-  {
-    id: 'training',
-    icon: 'bicycle-outline',
-    activeIcon: 'bicycle',
-    requiresAuth: true,
-  },
-  {
-    id: 'health',
-    icon: 'bicycle-outline',
-    activeIcon: 'bicycle',
-    requiresAuth: true,
-  },
-  {
-    id: 'overview',
-    icon: 'person-outline',
-    activeIcon: 'person',
-    requiresAuth: false,
-  },
-  {
-    id: 'logs',
-    icon: 'calendar-outline',
-    activeIcon: 'calendar',
-    requiresAuth: true,
-  },
-  {
-    id: 'more',
-    icon: 'ellipsis-horizontal',
-    requiresAuth: true,
-  },
-];
 
 @Component({
   selector: 'app-tab-view',
