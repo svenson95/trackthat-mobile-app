@@ -170,14 +170,14 @@ describe('BackendConnectionToastComponent', () => {
       expect(toast.classList.contains('backend-connection-toast--connected')).toBe(true);
     });
 
-    it('should keep the connected status visible for 1100 ms after the service becomes hidden', () => {
+    it('should keep the connected status visible for 1200 ms after the service becomes hidden', () => {
       backendConnectionService.status.set('connected');
       fixture.detectChanges();
 
       backendConnectionService.status.set('hidden');
       fixture.detectChanges();
 
-      vi.advanceTimersByTime(1099);
+      vi.advanceTimersByTime(1199);
       fixture.detectChanges();
 
       expect(getToast().isOpen).toBe(true);
