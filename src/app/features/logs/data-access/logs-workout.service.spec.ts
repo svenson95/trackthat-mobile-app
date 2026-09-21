@@ -13,7 +13,6 @@ import { LogsWorkoutService } from './logs-workout.service';
 describe('LogsWorkoutService', () => {
   let service: LogsWorkoutService;
   let httpTestingController: HttpTestingController;
-  let applicationRef: ApplicationRef;
 
   const userData = signal<UserDoc | undefined>(undefined);
 
@@ -47,7 +46,6 @@ describe('LogsWorkoutService', () => {
 
     service = TestBed.inject(LogsWorkoutService);
     httpTestingController = TestBed.inject(HttpTestingController);
-    applicationRef = TestBed.inject(ApplicationRef);
   });
 
   afterEach(() => {
@@ -58,8 +56,8 @@ describe('LogsWorkoutService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should not request logs when no user is available', async () => {
-    await applicationRef.whenStable();
+  it('should not request logs when no user is available', () => {
+    TestBed.tick();
 
     httpTestingController.expectNone((request) => request.url.includes('/logs-workout/get/all/'));
   });
@@ -67,7 +65,7 @@ describe('LogsWorkoutService', () => {
   it('should request all workout logs for the current user', async () => {
     userData.set(createUser());
 
-    await applicationRef.whenStable();
+    TestBed.tick();
 
     const request = httpTestingController.expectOne(
       `${environment.api}logs-workout/get/all/user-1`,
@@ -79,19 +77,19 @@ describe('LogsWorkoutService', () => {
 
     request.flush(response);
 
-    await applicationRef.whenStable();
+    await TestBed.inject(ApplicationRef).whenStable();
 
     expect(service.allLogsWorkoutResource.value()).toEqual(response);
   });
 
-  it('should request logs when a user becomes available', async () => {
-    await applicationRef.whenStable();
+  it('should request logs when a user becomes available', () => {
+    TestBed.tick();
 
     httpTestingController.expectNone((request) => request.url.includes('/logs-workout/get/all/'));
 
     userData.set(createUser());
 
-    await applicationRef.whenStable();
+    TestBed.tick();
 
     const request = httpTestingController.expectOne(
       `${environment.api}logs-workout/get/all/user-1`,
@@ -102,10 +100,10 @@ describe('LogsWorkoutService', () => {
     request.flush([]);
   });
 
-  it('should reload logs when the current user changes', async () => {
+  it('should reload logs when the current user changes', () => {
     userData.set(createUser({ id: 'user-1' }));
 
-    await applicationRef.whenStable();
+    TestBed.tick();
 
     const firstRequest = httpTestingController.expectOne(
       `${environment.api}logs-workout/get/all/user-1`,
@@ -113,11 +111,11 @@ describe('LogsWorkoutService', () => {
 
     firstRequest.flush([]);
 
-    await applicationRef.whenStable();
+    TestBed.tick();
 
     userData.set(createUser({ id: 'user-2' }));
 
-    await applicationRef.whenStable();
+    TestBed.tick();
 
     const secondRequest = httpTestingController.expectOne(
       `${environment.api}logs-workout/get/all/user-2`,
