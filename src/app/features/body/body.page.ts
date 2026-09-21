@@ -35,7 +35,7 @@ type Supplement = {
 };
 
 @Component({
-  selector: 'app-health-page',
+  selector: 'app-body-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...IONIC_COMPONENTS, TranslateModule],
   styles: ``,
@@ -99,7 +99,7 @@ type Supplement = {
     </ion-content>
   `,
 })
-export class HealthPage {
+export class BodyPage {
   protected readonly weight = signal('');
 
   protected readonly supplements = signal<Supplement[]>([
