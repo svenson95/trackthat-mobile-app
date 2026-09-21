@@ -77,7 +77,7 @@ const ION_COMPONENTS = [
 
         <ion-buttons slot="primary">
           @if (isEditing()) {
-            <ion-button (click)="saveEditing()">
+            <ion-button [disabled]="!hasChanges()" (click)="saveEditing()">
               {{ 'general.save' | translate }}
             </ion-button>
           } @else {
@@ -132,6 +132,8 @@ export class LogWorkoutPage {
   private readonly moreMenu = viewChild.required<HTMLIonPopoverElement>('moreMenu');
 
   protected readonly isEditing = this.editorState.isEditing;
+  protected readonly hasChanges = this.editorState.hasChanges;
+
   protected readonly isMoreMenuOpen = signal(false);
 
   protected readonly backButtonText = computed(() => {
@@ -154,7 +156,6 @@ export class LogWorkoutPage {
     }
 
     const baseTarget = `/tabs/training/${workoutId}/${itemId}/${encodeURIComponent(exercise)}/log`;
-
     const logId = this.logWorkoutService.logId();
 
     return logId === undefined ? baseTarget : `${baseTarget}/${logId}`;
@@ -177,7 +178,9 @@ export class LogWorkoutPage {
   });
 
   protected async startEditing(): Promise<void> {
-    this.editorState.start();
+    const sets = this.logWorkoutService.logWorkoutResource.value()?.sets ?? [];
+
+    this.editorState.start(sets);
 
     await this.moreMenu().dismiss();
   }
@@ -194,9 +197,7 @@ export class LogWorkoutPage {
   }
 
   protected async saveEditing(): Promise<void> {
-    const deletedSets = this.editorState.deletedSets();
-
-    if (deletedSets.length === 0) {
+    if (!this.editorState.hasChanges()) {
       this.editorState.finish();
       return;
     }
@@ -208,20 +209,22 @@ export class LogWorkoutPage {
     }
 
     const loading = await this.loadingCtrl.create({
-      message: this.translate.instant('tabs.training.log-workout.actions.delete-set.process'),
+      message: this.translate.instant('tabs.training.log-workout.actions.update-sets.process'),
       spinner: 'circles',
     });
 
     await loading.present();
 
     try {
-      await firstValueFrom(this.logWorkoutService.deleteSets(String(logId), deletedSets));
+      await firstValueFrom(
+        this.logWorkoutService.updateSets(String(logId), this.editorState.draftSets()),
+      );
 
       this.editorState.finish();
     } catch (error) {
       console.error('Could not save log workout changes', error);
 
-      await this.ionicUiService.showError('tabs.training.log-workout.actions.delete-set.error');
+      await this.ionicUiService.showError('tabs.training.log-workout.actions.update-sets.error');
     } finally {
       await loading.dismiss();
     }

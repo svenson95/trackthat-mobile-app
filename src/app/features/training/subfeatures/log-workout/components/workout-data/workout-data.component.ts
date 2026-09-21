@@ -20,8 +20,7 @@ import {
 } from '@ionic/angular';
 import { finalize, firstValueFrom } from 'rxjs';
 
-import type { WorkoutSet } from '../../../../../../core';
-import { UserService } from '../../../../../../core';
+import { UserService, type WorkoutSet } from '../../../../../../core';
 import { IonicUiService } from '../../../../../../shared';
 
 import { LogWorkoutService } from '../../data-access';
@@ -74,13 +73,18 @@ const ION_COMPONENTS = [
     }
   `,
   template: `
-    <app-workout-form [isAddingSet]="isAddingSet()" (addSet)="addSet($event)" />
+    <app-workout-form
+      [isAddingSet]="isAddingSet()"
+      [isEditing]="isEditing()"
+      [selectedSet]="selectedSet()"
+      (submitSet)="submitSet($event)"
+    />
 
     @if (exerciseView(); as exerciseView) {
       <app-workout-set-list
         [skeletonSets]="skeletonSets"
         [exercise]="exerciseView"
-        (setSelected)="setData($event)"
+        (setSelected)="selectCurrentSet($event)"
       />
     }
 
@@ -118,11 +122,11 @@ const ION_COMPONENTS = [
           <ion-list class="item-container">
             @for (set of workout.sets; track set.itemId; let idx = $index; let isLast = $last) {
               <ion-item
-                button
+                [button]="!isEditing()"
                 [detail]="false"
                 class="log-set ion-activatable"
                 [lines]="isLast ? 'none' : 'inset'"
-                (click)="setData(set)"
+                (click)="setHistoryData(set)"
               >
                 <ion-label>
                   <h3>#{{ idx + 1 }}</h3>
@@ -163,6 +167,9 @@ export class WorkoutDataComponent {
 
   readonly exerciseHistory = this.logWorkoutService.exerciseHistoryResource.value;
 
+  protected readonly isEditing = this.editorState.isEditing;
+  protected readonly selectedSet = this.editorState.selectedSet;
+
   readonly isExerciseHistoryLoading = computed(() =>
     this.logWorkoutService.exerciseHistoryResource.isLoading(),
   );
@@ -190,15 +197,24 @@ export class WorkoutDataComponent {
       return undefined;
     }
 
-    const deletedItemIds = this.editorState.deletedItemIds();
+    const sourceSets = this.isEditing()
+      ? this.editorState.draftSets()
+      : (this.logWorkoutService.logWorkoutResource.value()?.sets ?? []);
 
-    const sets = (this.logWorkoutService.logWorkoutResource.value()?.sets ?? [])
-      .filter((set) => set.exercise === exercise && !deletedItemIds.has(set.itemId))
+    const sets = sourceSets
+      .filter((set) => set.exercise === exercise)
       .sort((a, b) => timeToSeconds(a.time) - timeToSeconds(b.time))
       .map<ExerciseSetView>((set) => ({
         type: 'set',
         set,
       }));
+
+    if (this.isEditing()) {
+      return {
+        name: exercise,
+        sets,
+      };
+    }
 
     const pendingSet = this.pendingSet();
 
@@ -231,6 +247,40 @@ export class WorkoutDataComponent {
       sets,
     };
   });
+
+  protected selectCurrentSet(set: WorkoutSet): void {
+    if (this.isEditing()) {
+      this.editorState.selectSet(set.itemId);
+
+      const selectedSet = this.editorState.selectedSet();
+
+      if (!selectedSet) {
+        return;
+      }
+
+      this.logWorkoutForm()?.patchForm(selectedSet);
+      return;
+    }
+
+    this.patchSetValues(set);
+  }
+
+  protected setHistoryData(set: WorkoutSet): void {
+    if (this.isEditing()) {
+      return;
+    }
+
+    this.patchSetValues(set);
+  }
+
+  protected async submitSet(formValue: LogWorkoutFormValue): Promise<void> {
+    if (this.isEditing()) {
+      this.updateSelectedSet(formValue);
+      return;
+    }
+
+    await this.addSet(formValue);
+  }
 
   loadMoreHistory(): void {
     if (!this.canLoadMoreHistory()) {
@@ -311,7 +361,22 @@ export class WorkoutDataComponent {
     }
   }
 
-  setData(set: WorkoutSet): void {
+  private updateSelectedSet(formValue: LogWorkoutFormValue): void {
+    this.editorState.updateSelectedSet({
+      load: formValue.load,
+      reps: formValue.reps,
+      note: formValue.note,
+      time: formValue.time,
+    });
+
+    const selectedSet = this.editorState.selectedSet();
+
+    if (selectedSet) {
+      this.logWorkoutForm()?.patchForm(selectedSet);
+    }
+  }
+
+  private patchSetValues(set: WorkoutSet): void {
     this.logWorkoutForm()?.patchForm({
       load: set.load,
       reps: set.reps,

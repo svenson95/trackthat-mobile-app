@@ -26,62 +26,172 @@ describe('LogWorkoutEditorState', () => {
     state = TestBed.inject(LogWorkoutEditorState);
   });
 
-  it('should initially not be editing', () => {
+  it('should initially be reset', () => {
     expect(state.isEditing()).toBe(false);
-  });
-
-  it('should initially have no deleted sets', () => {
-    expect(state.deletedSets()).toEqual([]);
-  });
-
-  it('should initially have no deleted item ids', () => {
-    expect(state.deletedItemIds()).toEqual(new Set());
+    expect(state.draftSets()).toEqual([]);
+    expect(state.selectedSet()).toBeNull();
+    expect(state.hasChanges()).toBe(false);
   });
 
   describe('start', () => {
-    it('should start editing', () => {
-      state.start();
+    it('should start editing with copied draft sets', () => {
+      const sets = [
+        createWorkoutSet({
+          itemId: 1,
+        }),
+        createWorkoutSet({
+          itemId: 2,
+          exercise: 'Squat',
+        }),
+      ];
+
+      state.start(sets);
 
       expect(state.isEditing()).toBe(true);
+      expect(state.draftSets()).toEqual(sets);
+      expect(state.hasChanges()).toBe(false);
     });
 
-    it('should clear previously deleted sets', () => {
-      state.deleteSet(createWorkoutSet());
+    it('should create independent copies of the supplied sets', () => {
+      const set = createWorkoutSet();
 
-      state.start();
+      state.start([set]);
 
-      expect(state.deletedSets()).toEqual([]);
-      expect(state.deletedItemIds()).toEqual(new Set());
+      set.load = 100;
+
+      expect(state.draftSets()[0]?.load).toBe(80);
+      expect(state.hasChanges()).toBe(false);
+    });
+
+    it('should clear previously selected set', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.selectSet(set.itemId);
+
+      expect(state.selectedSet()).toEqual(set);
+
+      state.start([set]);
+
+      expect(state.selectedSet()).toBeNull();
+    });
+  });
+
+  describe('selectSet', () => {
+    it('should select an existing draft set', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+
+      state.selectSet(set.itemId);
+
+      expect(state.selectedSet()).toEqual(set);
+    });
+
+    it('should clear selection when item id does not exist', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.selectSet(set.itemId);
+
+      state.selectSet(999);
+
+      expect(state.selectedSet()).toBeNull();
+    });
+  });
+
+  describe('updateSelectedSet', () => {
+    it('should update selected draft set', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.selectSet(set.itemId);
+
+      state.updateSelectedSet({
+        load: 85,
+        reps: 12,
+        note: 'Last set',
+        time: '19:30:00',
+      });
+
+      expect(state.selectedSet()).toEqual({
+        ...set,
+        load: 85,
+        reps: 12,
+        note: 'Last set',
+        time: '19:30:00',
+      });
+
+      expect(state.hasChanges()).toBe(true);
+    });
+
+    it('should leave other draft sets unchanged', () => {
+      const firstSet = createWorkoutSet({
+        itemId: 1,
+      });
+
+      const secondSet = createWorkoutSet({
+        itemId: 2,
+        load: 60,
+      });
+
+      state.start([firstSet, secondSet]);
+      state.selectSet(firstSet.itemId);
+
+      state.updateSelectedSet({
+        load: 85,
+        reps: 12,
+        note: null,
+        time: '19:30:00',
+      });
+
+      expect(state.draftSets()[1]).toEqual(secondSet);
+    });
+
+    it('should not update anything when no set is selected', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+
+      state.updateSelectedSet({
+        load: 85,
+        reps: 12,
+        note: null,
+        time: '19:30:00',
+      });
+
+      expect(state.draftSets()).toEqual([set]);
+      expect(state.hasChanges()).toBe(false);
+    });
+
+    it('should no longer have changes when selected set is restored to original values', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.selectSet(set.itemId);
+
+      state.updateSelectedSet({
+        load: 85,
+        reps: 12,
+        note: 'Changed',
+        time: '19:30:00',
+      });
+
+      expect(state.hasChanges()).toBe(true);
+
+      state.updateSelectedSet({
+        load: set.load,
+        reps: set.reps,
+        note: set.note,
+        time: set.time,
+      });
+
+      expect(state.hasChanges()).toBe(false);
     });
   });
 
   describe('deleteSet', () => {
-    it('should add a deleted set', () => {
-      const set = createWorkoutSet();
-
-      state.deleteSet(set);
-
-      expect(state.deletedSets()).toEqual([set]);
-    });
-
-    it('should not add the same item id twice', () => {
-      const firstSet = createWorkoutSet({
-        itemId: 1,
-        reps: 10,
-      });
-
-      const duplicateSet = createWorkoutSet({
-        itemId: 1,
-        reps: 12,
-      });
-
-      state.deleteSet(firstSet);
-      state.deleteSet(duplicateSet);
-
-      expect(state.deletedSets()).toEqual([firstSet]);
-    });
-
-    it('should add sets with different item ids', () => {
+    it('should remove set from draft', () => {
       const firstSet = createWorkoutSet({
         itemId: 1,
       });
@@ -90,52 +200,79 @@ describe('LogWorkoutEditorState', () => {
         itemId: 2,
       });
 
-      state.deleteSet(firstSet);
-      state.deleteSet(secondSet);
+      state.start([firstSet, secondSet]);
 
-      expect(state.deletedSets()).toEqual([firstSet, secondSet]);
+      state.deleteSet(firstSet);
+
+      expect(state.draftSets()).toEqual([secondSet]);
+      expect(state.hasChanges()).toBe(true);
     });
 
-    it('should expose deleted item ids', () => {
-      state.deleteSet(
-        createWorkoutSet({
-          itemId: 3,
-        }),
-      );
+    it('should clear selection when selected set is deleted', () => {
+      const set = createWorkoutSet();
 
-      state.deleteSet(
-        createWorkoutSet({
-          itemId: 7,
-        }),
-      );
+      state.start([set]);
+      state.selectSet(set.itemId);
 
-      expect(state.deletedItemIds()).toEqual(new Set([3, 7]));
+      state.deleteSet(set);
+
+      expect(state.selectedSet()).toBeNull();
+    });
+
+    it('should keep selection when another set is deleted', () => {
+      const selectedSet = createWorkoutSet({
+        itemId: 1,
+      });
+
+      const deletedSet = createWorkoutSet({
+        itemId: 2,
+      });
+
+      state.start([selectedSet, deletedSet]);
+      state.selectSet(selectedSet.itemId);
+
+      state.deleteSet(deletedSet);
+
+      expect(state.selectedSet()).toEqual(selectedSet);
     });
   });
 
   describe('cancel', () => {
-    it('should stop editing and clear deleted sets', () => {
-      state.start();
-      state.deleteSet(createWorkoutSet());
+    it('should reset editor state', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.selectSet(set.itemId);
+
+      state.updateSelectedSet({
+        load: 90,
+        reps: 8,
+        note: null,
+        time: '20:00:00',
+      });
 
       state.cancel();
 
       expect(state.isEditing()).toBe(false);
-      expect(state.deletedSets()).toEqual([]);
-      expect(state.deletedItemIds()).toEqual(new Set());
+      expect(state.draftSets()).toEqual([]);
+      expect(state.selectedSet()).toBeNull();
+      expect(state.hasChanges()).toBe(false);
     });
   });
 
   describe('finish', () => {
-    it('should stop editing and clear deleted sets', () => {
-      state.start();
-      state.deleteSet(createWorkoutSet());
+    it('should reset editor state', () => {
+      const set = createWorkoutSet();
+
+      state.start([set]);
+      state.deleteSet(set);
 
       state.finish();
 
       expect(state.isEditing()).toBe(false);
-      expect(state.deletedSets()).toEqual([]);
-      expect(state.deletedItemIds()).toEqual(new Set());
+      expect(state.draftSets()).toEqual([]);
+      expect(state.selectedSet()).toBeNull();
+      expect(state.hasChanges()).toBe(false);
     });
   });
 });

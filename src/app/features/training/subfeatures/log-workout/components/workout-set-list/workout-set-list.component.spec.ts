@@ -168,7 +168,28 @@ describe('WorkoutSetListComponent', () => {
   });
 
   describe('deleteItem', () => {
-    it('should close sliding item and mark set as deleted', async () => {
+    it('should close sliding item and delete set while editing', async () => {
+      const set = createWorkoutSet();
+
+      const slidingItem = {
+        close: vi.fn().mockResolvedValue(undefined),
+      } as unknown as IonItemSliding;
+
+      isEditing.set(true);
+
+      await list.deleteItem(
+        {
+          type: 'set',
+          set,
+        },
+        slidingItem,
+      );
+
+      expect(slidingItem.close).toHaveBeenCalledOnce();
+      expect(editorStateMock.deleteSet).toHaveBeenCalledWith(set);
+    });
+
+    it('should not delete set outside edit mode', async () => {
       const set = createWorkoutSet();
 
       const slidingItem = {
@@ -183,14 +204,16 @@ describe('WorkoutSetListComponent', () => {
         slidingItem,
       );
 
-      expect(slidingItem.close).toHaveBeenCalledOnce();
-      expect(editorStateMock.deleteSet).toHaveBeenCalledWith(set);
+      expect(slidingItem.close).not.toHaveBeenCalled();
+      expect(editorStateMock.deleteSet).not.toHaveBeenCalled();
     });
 
     it('should not delete placeholder item', async () => {
       const slidingItem = {
         close: vi.fn().mockResolvedValue(undefined),
       } as unknown as IonItemSliding;
+
+      isEditing.set(true);
 
       await list.deleteItem(
         {
@@ -211,6 +234,8 @@ describe('WorkoutSetListComponent', () => {
       const slidingItem = {
         close: vi.fn().mockResolvedValue(undefined),
       } as unknown as IonItemSliding;
+
+      isEditing.set(true);
 
       await list.deleteItem(
         {

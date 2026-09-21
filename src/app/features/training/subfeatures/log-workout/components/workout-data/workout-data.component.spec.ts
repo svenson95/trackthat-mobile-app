@@ -25,6 +25,10 @@ import { WorkoutDataComponent } from './workout-data.component';
 
 type WorkoutDataTestApi = {
   readonly exerciseView: Signal<ExerciseView | undefined>;
+
+  selectCurrentSet(set: WorkoutSet): void;
+  setHistoryData(set: WorkoutSet): void;
+  submitSet(formValue: LogWorkoutFormValue): Promise<void>;
 };
 
 type WorkoutFormTestApi = {
@@ -74,7 +78,9 @@ describe('WorkoutDataComponent', () => {
   const exerciseHistory = signal<ExerciseWorkoutHistoryDTO | undefined>(undefined);
   const exerciseHistoryLoading = signal(false);
 
-  const deletedItemIds = signal(new Set<number>());
+  const isEditing = signal(false);
+  const draftSets = signal<WorkoutSet[]>([]);
+  const selectedSet = signal<WorkoutSet | null>(null);
 
   const userData = signal<{ id: string } | undefined>({
     id: 'user-1',
@@ -93,7 +99,13 @@ describe('WorkoutDataComponent', () => {
   };
 
   const editorStateMock = {
-    deletedItemIds,
+    isEditing,
+    draftSets,
+    selectedSet,
+    selectSet: vi.fn((itemId: number) => {
+      selectedSet.set(draftSets().find((set) => set.itemId === itemId) ?? null);
+    }),
+    updateSelectedSet: vi.fn(),
   };
 
   const userServiceMock = {
@@ -137,7 +149,10 @@ describe('WorkoutDataComponent', () => {
     logWorkout.set(undefined);
     exerciseHistory.set(undefined);
     exerciseHistoryLoading.set(false);
-    deletedItemIds.set(new Set());
+
+    isEditing.set(false);
+    draftSets.set([]);
+    selectedSet.set(null);
 
     userData.set({
       id: 'user-1',
@@ -265,33 +280,43 @@ describe('WorkoutDataComponent', () => {
       ]);
     });
 
-    it('should exclude sets marked as deleted', () => {
-      const firstSet = createWorkoutSet({
+    it('should use draft sets while editing', () => {
+      const resourceSet = createWorkoutSet({
         itemId: 1,
+        load: 80,
       });
 
-      const deletedSet = createWorkoutSet({
-        itemId: 2,
+      const draftSet = createWorkoutSet({
+        itemId: 1,
+        load: 90,
       });
 
       logWorkout.set(
         createLogWorkout({
-          sets: [firstSet, deletedSet],
+          sets: [resourceSet],
         }),
       );
 
-      deletedItemIds.set(new Set([2]));
+      draftSets.set([draftSet]);
+      isEditing.set(true);
 
       setExercise();
 
-      const actualSets = data.exerciseView()?.sets.filter((item) => item.type === 'set');
-
-      expect(actualSets).toEqual([
+      expect(data.exerciseView()?.sets).toEqual([
         {
           type: 'set',
-          set: firstSet,
+          set: draftSet,
         },
       ]);
+    });
+
+    it('should not append placeholder while editing', () => {
+      draftSets.set([createWorkoutSet()]);
+      isEditing.set(true);
+
+      setExercise();
+
+      expect(data.exerciseView()?.sets.some((item) => item.type === 'placeholder')).toBe(false);
     });
 
     it('should append form values as placeholder', () => {
@@ -305,8 +330,7 @@ describe('WorkoutDataComponent', () => {
         note: 'Warmup',
       });
 
-      const view = data.exerciseView();
-      const placeholder = view?.sets.at(-1);
+      const placeholder = data.exerciseView()?.sets.at(-1);
 
       expect(placeholder).toMatchObject({
         type: 'placeholder',
@@ -345,8 +369,121 @@ describe('WorkoutDataComponent', () => {
       });
 
       expect(data.exerciseView()?.sets.some((item) => item.type === 'skeleton')).toBe(false);
-
       expect(data.exerciseView()?.sets.at(-1)?.type).toBe('placeholder');
+    });
+  });
+
+  describe('selection', () => {
+    it('should patch form with current set outside edit mode', () => {
+      const form = getForm();
+      const patchFormSpy = vi.spyOn(form, 'patchForm');
+
+      const set = createWorkoutSet({
+        load: 95,
+        reps: 6,
+        note: 'Top set',
+      });
+
+      data.selectCurrentSet(set);
+
+      expect(editorStateMock.selectSet).not.toHaveBeenCalled();
+
+      expect(patchFormSpy).toHaveBeenCalledWith({
+        load: 95,
+        reps: 6,
+        note: 'Top set',
+      });
+    });
+
+    it('should select draft set and patch form while editing', () => {
+      const form = getForm();
+      const patchFormSpy = vi.spyOn(form, 'patchForm');
+
+      const set = createWorkoutSet({
+        itemId: 7,
+        load: 95,
+      });
+
+      draftSets.set([set]);
+      isEditing.set(true);
+
+      data.selectCurrentSet(set);
+
+      expect(editorStateMock.selectSet).toHaveBeenCalledWith(7);
+      expect(patchFormSpy).toHaveBeenCalledWith(set);
+    });
+
+    it('should patch form with history set outside edit mode', () => {
+      const form = getForm();
+      const patchFormSpy = vi.spyOn(form, 'patchForm');
+
+      const set = createWorkoutSet({
+        itemId: 3,
+      });
+
+      data.setHistoryData(set);
+
+      expect(patchFormSpy).toHaveBeenCalledWith({
+        load: 80,
+        reps: 10,
+        note: null,
+      });
+    });
+
+    it('should ignore history set while editing', () => {
+      const form = getForm();
+      const patchFormSpy = vi.spyOn(form, 'patchForm');
+
+      isEditing.set(true);
+
+      data.setHistoryData(createWorkoutSet());
+
+      expect(patchFormSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('submitSet', () => {
+    it('should update selected draft set while editing', async () => {
+      const selected = createWorkoutSet({
+        itemId: 1,
+      });
+
+      selectedSet.set(selected);
+      isEditing.set(true);
+
+      const form = getForm();
+      const patchFormSpy = vi.spyOn(form, 'patchForm');
+
+      const formValue = createFormValue({
+        load: 90,
+        reps: 8,
+        note: 'Heavy',
+        time: '20:00:00',
+      });
+
+      const updatedSet = {
+        ...selected,
+        load: 90,
+        reps: 8,
+        note: 'Heavy',
+        time: '20:00:00',
+      };
+
+      editorStateMock.updateSelectedSet.mockImplementation(() => {
+        selectedSet.set(updatedSet);
+      });
+
+      await data.submitSet(formValue);
+
+      expect(editorStateMock.updateSelectedSet).toHaveBeenCalledWith({
+        load: 90,
+        reps: 8,
+        note: 'Heavy',
+        time: '20:00:00',
+      });
+
+      expect(logWorkoutServiceMock.addLogWorkout).not.toHaveBeenCalled();
+      expect(patchFormSpy).toHaveBeenCalledWith(updatedSet);
     });
   });
 
@@ -429,7 +566,6 @@ describe('WorkoutDataComponent', () => {
 
     it('should reset loading state and show error when loading more history fails', async () => {
       const error = new Error('Request failed');
-
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
       exerciseHistory.set({
@@ -598,7 +734,6 @@ describe('WorkoutDataComponent', () => {
 
     it('should clear pending set and show error when adding fails', async () => {
       const error = new Error('Request failed');
-
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
       setExercise();
@@ -616,27 +751,6 @@ describe('WorkoutDataComponent', () => {
       );
 
       consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe('setData', () => {
-    it('should patch form with selected set values', () => {
-      const form = getForm();
-      const patchFormSpy = vi.spyOn(form, 'patchForm');
-
-      const set = createWorkoutSet({
-        load: 95,
-        reps: 6,
-        note: 'Top set',
-      });
-
-      component.setData(set);
-
-      expect(patchFormSpy).toHaveBeenCalledWith({
-        load: 95,
-        reps: 6,
-        note: 'Top set',
-      });
     });
   });
 });

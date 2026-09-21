@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Capacitor } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
@@ -37,6 +37,16 @@ describe('GoogleAuthService', () => {
   const googlePrompt = vi.fn();
   const googleRenderButton = vi.fn();
 
+  const setWebPlatform = (): void => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('web');
+  };
+
+  const setNativeIosPlatform = (): void => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(Capacitor.getPlatform).mockReturnValue('ios');
+  };
+
   const setGoogleIdentityService = (): void => {
     window.google = {
       accounts: {
@@ -49,15 +59,24 @@ describe('GoogleAuthService', () => {
     };
   };
 
+  const createGoogleButton = (): HTMLDivElement => {
+    const button = document.createElement('div');
+
+    button.id = 'google-button';
+    document.body.appendChild(button);
+
+    return button;
+  };
+
   const createService = (): GoogleAuthService => TestBed.inject(GoogleAuthService);
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(Capacitor.getPlatform).mockReturnValue('web');
-    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
+    setWebPlatform();
 
     vi.mocked(SocialLogin.initialize).mockResolvedValue();
+
     vi.mocked(SocialLogin.login).mockResolvedValue({
       provider: 'google',
       result: {
@@ -87,9 +106,13 @@ describe('GoogleAuthService', () => {
     });
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('platform', () => {
     it('should expose native iOS state', () => {
-      vi.mocked(Capacitor.getPlatform).mockReturnValue('ios');
+      setNativeIosPlatform();
 
       const service = createService();
 
@@ -97,6 +120,17 @@ describe('GoogleAuthService', () => {
     });
 
     it('should not expose native iOS state on web', () => {
+      setWebPlatform();
+
+      const service = createService();
+
+      expect(service.isNativeIos).toBe(false);
+    });
+
+    it('should not expose native iOS state on Android', () => {
+      vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+      vi.mocked(Capacitor.getPlatform).mockReturnValue('android');
+
       const service = createService();
 
       expect(service.isNativeIos).toBe(false);
@@ -107,15 +141,13 @@ describe('GoogleAuthService', () => {
     it('should initialize Google Identity Services on web', async () => {
       setGoogleIdentityService();
 
-      const button = document.createElement('div');
-      button.id = 'google-button';
-      document.body.appendChild(button);
-
+      const button = createGoogleButton();
       const service = createService();
 
       await service.initialize();
 
       expect(googleInitialize).toHaveBeenCalledOnce();
+
       expect(googleInitialize).toHaveBeenCalledWith({
         client_id: expect.any(String),
         callback: expect.any(Function),
@@ -132,8 +164,7 @@ describe('GoogleAuthService', () => {
     });
 
     it('should initialize SocialLogin on native platforms', async () => {
-      vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
-      vi.mocked(Capacitor.getPlatform).mockReturnValue('ios');
+      setNativeIosPlatform();
 
       const service = createService();
 
@@ -160,10 +191,7 @@ describe('GoogleAuthService', () => {
 
     it('should authenticate with the credential returned by Google', async () => {
       setGoogleIdentityService();
-
-      const button = document.createElement('div');
-      button.id = 'google-button';
-      document.body.appendChild(button);
+      createGoogleButton();
 
       const service = createService();
 
@@ -195,18 +223,21 @@ describe('GoogleAuthService', () => {
     });
 
     it('should not prompt when Google Identity Services is unavailable', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
       const service = createService();
 
       await service.login();
 
       expect(googlePrompt).not.toHaveBeenCalled();
-      expect(consoleError).toHaveBeenCalledWith('Google Identity Services ist noch nicht geladen.');
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Google Identity Services ist noch nicht geladen.',
+      );
     });
 
     it('should login with Google on native platforms', async () => {
-      vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+      setNativeIosPlatform();
 
       const service = createService();
 
@@ -223,7 +254,9 @@ describe('GoogleAuthService', () => {
     });
 
     it('should show an error when native login returns no id token', async () => {
-      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      setNativeIosPlatform();
 
       vi.mocked(SocialLogin.login).mockResolvedValue({
         provider: 'google',
@@ -233,8 +266,6 @@ describe('GoogleAuthService', () => {
         },
       } as Awaited<ReturnType<typeof SocialLogin.login>>);
 
-      vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
-
       const service = createService();
 
       await service.login();
@@ -245,15 +276,17 @@ describe('GoogleAuthService', () => {
         'tabs.overview.actions.google-auth.error',
       );
 
-      expect(consoleError).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
 
     it('should show an error when native login fails', async () => {
-      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
-      vi.mocked(SocialLogin.login).mockRejectedValue(new Error('Google login failed'));
+      setNativeIosPlatform();
 
-      vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+      const error = new Error('Google login failed');
+
+      vi.mocked(SocialLogin.login).mockRejectedValue(error);
 
       const service = createService();
 
@@ -264,6 +297,33 @@ describe('GoogleAuthService', () => {
       expect(ionicUiServiceMock.showError).toHaveBeenCalledWith(
         'tabs.overview.actions.google-auth.error',
       );
+
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Google login failed', error);
+    });
+
+    it('should show an error when native login does not return an online response', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      setNativeIosPlatform();
+
+      vi.mocked(SocialLogin.login).mockResolvedValue({
+        provider: 'google',
+        result: {
+          responseType: 'offline',
+        },
+      } as Awaited<ReturnType<typeof SocialLogin.login>>);
+
+      const service = createService();
+
+      await service.login();
+
+      expect(authServiceMock.putAuthWithGoogle).not.toHaveBeenCalled();
+
+      expect(ionicUiServiceMock.showError).toHaveBeenCalledWith(
+        'tabs.overview.actions.google-auth.error',
+      );
+
+      expect(consoleErrorSpy).toHaveBeenCalled();
     });
   });
 
@@ -276,10 +336,7 @@ describe('GoogleAuthService', () => {
       );
 
       setGoogleIdentityService();
-
-      const button = document.createElement('div');
-      button.id = 'google-button';
-      document.body.appendChild(button);
+      createGoogleButton();
 
       const service = createService();
 
