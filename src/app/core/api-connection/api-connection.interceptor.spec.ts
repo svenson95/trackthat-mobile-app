@@ -5,28 +5,28 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { environment } from '../../../environments/environment';
 
-import { backendConnectionInterceptor } from './backend-connection.interceptor';
-import { BackendConnectionService } from './backend-connection.service';
+import { apiConnectionInterceptor } from './api-connection.interceptor';
+import { ApiConnectionService } from './api-connection.service';
 
-describe('backendConnectionInterceptor', () => {
+describe('apiConnectionInterceptor', () => {
   let httpClient: HttpClient;
   let httpTestingController: HttpTestingController;
-  let backendConnectionService: BackendConnectionService;
+  let apiConnectionService: ApiConnectionService;
 
   beforeEach(() => {
     vi.useFakeTimers();
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(withInterceptors([backendConnectionInterceptor])),
+        provideHttpClient(withInterceptors([apiConnectionInterceptor])),
         provideHttpClientTesting(),
-        BackendConnectionService,
+        ApiConnectionService,
       ],
     });
 
     httpClient = TestBed.inject(HttpClient);
     httpTestingController = TestBed.inject(HttpTestingController);
-    backendConnectionService = TestBed.inject(BackendConnectionService);
+    apiConnectionService = TestBed.inject(ApiConnectionService);
   });
 
   afterEach(() => {
@@ -42,7 +42,7 @@ describe('backendConnectionInterceptor', () => {
 
       request.flush({});
 
-      expect(backendConnectionService.status()).toBe('hidden');
+      expect(apiConnectionService.status()).toBe('hidden');
     });
 
     it('should mark a request as connecting after 5000 ms', () => {
@@ -52,7 +52,7 @@ describe('backendConnectionInterceptor', () => {
 
       vi.advanceTimersByTime(5_000);
 
-      expect(backendConnectionService.status()).toBe('connecting');
+      expect(apiConnectionService.status()).toBe('connecting');
 
       request.flush({});
     });
@@ -66,7 +66,7 @@ describe('backendConnectionInterceptor', () => {
 
       request.flush({});
 
-      expect(backendConnectionService.status()).toBe('connected');
+      expect(apiConnectionService.status()).toBe('connected');
     });
 
     it('should show failed for a network error', () => {
@@ -80,7 +80,7 @@ describe('backendConnectionInterceptor', () => {
 
       request.error(new ProgressEvent('error'));
 
-      expect(backendConnectionService.status()).toBe('failed');
+      expect(apiConnectionService.status()).toBe('failed');
     });
 
     it.each([502, 503, 504])('should show failed for unreachable backend status %s', (status) => {
@@ -100,7 +100,7 @@ describe('backendConnectionInterceptor', () => {
         },
       );
 
-      expect(backendConnectionService.status()).toBe('failed');
+      expect(apiConnectionService.status()).toBe('failed');
     });
 
     it('should show connected when the backend responds with a regular HTTP error', () => {
@@ -120,7 +120,7 @@ describe('backendConnectionInterceptor', () => {
         },
       );
 
-      expect(backendConnectionService.status()).toBe('connected');
+      expect(apiConnectionService.status()).toBe('connected');
     });
   });
 
@@ -132,7 +132,7 @@ describe('backendConnectionInterceptor', () => {
 
       vi.advanceTimersByTime(5_000);
 
-      expect(backendConnectionService.status()).toBe('hidden');
+      expect(apiConnectionService.status()).toBe('hidden');
 
       request.flush({});
     });

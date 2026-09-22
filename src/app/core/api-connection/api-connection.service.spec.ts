@@ -1,19 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { BackendConnectionService } from './backend-connection.service';
+import { ApiConnectionService } from './api-connection.service';
 
-describe('BackendConnectionService', () => {
-  let service: BackendConnectionService;
+describe('ApiConnectionService', () => {
+  let service: ApiConnectionService;
 
   beforeEach(() => {
     vi.useFakeTimers();
 
     TestBed.configureTestingModule({
-      providers: [BackendConnectionService],
+      providers: [ApiConnectionService],
     });
 
-    service = TestBed.inject(BackendConnectionService);
+    service = TestBed.inject(ApiConnectionService);
   });
 
   afterEach(() => {

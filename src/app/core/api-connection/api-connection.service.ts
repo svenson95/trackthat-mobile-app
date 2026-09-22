@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
-export type BackendConnectionStatus = 'hidden' | 'connecting' | 'connected' | 'failed';
+export type ApiConnectionStatus = 'hidden' | 'connecting' | 'connected' | 'failed';
 
 type TrackedRequest = {
   isSlow: boolean;
@@ -12,8 +12,8 @@ const FAILURE_DISPLAY_DURATION = 2_500;
 @Injectable({
   providedIn: 'root',
 })
-export class BackendConnectionService {
-  readonly status = signal<BackendConnectionStatus>('hidden');
+export class ApiConnectionService {
+  readonly status = signal<ApiConnectionStatus>('hidden');
 
   private readonly requests = new Map<string, TrackedRequest>();
 

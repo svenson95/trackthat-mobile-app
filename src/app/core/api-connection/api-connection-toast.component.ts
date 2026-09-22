@@ -9,30 +9,27 @@ import {
 } from '@angular/core';
 import { AnimationController, IonToast, type Animation } from '@ionic/angular';
 
-import {
-  BackendConnectionService,
-  type BackendConnectionStatus,
-} from './backend-connection.service';
+import { ApiConnectionService, type ApiConnectionStatus } from './api-connection.service';
 
 const SUCCESS_HOLD_DURATION = 1200;
 const LEAVE_ANIMATION_DURATION = 420;
 const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
 
 @Component({
-  selector: 'app-backend-connection-toast',
+  selector: 'app-api-connection-toast',
   standalone: true,
   imports: [IonToast],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    ion-toast.backend-connection-toast {
+    ion-toast.api-connection-toast {
       --background: var(--app-surface);
       --color: var(--ion-text-color);
       --border-radius: 0 0 var(--app-radius-1) var(--app-radius-1);
       --box-shadow: 0 6px 24px rgb(0 0 0 / 25%);
     }
 
-    ion-toast.backend-connection-toast::part(header),
-    ion-toast.backend-connection-toast::part(message) {
+    ion-toast.api-connection-toast::part(header),
+    ion-toast.api-connection-toast::part(message) {
       grid-column: 2;
 
       margin: 0;
@@ -44,14 +41,14 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
       text-align: left;
     }
 
-    ion-toast.backend-connection-toast::part(header) {
+    ion-toast.api-connection-toast::part(header) {
       font-size: 1rem;
       font-weight: 500;
       line-height: 1.35;
       color: var(--ion-text-color);
     }
 
-    ion-toast.backend-connection-toast::part(message) {
+    ion-toast.api-connection-toast::part(message) {
       overflow: hidden;
 
       max-height: 2rem;
@@ -71,13 +68,13 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
         opacity 180ms ease 120ms;
     }
 
-    ion-toast.backend-connection-toast--connected::part(message) {
+    ion-toast.api-connection-toast--connected::part(message) {
       max-height: 0;
       margin-top: 0;
       opacity: 0;
     }
 
-    ion-toast.backend-connection-toast::part(container) {
+    ion-toast.api-connection-toast::part(container) {
       display: grid;
       grid-template-columns: 12px 1fr;
       align-items: center;
@@ -85,7 +82,7 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
       border-top: 4px solid var(--ion-color-primary);
     }
 
-    ion-toast.backend-connection-toast::part(container)::after {
+    ion-toast.api-connection-toast::part(container)::after {
       grid-column: 1;
       grid-row: 1 / span 2;
       justify-self: center;
@@ -97,16 +94,16 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
       border-radius: 50%;
     }
 
-    ion-toast.backend-connection-toast--connecting::part(container)::after {
+    ion-toast.api-connection-toast--connecting::part(container)::after {
       background: #ccc;
       animation: status-pulse 1.5s ease-in-out infinite;
     }
 
-    ion-toast.backend-connection-toast--failed::part(container)::after {
+    ion-toast.api-connection-toast--failed::part(container)::after {
       background: var(--ion-color-danger);
     }
 
-    ion-toast.backend-connection-toast--connected::part(container)::after {
+    ion-toast.api-connection-toast--connected::part(container)::after {
       background: var(--ion-color-success);
     }
 
@@ -123,10 +120,10 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
   `,
   template: `
     <ion-toast
-      class="backend-connection-toast"
-      [class.backend-connection-toast--connecting]="displayStatus() === 'connecting'"
-      [class.backend-connection-toast--connected]="displayStatus() === 'connected'"
-      [class.backend-connection-toast--failed]="displayStatus() === 'failed'"
+      class="api-connection-toast"
+      [class.api-connection-toast--connecting]="displayStatus() === 'connecting'"
+      [class.api-connection-toast--connected]="displayStatus() === 'connected'"
+      [class.api-connection-toast--failed]="displayStatus() === 'failed'"
       position="top"
       [isOpen]="isVisible()"
       [leaveAnimation]="leaveAnimation"
@@ -135,12 +132,12 @@ const EXPECTED_CONNECTION_DURATION_SECONDS = 20;
     />
   `,
 })
-export class BackendConnectionToastComponent {
-  private readonly backendConnectionService = inject(BackendConnectionService);
+export class ApiConnectionToastComponent {
+  private readonly apiConnectionService = inject(ApiConnectionService);
   private readonly animationController = inject(AnimationController);
 
-  protected readonly displayStatus = signal<BackendConnectionStatus>(
-    this.backendConnectionService.status(),
+  protected readonly displayStatus = signal<ApiConnectionStatus>(
+    this.apiConnectionService.status(),
   );
 
   protected readonly remainingSeconds = signal(EXPECTED_CONNECTION_DURATION_SECONDS);
@@ -196,7 +193,7 @@ export class BackendConnectionToastComponent {
       .fromTo('transform', 'translateY(0)', 'translateY(-120px)');
 
   private readonly countdownEffect = effect((onCleanup) => {
-    const status = this.backendConnectionService.status();
+    const status = this.apiConnectionService.status();
 
     if (status !== 'connecting') {
       return;
@@ -212,7 +209,7 @@ export class BackendConnectionToastComponent {
   });
 
   private readonly displayStatusEffect = effect((onCleanup) => {
-    const status = this.backendConnectionService.status();
+    const status = this.apiConnectionService.status();
 
     if (status !== 'hidden') {
       this.displayStatus.set(status);

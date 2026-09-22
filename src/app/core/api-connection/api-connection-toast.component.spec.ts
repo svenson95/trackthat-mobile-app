@@ -2,12 +2,12 @@ import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { AnimationController } from '@ionic/angular';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { BackendConnectionToastComponent } from './backend-connection-toast.component';
-import { BackendConnectionService } from './backend-connection.service';
+import { ApiConnectionToastComponent } from './api-connection-toast.component';
+import { ApiConnectionService } from './api-connection.service';
 
-describe('BackendConnectionToastComponent', () => {
-  let fixture: ComponentFixture<BackendConnectionToastComponent>;
-  let backendConnectionService: BackendConnectionService;
+describe('ApiConnectionToastComponent', () => {
+  let fixture: ComponentFixture<ApiConnectionToastComponent>;
+  let apiConnectionService: ApiConnectionService;
 
   const animationMock = {
     addElement: vi.fn().mockReturnThis(),
@@ -45,9 +45,9 @@ describe('BackendConnectionToastComponent', () => {
     animationControllerMock.create.mockReturnValue(animationMock);
 
     await TestBed.configureTestingModule({
-      imports: [BackendConnectionToastComponent],
+      imports: [ApiConnectionToastComponent],
       providers: [
-        BackendConnectionService,
+        ApiConnectionService,
         {
           provide: AnimationController,
           useValue: animationControllerMock,
@@ -55,8 +55,8 @@ describe('BackendConnectionToastComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(BackendConnectionToastComponent);
-    backendConnectionService = TestBed.inject(BackendConnectionService);
+    fixture = TestBed.createComponent(ApiConnectionToastComponent);
+    apiConnectionService = TestBed.inject(ApiConnectionService);
 
     fixture.detectChanges();
   });
@@ -71,42 +71,42 @@ describe('BackendConnectionToastComponent', () => {
     });
 
     it('should show the connecting status', () => {
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
 
       fixture.detectChanges();
 
       const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.classList.contains('backend-connection-toast--connecting')).toBe(true);
+      expect(toast.classList.contains('api-connection-toast--connecting')).toBe(true);
     });
 
     it('should show the connected status', () => {
-      backendConnectionService.status.set('connected');
+      apiConnectionService.status.set('connected');
 
       fixture.detectChanges();
 
       const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.classList.contains('backend-connection-toast--connected')).toBe(true);
+      expect(toast.classList.contains('api-connection-toast--connected')).toBe(true);
     });
 
     it('should show the failed status', () => {
-      backendConnectionService.status.set('failed');
+      apiConnectionService.status.set('failed');
 
       fixture.detectChanges();
 
       const toast = getToast();
 
       expect(toast.isOpen).toBe(true);
-      expect(toast.classList.contains('backend-connection-toast--failed')).toBe(true);
+      expect(toast.classList.contains('api-connection-toast--failed')).toBe(true);
     });
   });
 
   describe('countdown', () => {
     it('should decrease the remaining connection time every second', () => {
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
       fixture.detectChanges();
 
       expect(getRemainingSeconds(getToast().message)).toBe(20);
@@ -123,7 +123,7 @@ describe('BackendConnectionToastComponent', () => {
     });
 
     it('should replace the countdown when the expected connection time is exceeded', () => {
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
       fixture.detectChanges();
 
       vi.advanceTimersByTime(20_000);
@@ -136,7 +136,7 @@ describe('BackendConnectionToastComponent', () => {
     });
 
     it('should reset the countdown when connecting starts again', () => {
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
       fixture.detectChanges();
 
       vi.advanceTimersByTime(5000);
@@ -144,10 +144,10 @@ describe('BackendConnectionToastComponent', () => {
 
       expect(getRemainingSeconds(getToast().message)).toBe(15);
 
-      backendConnectionService.status.set('failed');
+      apiConnectionService.status.set('failed');
       fixture.detectChanges();
 
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
       fixture.detectChanges();
 
       expect(getRemainingSeconds(getToast().message)).toBe(20);
@@ -156,25 +156,25 @@ describe('BackendConnectionToastComponent', () => {
 
   describe('success state', () => {
     it('should keep the subheader while transitioning to the connected state', () => {
-      backendConnectionService.status.set('connecting');
+      apiConnectionService.status.set('connecting');
       fixture.detectChanges();
 
       const message = getToast().message;
 
-      backendConnectionService.status.set('connected');
+      apiConnectionService.status.set('connected');
       fixture.detectChanges();
 
       const toast = getToast();
 
       expect(toast.message).toBe(message);
-      expect(toast.classList.contains('backend-connection-toast--connected')).toBe(true);
+      expect(toast.classList.contains('api-connection-toast--connected')).toBe(true);
     });
 
     it('should keep the connected status visible for 1200 ms after the service becomes hidden', () => {
-      backendConnectionService.status.set('connected');
+      apiConnectionService.status.set('connected');
       fixture.detectChanges();
 
-      backendConnectionService.status.set('hidden');
+      apiConnectionService.status.set('hidden');
       fixture.detectChanges();
 
       vi.advanceTimersByTime(1199);
@@ -189,10 +189,10 @@ describe('BackendConnectionToastComponent', () => {
     });
 
     it('should hide immediately after a failed status becomes hidden', () => {
-      backendConnectionService.status.set('failed');
+      apiConnectionService.status.set('failed');
       fixture.detectChanges();
 
-      backendConnectionService.status.set('hidden');
+      apiConnectionService.status.set('hidden');
       fixture.detectChanges();
 
       expect(getToast().isOpen).toBe(false);
