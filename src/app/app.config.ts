@@ -14,10 +14,10 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import {
+  apiConnectionInterceptor,
   AppInitializerService,
   AppUpdateService,
   AuthSessionService,
-  backendConnectionInterceptor,
   DEFAULT_LANGUAGE,
   LanguageService,
   NavigationFocusService,
@@ -39,10 +39,7 @@ const ROUTER_PROVIDER = provideRouter(
   withComponentInputBinding(),
 );
 
-const HTTP_PROVIDER = provideHttpClient(
-  withXhr(),
-  withInterceptors([backendConnectionInterceptor]),
-);
+const HTTP_PROVIDER = provideHttpClient(withXhr(), withInterceptors([apiConnectionInterceptor]));
 
 const IONIC_PROVIDERS = [
   provideIonicAngular({

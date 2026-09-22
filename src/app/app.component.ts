@@ -17,7 +17,7 @@ import {
   personOutline,
 } from 'ionicons/icons';
 
-import { AppInitializerService, BackendConnectionToastComponent } from './core';
+import { ApiConnectionToastComponent, AppInitializerService } from './core';
 
 const registerAppIcons = (): void => {
   addIcons({
@@ -40,12 +40,12 @@ const registerAppIcons = (): void => {
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IonApp, IonRouterOutlet, BackendConnectionToastComponent],
+  imports: [IonApp, IonRouterOutlet, ApiConnectionToastComponent],
   template: `
     <ion-app>
       <ion-router-outlet (activate)="onInitialRouteActivated()"></ion-router-outlet>
 
-      <app-backend-connection-toast />
+      <app-api-connection-toast />
     </ion-app>
   `,
 })

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  api: 'https://trackthat-backend.fly.dev/api/',
+  api: 'https://trackthat-api.fly.dev/api/',
 };
