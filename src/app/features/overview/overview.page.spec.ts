@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -14,9 +14,7 @@ import { OverviewPage } from './overview.page';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: '',
 })
-class HelloBoxStubComponent {
-  readonly user = input.required<UserDoc>();
-}
+class HelloBoxStubComponent {}
 
 @Component({
   selector: 'app-login-box',
@@ -106,24 +104,6 @@ describe('OverviewPage', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('app-hello-box')).toBeNull();
-
     expect(fixture.nativeElement.querySelector('app-login-box')).not.toBeNull();
-  });
-
-  it('should pass the current user to the dashboard', () => {
-    const user = {
-      name: 'Sven',
-    } as UserDoc;
-
-    userData.set(user);
-    isLoggedIn.set(true);
-
-    fixture.detectChanges();
-
-    const helloBox = fixture.debugElement.query(
-      (debugElement) => debugElement.componentInstance instanceof HelloBoxStubComponent,
-    );
-
-    expect(helloBox.componentInstance.user()).toBe(user);
   });
 });
