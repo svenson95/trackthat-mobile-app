@@ -105,7 +105,7 @@ const ION_COMPONENTS = [
       <ion-popover #moreMenu [isOpen]="isMoreMenuOpen()" (didDismiss)="isMoreMenuOpen.set(false)">
         <ng-template>
           <ion-list lines="none">
-            <ion-item button [detail]="false" (click)="startEditing()">
+            <ion-item button [detail]="false" [disabled]="!canEdit()" (click)="startEditing()">
               {{ 'general.edit' | translate }}
             </ion-item>
           </ion-list>
@@ -134,9 +134,9 @@ export class LogWorkoutPage {
   protected readonly isEditing = this.editorState.isEditing;
   protected readonly hasChanges = this.editorState.hasChanges;
 
-  protected readonly isMoreMenuOpen = signal(false);
+  protected readonly isMoreMenuOpen = signal<boolean>(false);
 
-  protected readonly backButtonText = computed(() => {
+  protected readonly backButtonText = computed<string>(() => {
     const workoutId = Number(this.workoutId());
 
     const name =
@@ -146,7 +146,11 @@ export class LogWorkoutPage {
     return name.length > 12 ? `${name.slice(0, 10)}...` : name;
   });
 
-  private readonly routeTarget = computed(() => {
+  protected readonly canEdit = computed<boolean>(
+    () => (this.logWorkoutService.logWorkoutResource.value()?.sets.length ?? 0) > 0,
+  );
+
+  private readonly routeTarget = computed<string | undefined>(() => {
     const workoutId = this.workoutId();
     const itemId = this.itemId();
     const exercise = this.exercise();
@@ -178,6 +182,10 @@ export class LogWorkoutPage {
   });
 
   protected async startEditing(): Promise<void> {
+    if (!this.canEdit()) {
+      return;
+    }
+
     const sets = this.logWorkoutService.logWorkoutResource.value()?.sets ?? [];
 
     this.editorState.start(sets);
