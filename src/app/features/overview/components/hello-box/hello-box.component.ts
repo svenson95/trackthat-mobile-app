@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
-
-import type { UserDoc } from '../../../../core';
 
 const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList];
 
@@ -109,6 +107,4 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     </ion-list>
   `,
 })
-export class HelloBoxComponent {
-  readonly user = input.required<UserDoc>();
-}
+export class HelloBoxComponent {}
