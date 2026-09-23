@@ -24,7 +24,7 @@ import { GoogleAuthService } from '../../data-access';
 
     #google-button,
     .ios-google-button {
-      margin: 1rem auto;
+      margin: 2rem auto;
     }
 
     .ios-google-button {
@@ -32,7 +32,7 @@ import { GoogleAuthService } from '../../data-access';
     }
 
     ion-spinner {
-      margin: 1rem auto;
+      margin: 2rem auto;
     }
   `,
   template: `

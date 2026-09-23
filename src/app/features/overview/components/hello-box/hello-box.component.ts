@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList } from '@ionic/angular';
 
 import { TranslateModule } from '@ngx-translate/core';
-
-import type { UserDoc } from '../../../../core';
 
 const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList];
 
@@ -16,11 +14,6 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     ion-list[inset] {
       border-radius: var(--app-border-radius, 12px);
       overflow: hidden;
-    }
-
-    .user-name {
-      font-size: 1.3rem;
-      font-weight: 600;
     }
 
     .workout-name {
@@ -55,20 +48,6 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     }
   `,
   template: `
-    <ion-list [inset]="true" lines="none">
-      <ion-item-group>
-        <ion-item-divider>
-          <ion-label>{{ 'tabs.overview.hello' | translate }}!</ion-label>
-        </ion-item-divider>
-
-        <ion-item>
-          <ion-label class="user-name">
-            {{ user().name }}
-          </ion-label>
-        </ion-item>
-      </ion-item-group>
-    </ion-list>
-
     <ion-list [inset]="true">
       <ion-item-group>
         <ion-item-divider>
@@ -128,6 +107,4 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     </ion-list>
   `,
 })
-export class HelloBoxComponent {
-  readonly user = input.required<UserDoc>();
-}
+export class HelloBoxComponent {}

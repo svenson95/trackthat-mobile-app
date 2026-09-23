@@ -131,7 +131,7 @@ const ION_COMPONENTS = [IonButton, IonIcon, IonInput, IonLabel];
 
       height: 18px;
       width: 18px;
-      font-size: 18px;
+      font-size: 16px;
 
       transition:
         transform 120ms ease,

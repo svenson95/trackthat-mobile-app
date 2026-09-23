@@ -18,6 +18,7 @@ import { LogWorkoutEditorState } from './state';
 
 type LogWorkoutPageTestApi = {
   readonly backButtonText: Signal<string>;
+  readonly canEdit: Signal<boolean>;
   readonly isMoreMenuOpen: WritableSignal<boolean>;
 
   startEditing(): Promise<void>;
@@ -283,6 +284,32 @@ describe('LogWorkoutPage', () => {
     });
   });
 
+  describe('canEdit', () => {
+    it('should return false when no log workout exists', () => {
+      expect(page.canEdit()).toBe(false);
+    });
+
+    it('should return false when log workout has no sets', () => {
+      logWorkout.set(
+        createLogWorkout({
+          sets: [],
+        }),
+      );
+
+      expect(page.canEdit()).toBe(false);
+    });
+
+    it('should return true when log workout has sets', () => {
+      logWorkout.set(
+        createLogWorkout({
+          sets: [createWorkoutSet()],
+        }),
+      );
+
+      expect(page.canEdit()).toBe(true);
+    });
+  });
+
   describe('editing', () => {
     it('should start editing with current sets and dismiss more menu', async () => {
       const sets = [
@@ -308,13 +335,13 @@ describe('LogWorkoutPage', () => {
       expect(dismissSpy).toHaveBeenCalledOnce();
     });
 
-    it('should start editing with empty sets when no log exists', async () => {
+    it('should not start editing when no sets exist', async () => {
       const dismissSpy = vi.spyOn(moreMenu, 'dismiss').mockResolvedValue(true);
 
       await page.startEditing();
 
-      expect(editorStateMock.start).toHaveBeenCalledWith([]);
-      expect(dismissSpy).toHaveBeenCalledOnce();
+      expect(editorStateMock.start).not.toHaveBeenCalled();
+      expect(dismissSpy).not.toHaveBeenCalled();
     });
 
     it('should abort editing after closing sliding items', async () => {
