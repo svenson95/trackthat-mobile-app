@@ -30,7 +30,7 @@ const IONIC_COMPONENTS = [IonContent, IonHeader, IonTitle, IonToolbar];
       <div class="page-content">
         @let user = userData();
         @if (isLoggedIn() && user) {
-          <app-hello-box [user]="user" />
+          <app-hello-box />
         } @else {
           <app-login-box />
         }
