@@ -9,6 +9,11 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
   selector: 'app-login-box',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [...IONIC_COMPONENTS, LoginFormComponent],
+  styles: `
+    .login-label {
+      margin-block: 0.75rem;
+    }
+  `,
   template: `
     <ion-list [inset]="true" lines="none">
       <ion-item-group>
@@ -17,9 +22,9 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
         </ion-item-divider>
 
         <ion-item>
-          <ion-label>
+          <ion-label class="login-label">
             <h2>Einloggen</h2>
-            <p>Melde dich an, um TrackThat zu verwenden.</p>
+            <p>Für die Anmeldung benötigst du ein Google-Konto.</p>
           </ion-label>
         </ion-item>
 

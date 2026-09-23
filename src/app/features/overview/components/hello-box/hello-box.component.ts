@@ -18,11 +18,6 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
       overflow: hidden;
     }
 
-    .user-name {
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
-
     .workout-name {
       font-weight: 600;
     }
@@ -55,20 +50,6 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
     }
   `,
   template: `
-    <ion-list [inset]="true" lines="none">
-      <ion-item-group>
-        <ion-item-divider>
-          <ion-label>{{ 'tabs.overview.hello' | translate }}!</ion-label>
-        </ion-item-divider>
-
-        <ion-item>
-          <ion-label class="user-name">
-            {{ user().name }}
-          </ion-label>
-        </ion-item>
-      </ion-item-group>
-    </ion-list>
-
     <ion-list [inset]="true">
       <ion-item-group>
         <ion-item-divider>
