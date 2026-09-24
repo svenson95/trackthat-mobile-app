@@ -11,7 +11,7 @@ const IONIC_COMPONENTS = [IonItem, IonItemDivider, IonItemGroup, IonLabel, IonLi
   imports: [...IONIC_COMPONENTS, LoginFormComponent],
   styles: `
     .login-label {
-      margin-block: 0.75rem;
+      margin-block: 1rem;
     }
   `,
   template: `
