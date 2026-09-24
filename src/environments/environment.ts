@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  api: 'https://trackthat-api.fly.dev/api/',
+  api: 'https://trackthat-api.fly.dev/',
 };
 
 /*
