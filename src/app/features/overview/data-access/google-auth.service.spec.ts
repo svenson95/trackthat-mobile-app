@@ -37,6 +37,12 @@ describe('GoogleAuthService', () => {
   const googlePrompt = vi.fn();
   const googleRenderButton = vi.fn();
 
+  const mediaQueryAddEventListener = vi.fn();
+  const mediaQueryRemoveEventListener = vi.fn();
+
+  let prefersDarkMode = false;
+  let themeChangeListener: ((event: MediaQueryListEvent) => void) | undefined;
+
   const setWebPlatform = (): void => {
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false);
     vi.mocked(Capacitor.getPlatform).mockReturnValue('web');
@@ -62,7 +68,13 @@ describe('GoogleAuthService', () => {
   const createGoogleButton = (): HTMLDivElement => {
     const button = document.createElement('div');
 
-    button.id = 'google-button';
+    button.id = 'web-google-button';
+
+    Object.defineProperty(button, 'clientWidth', {
+      configurable: true,
+      value: 300,
+    });
+
     document.body.appendChild(button);
 
     return button;
@@ -70,8 +82,17 @@ describe('GoogleAuthService', () => {
 
   const createService = (): GoogleAuthService => TestBed.inject(GoogleAuthService);
 
+  const emitThemeChange = (matches: boolean): void => {
+    themeChangeListener?.({
+      matches,
+    } as MediaQueryListEvent);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+
+    prefersDarkMode = false;
+    themeChangeListener = undefined;
 
     setWebPlatform();
 
@@ -87,6 +108,28 @@ describe('GoogleAuthService', () => {
 
     authServiceMock.putAuthWithGoogle.mockReturnValue(of(undefined));
     ionicUiServiceMock.showError.mockResolvedValue(undefined);
+
+    mediaQueryAddEventListener.mockImplementation(
+      (type: string, listener: EventListenerOrEventListenerObject) => {
+        if (type === 'change') {
+          themeChangeListener = listener as (event: MediaQueryListEvent) => void;
+        }
+      },
+    );
+
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query): MediaQueryList =>
+        ({
+          matches: prefersDarkMode,
+          media: query,
+          onchange: null,
+          addEventListener: mediaQueryAddEventListener,
+          removeEventListener: mediaQueryRemoveEventListener,
+          addListener: vi.fn(),
+          removeListener: vi.fn(),
+          dispatchEvent: vi.fn(),
+        }) as unknown as MediaQueryList,
+    );
 
     document.body.innerHTML = '';
     window.google = undefined;
@@ -107,6 +150,7 @@ describe('GoogleAuthService', () => {
   });
 
   afterEach(() => {
+    TestBed.resetTestingModule();
     vi.restoreAllMocks();
   });
 
@@ -154,13 +198,86 @@ describe('GoogleAuthService', () => {
       });
 
       expect(googleRenderButton).toHaveBeenCalledWith(button, {
-        theme: 'filled_blue',
-        size: 'large',
         type: 'standard',
-        text: 'signup_with',
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        shape: 'rectangular',
+        logo_alignment: 'left',
+        width: 300,
       });
 
+      expect(window.matchMedia).toHaveBeenCalledWith('(prefers-color-scheme: dark)');
+      expect(mediaQueryAddEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+
       expect(SocialLogin.initialize).not.toHaveBeenCalled();
+    });
+
+    it('should render the dark Google button when dark mode is preferred', async () => {
+      prefersDarkMode = true;
+
+      setGoogleIdentityService();
+
+      const button = createGoogleButton();
+      const service = createService();
+
+      await service.initialize();
+
+      expect(googleRenderButton).toHaveBeenCalledWith(
+        button,
+        expect.objectContaining({
+          theme: 'filled_black',
+        }),
+      );
+    });
+
+    it('should rerender the Google button when the preferred color scheme changes', async () => {
+      setGoogleIdentityService();
+
+      const button = createGoogleButton();
+      const service = createService();
+
+      await service.initialize();
+
+      googleRenderButton.mockClear();
+
+      emitThemeChange(true);
+
+      expect(googleRenderButton).toHaveBeenCalledOnce();
+
+      expect(googleRenderButton).toHaveBeenCalledWith(
+        button,
+        expect.objectContaining({
+          theme: 'filled_black',
+        }),
+      );
+
+      googleRenderButton.mockClear();
+
+      emitThemeChange(false);
+
+      expect(googleRenderButton).toHaveBeenCalledWith(
+        button,
+        expect.objectContaining({
+          theme: 'outline',
+        }),
+      );
+    });
+
+    it('should initialize Google Identity Services only once', async () => {
+      setGoogleIdentityService();
+
+      createGoogleButton();
+
+      const service = createService();
+
+      await service.initialize();
+      await service.initialize();
+
+      expect(googleInitialize).toHaveBeenCalledOnce();
+
+      expect(mediaQueryAddEventListener).toHaveBeenCalledOnce();
+      expect(googleRenderButton).toHaveBeenCalledTimes(2);
     });
 
     it('should initialize SocialLogin on native platforms', async () => {
@@ -179,14 +296,15 @@ describe('GoogleAuthService', () => {
       });
 
       expect(googleInitialize).not.toHaveBeenCalled();
+      expect(window.matchMedia).not.toHaveBeenCalled();
     });
 
-    it('should throw when the Google button container is missing', async () => {
+    it('should throw when the Google web button container is missing', async () => {
       setGoogleIdentityService();
 
       const service = createService();
 
-      await expect(service.initialize()).rejects.toThrow('Google button container not found');
+      await expect(service.initialize()).rejects.toThrow('Google web button container not found');
     });
 
     it('should authenticate with the credential returned by Google', async () => {

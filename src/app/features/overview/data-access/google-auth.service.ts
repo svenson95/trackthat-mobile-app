@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject } from '@angular/core';
 
 import { Capacitor } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
@@ -53,6 +53,10 @@ declare global {
 export class GoogleAuthService {
   private readonly authService = inject(AuthService);
   private readonly ionicUiService = inject(IonicUiService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private darkModeQuery?: MediaQueryList;
+  private isWebInitialized = false;
 
   private get isNativePlatform(): boolean {
     return Capacitor.isNativePlatform();
@@ -78,6 +82,55 @@ export class GoogleAuthService {
     }
 
     this.promptWeb();
+  }
+
+  private async initializeWeb(): Promise<void> {
+    await this.waitForGoogle();
+
+    if (!this.isWebInitialized) {
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID_WEB_APP,
+        callback: (response) => this.authenticate(response.credential),
+      });
+
+      this.darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+      const handleThemeChange = (event: MediaQueryListEvent): void => {
+        if (document.getElementById('web-google-button')) {
+          this.renderWebButton(event.matches);
+        }
+      };
+
+      this.darkModeQuery.addEventListener('change', handleThemeChange);
+
+      this.destroyRef.onDestroy(() => {
+        this.darkModeQuery?.removeEventListener('change', handleThemeChange);
+      });
+
+      this.isWebInitialized = true;
+    }
+
+    this.renderWebButton(this.darkModeQuery?.matches ?? false);
+  }
+
+  private renderWebButton(isDarkMode: boolean): void {
+    const button = document.getElementById('web-google-button');
+
+    if (!button) {
+      throw new Error('Google web button container not found');
+    }
+
+    button.replaceChildren();
+
+    google.accounts.id.renderButton(button, {
+      type: 'standard',
+      theme: isDarkMode ? 'filled_black' : 'outline',
+      size: 'large',
+      text: 'signin_with',
+      shape: 'rectangular',
+      logo_alignment: 'left',
+      width: Math.min(button.clientWidth, 300),
+    });
   }
 
   private async initializeNative(): Promise<void> {
@@ -114,28 +167,6 @@ export class GoogleAuthService {
       console.error('Google login failed', error);
       await this.ionicUiService.showError('tabs.overview.actions.google-auth.error');
     }
-  }
-
-  private async initializeWeb(): Promise<void> {
-    await this.waitForGoogle();
-
-    const button = document.getElementById('google-button');
-
-    if (!button) {
-      throw new Error('Google button container not found');
-    }
-
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID_WEB_APP,
-      callback: (response) => this.authenticate(response.credential),
-    });
-
-    google.accounts.id.renderButton(button, {
-      theme: 'filled_blue',
-      size: 'large',
-      type: 'standard',
-      text: 'signup_with',
-    });
   }
 
   private promptWeb(): void {

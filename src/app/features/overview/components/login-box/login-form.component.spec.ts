@@ -98,8 +98,8 @@ describe('LoginFormComponent', () => {
     it('should show the Google web button container outside native iOS', () => {
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('#google-button')).not.toBeNull();
-      expect(fixture.nativeElement.querySelector('.ios-google-button')).toBeNull();
+      expect(fixture.nativeElement.querySelector('#web-google-button')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.native-google-button')).toBeNull();
     });
 
     it('should show the native Google login button on iOS', async () => {
@@ -114,14 +114,34 @@ describe('LoginFormComponent', () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('.ios-google-button')).not.toBeNull();
-      expect(fixture.nativeElement.querySelector('#google-button')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.native-google-button')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#web-google-button')).toBeNull();
     });
 
     it('should show a spinner while Google auth is initializing', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('ion-spinner')).not.toBeNull();
+    });
+
+    it('should hide the web Google button while Google auth is initializing', () => {
+      fixture.detectChanges();
+
+      const googleLogin = fixture.nativeElement.querySelector('.google-login');
+
+      expect(googleLogin.classList.contains('google-login--initializing')).toBe(true);
+    });
+
+    it('should show the web Google button after initialization', async () => {
+      fixture.detectChanges();
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const googleLogin = fixture.nativeElement.querySelector('.google-login');
+
+      expect(googleLogin.classList.contains('google-login--initializing')).toBe(false);
+      expect(fixture.nativeElement.querySelector('#web-google-button')).not.toBeNull();
     });
 
     it('should show a spinner while authentication is loading', async () => {
